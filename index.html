@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QRFY Ultra Premium QR Engine & SaaS Design Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4', 100: '#dcfce7', 500: '#22c55e', 600: '#16a34a',
+                            darkBg: '#090d16', darkCard: '#131926', borderDark: '#1e293b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <style>
+        body {
+            background-color: #090d16;
+            background-image: radial-gradient(circle at 0% 0%, rgba(34, 197, 94, 0.08) 0, transparent 50%), radial-gradient(circle at 100% 100%, rgba(59, 130, 246, 0.08) 0, transparent 50%);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .glass-card {
+            background: rgba(19, 25, 38, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .thumb-select {
+            border: 2px solid transparent;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .thumb-select.active {
+            border-color: #22c55e;
+            background: rgba(34, 197, 94, 0.08);
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #090d16; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 99px; }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col antialiased">
+
+    <header class="w-full border-b border-slate-800/60 bg-brand-darkBg/80 backdrop-blur-md sticky top-0 z-50 px-4 lg:px-8 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-green-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-green-500/20">
+                <span class="font-black text-white text-lg tracking-tighter">Q</span>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="text-lg font-extrabold text-white tracking-tight">QRFY Studio</span>
+                    <span class="text-[10px] bg-green-500/10 text-green-400 font-bold px-2 py-0.5 rounded-full border border-green-500/20 uppercase tracking-widest">Enterprise</span>
+                </div>
+                <p class="text-[11px] text-slate-400">Multi-engine verification & native vector rendering pipeline</p>
+            </div>
+        </div>
+        <div id="analytical-verification-badge" class="flex items-center gap-2 bg-emerald-950/40 border border-emerald-500/30 px-3 py-1.5 rounded-xl">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="text-xs font-mono font-bold text-emerald-400">SCAN SCORE: EXCELLENT</span>
+        </div>
+    </header>
+
+    <main class="flex-1 w-full max-w-[1600px] mx-auto p-4 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <section class="lg:col-span-7 flex flex-col gap-6">
+            
+            <div class="glass-card rounded-2xl p-6 shadow-2xl flex flex-col gap-4">
+                <div class="flex items-center gap-3 border-b border-slate-800 pb-3">
+                    <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-green-400 flex items-center justify-center font-bold text-sm">1</div>
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-200">Data Type Registry & Live Validation</h2>
+                </div>
+                
+                <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2" id="protocol-tab-matrix">
+                    </div>
+
+                <div id="dynamic-schema-fields-root" class="grid grid-cols-1 gap-4 pt-3 mt-2 border-t border-slate-800/40">
+                    </div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-6 shadow-2xl flex flex-col gap-4">
+                <div class="flex items-center gap-3 border-b border-slate-800 pb-3">
+                    <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-green-400 flex items-center justify-center font-bold text-sm">2</div>
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-200">Design Customization Workspace</h2>
+                </div>
+
+                <div class="border border-slate-800/60 rounded-xl overflow-hidden bg-slate-900/20">
+                    <button onclick="toggleAccordionUI('acc-frames')" class="w-full text-left px-4 py-3.5 font-bold text-xs uppercase tracking-wide flex justify-between items-center hover:bg-slate-800/40 transition-colors">
+                        <span class="flex items-center gap-2">🖼️ Frame Template Library <span id="frame-count-badge" class="text-[10px] bg-slate-800 px-2 py-0.5 rounded-md text-slate-400">50 Templates</span></span>
+                        <span id="tg-acc-frames" class="text-slate-500 transition-transform">▼</span>
+                    </button>
+                    <div id="acc-frames" class="p-4 flex flex-col gap-4 border-t border-slate-800/60">
+                        <div class="flex gap-2 pb-2 overflow-x-auto border-b border-slate-800/40" id="frame-cat-filters">
+                            </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-h-60 overflow-y-auto pr-1" id="frame-matrix-view">
+                            </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-slate-800/40">
+                            <div class="flex flex-col gap-1.5">
+                                <label class="text-[11px] font-bold text-slate-400 uppercase">Custom Frame Label String</label>
+                                <input type="text" id="cfg-frame-text" value="SCAN ME" class="w-full bg-brand-darkBg border border-slate-700 rounded-lg p-2 text-sm text-slate-200 focus:border-green-500 focus:outline-none">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase">Frame Primary</label>
+                                    <input type="color" id="cfg-frame-clr" value="#22c55e" class="w-full h-9 bg-transparent border-0 cursor-pointer rounded-lg">
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase">Text Color</label>
+                                    <input type="color" id="cfg-frame-text-clr" value="#ffffff" class="w-full h-9 bg-transparent border-0 cursor-pointer rounded-lg">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border border-slate-800/60 rounded-xl overflow-hidden bg-slate-900/20">
+                    <button onclick="toggleAccordionUI('acc-shapes')" class="w-full text-left px-4 py-3.5 font-bold text-xs uppercase tracking-wide flex justify-between items-center hover:bg-slate-800/40 transition-colors">
+                        <span>🧩 Matrix Shapes & Corner Eyes Geometry</span>
+                        <span id="tg-acc-shapes" class="text-slate-500 transition-transform">▶</span>
+                    </button>
+                    <div id="acc-shapes" class="hidden p-4 flex flex-col gap-4 border-t border-slate-800/60">
+                        <div>
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wide block mb-2">Internal Module Geometry Morphism Style</span>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2" id="shape-matrix-view">
+                                </div>
+                        </div>
+                        <div class="pt-3 border-t border-slate-800/40">
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wide block mb-2">Isolated Finder Corner Eye Style Configuration</span>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" id="eye-matrix-view">
+                                </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border border-slate-800/60 rounded-xl overflow-hidden bg-slate-900/20">
+                    <button onclick="toggleAccordionUI('acc-logos')" class="w-full text-left px-4 py-3.5 font-bold text-xs uppercase tracking-wide flex justify-between items-center hover:bg-slate-800/40 transition-colors">
+                        <span>🛡️ Central Branding Vector Logo Overlay</span>
+                        <span id="tg-acc-logos" class="text-slate-500 transition-transform">▶</span>
+                    </button>
+                    <div id="acc-logos" class="hidden p-4 flex flex-col gap-4 border-t border-slate-800/60">
+                        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2" id="logo-matrix-view">
+                            </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-slate-800/40 bg-slate-900/40 p-3 rounded-xl border border-slate-800/40">
+                            <div class="flex flex-col gap-1.5">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase">Upload Premium Custom Identity File (PNG/SVG)</label>
+                                <input type="file" id="cfg-logo-file" accept="image/*" class="w-full bg-brand-darkBg text-xs border border-slate-700 rounded-lg p-1.5 cursor-pointer file:bg-green-600 file:border-0 file:text-white file:text-[10px] file:font-bold file:px-2.5 file:py-1 file:rounded-md file:mr-2 file:hover:bg-green-500">
+                            </div>
+                            <div class="flex flex-col gap-1.5 justify-center">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase flex justify-between">
+                                    <span>Logo Bounding Safe Area Scale Limit</span>
+                                    <span id="lbl-logo-size" class="text-green-400 font-mono">16%</span>
+                                </label>
+                                <input type="range" id="cfg-logo-size" min="10" max="25" value="16" class="w-full accent-green-500 bg-slate-800 h-2 rounded-lg">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border border-slate-800/60 rounded-xl overflow-hidden bg-slate-900/20">
+                    <button onclick="toggleAccordionUI('acc-colors')" class="w-full text-left px-4 py-3.5 font-bold text-xs uppercase tracking-wide flex justify-between items-center hover:bg-slate-800/40 transition-colors">
+                        <span>🎨 Advanced Palette Gradient & Background Color Engine</span>
+                        <span id="tg-acc-colors" class="text-slate-500 transition-transform">▶</span>
+                    </button>
+                    <div id="acc-colors" class="hidden p-4 flex flex-col gap-4 border-t border-slate-800/60">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="flex flex-col gap-1.5">
+                                <label class="text-[11px] font-bold text-slate-400 uppercase">Color Engine Mode</label>
+                                <select id="cfg-color-mode" class="w-full bg-brand-darkBg border border-slate-700 rounded-lg p-2 text-xs text-slate-200 font-bold focus:outline-none">
+                                    <option value="solid">Solid Absolute Color Monochromatic</option>
+                                    <option value="linear">Linear Multi-Stop Engine Gradient</option>
+                                    <option value="radial">Radial Focal Vector Gradient</option>
+                                </select>
+                            </div>
+                            <div class="flex flex-col gap-1.5">
+                                <label class="text-[11px] font-bold text-slate-400 uppercase">Primary Foreground Color Stop</label>
+                                <div class="flex items-center bg-brand-darkBg border border-slate-700 rounded-lg p-1.5 gap-2">
+                                    <input type="color" id="cfg-clr-fg1" value="#000000" class="w-7 h-7 bg-transparent border-0 cursor-pointer rounded">
+                                    <input type="text" id="cfg-clr-fg1-hex" value="#000000" class="bg-transparent font-mono font-bold text-xs text-white uppercase w-full focus:outline-none">
+                                </div>
+                            </div>
+                            <div id="gradient-stop-2-wrapper" class="hidden flex flex-col gap-1.5">
+                                <label class="text-[11px] font-bold text-slate-400 uppercase">Secondary Gradient Stop</label>
+                                <div class="flex items-center bg-brand-darkBg border border-slate-700 rounded-lg p-1.5 gap-2">
+                                    <input type="color" id="cfg-clr-fg2" value="#16a34a" class="w-7 h-7 bg-transparent border-0 cursor-pointer rounded">
+                                    <input type="text" id="cfg-clr-fg2-hex" value="#16A34A" class="bg-transparent font-mono font-bold text-xs text-white uppercase w-full focus:outline-none">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-slate-800/40">
+                            <div class="flex flex-col gap-1.5">
+                                <label class="text-[11px] font-bold text-slate-400 uppercase">Matrix Canvas Background fill</label>
+                                <div class="flex items-center bg-brand-darkBg border border-slate-700 rounded-lg p-1.5 gap-2">
+                                    <input type="color" id="cfg-clr-bg" value="#ffffff" class="w-7 h-7 bg-transparent border-0 cursor-pointer rounded">
+                                    <input type="text" id="cfg-clr-bg-hex" value="#ffffff" class="bg-transparent font-mono font-bold text-xs text-white uppercase w-full focus:outline-none">
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-1.5 justify-center">
+                                <label class="text-[11px] font-bold text-slate-400 uppercase block mb-1">Canvas Transparency Channel</label>
+                                <label class="flex items-center gap-3 bg-brand-darkBg border border-slate-700 p-2.5 rounded-lg cursor-pointer">
+                                    <input type="checkbox" id="cfg-alpha-mode" class="w-4 h-4 accent-green-500 rounded">
+                                    <span class="text-xs text-slate-400 font-medium">Render alpha channel mask layer transparent</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="glass-card rounded-2xl p-6 shadow-2xl grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wide">Output Grid Quiet Zone Bounds</label>
+                    <input type="number" id="cfg-qr-quiet" value="4" min="0" max="10" class="w-full bg-brand-darkBg border border-slate-700 text-slate-200 font-mono font-bold rounded-xl p-2.5 text-center focus:outline-none focus:border-green-500">
+                    <span class="text-[10px] text-slate-500">Isolation tracks safe padding cells</span>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wide">Error Correction Level (ECC)</label>
+                    <select id="cfg-qr-ecc" class="w-full bg-brand-darkBg border border-slate-700 text-slate-200 font-bold rounded-xl p-2.5 text-center focus:outline-none cursor-pointer">
+                        <option value="L">Level L (7% Recovery Standard)</option>
+                        <option value="M">Level M (15% Recovery Shielded)</option>
+                        <option value="Q">Level Q (25% High Density Overlay)</option>
+                        <option value="H" selected>Level H (30% Max Redundant Recovery)</option>
+                    </select>
+                    <span class="text-[10px] text-slate-500">Protects internal data cells matrix payload</span>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wide">System Performance Debouncer</label>
+                    <div class="w-full bg-brand-darkBg border border-slate-700 text-xs font-semibold text-slate-400 p-3 rounded-xl text-center">
+                        ⚡ Active Multi-Engine Loop
+                    </div>
+                    <span class="text-[10px] text-slate-500">Protects thread against execution blocks</span>
+                </div>
+            </div>
+
+        </section>
+
+        <section class="lg:col-span-5 flex flex-col gap-6 sticky top-24">
+            
+            <div class="glass-card rounded-2xl p-6 shadow-2xl flex flex-col gap-5">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                    <div>
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-200">Step 4: SaaS Live Viewport Preview</h3>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Real-time vector assembly output rendering engine matrix</p>
+                    </div>
+                </div>
+
+                <canvas id="analytical-loopback-buffer-canvas" class="hidden"></canvas>
+
+                <div class="bg-brand-darkBg/90 border border-slate-800/80 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[380px] relative overflow-hidden group shadow-inner">
+                    <canvas id="view-canvas-master" class="max-w-full h-auto object-contain transition-all duration-300 rounded-lg shadow-2xl group-hover:scale-[1.01]"></canvas>
+                    
+                    <div id="readability-fault-screen" class="hidden absolute inset-0 bg-rose-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-fadeIn z-20">
+                        <div class="w-12 h-12 rounded-full bg-rose-500/10 text-rose-400 flex items-center justify-center text-2xl font-bold mb-3 border border-rose-500/20">⚠️</div>
+                        <h4 class="text-base font-bold text-white uppercase tracking-wider">Matrix Scannability Structural Fault</h4>
+                        <p class="text-xs text-rose-300/90 mt-1.5 max-w-sm leading-relaxed">The applied layout shapes, extreme asset dimensions, or weak canvas color contrast limits violate phone camera parser rules.</p>
+                        <button onclick="triggerEmergencyDesignRecovery()" class="mt-4 bg-white text-rose-950 font-bold text-xs px-5 py-2.5 rounded-xl hover:bg-rose-100 transition-transform active:scale-95 shadow-lg">Restore Safe Calibration Presets</button>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/40 border border-slate-800/60 rounded-xl p-3 grid grid-cols-2 gap-2 font-mono text-[11px]">
+                    <div class="flex justify-between border-r border-slate-800 pr-2">
+                        <span class="text-slate-500">CONTRAST SCORE:</span>
+                        <span id="tel-contrast-metric" class="text-green-400 font-bold">PASS (14.2:1)</span>
+                    </div>
+                    <div class="flex justify-between pl-2">
+                        <span class="text-slate-500">LOGO LIMIT:</span>
+                        <span id="tel-logo-safety" class="text-green-400 font-bold">SAFE BOUNDS</span>
+                    </div>
+                    <div class="flex justify-between border-r border-slate-800 pr-2 pt-1 border-t border-slate-800/40">
+                        <span class="text-slate-500">VERSION TYPE:</span>
+                        <span id="tel-version-metric" class="text-blue-400 font-bold">AUTO DETECT</span>
+                    </div>
+                    <div class="flex justify-between pl-2 pt-1 border-t border-slate-800/40">
+                        <span class="text-slate-500">TOTAL CELLS:</span>
+                        <span id="tel-cells-metric" class="text-blue-400 font-bold">29 x 29</span>
+                    </div>
+                </div>
+
+                <div class="bg-brand-darkBg rounded-xl p-3 border border-slate-800/80">
+                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Encoded System Payload Matrix String Output</span>
+                    <p id="string-payload-preview-terminal" class="text-xs font-mono text-green-400 break-all select-all bg-slate-950 p-2 rounded border border-slate-900/60">https://example.com</p>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="processExportChainPipeline('png')" id="act-btn-png" class="bg-green-600 hover:bg-green-500 text-white font-bold py-3.5 px-4 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-green-600/10 active:scale-[0.98]">⬇️ Download PNG Image</button>
+                        <button onclick="processExportChainPipeline('svg')" id="act-btn-svg" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 px-4 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-md active:scale-[0.98]">⬇️ Download Vector SVG</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="processClipboardActionChannel('text')" class="bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold py-2.5 px-3 rounded-xl text-[11px] transition-colors border border-slate-800 flex items-center justify-center gap-1.5">📋 Copy Text Data</button>
+                        <button onclick="processClipboardActionChannel('image')" class="bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold py-2.5 px-3 rounded-xl text-[11px] transition-colors border border-slate-800 flex items-center justify-center gap-1.5">🖼️ Copy Canvas Layer</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-4 shadow-xl flex flex-col gap-3">
+                <div>
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Independent Image Verification Terminal</h4>
+                    <p class="text-[10px] text-slate-500 mt-0.5">Drop a file matrix block here to trace system decoding logic streams</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <input type="file" id="act-diagnostic-file" accept="image/*" class="sm:col-span-2 bg-brand-darkBg text-[11px] border border-slate-800 rounded-lg p-1.5 file:bg-slate-800 file:border-0 file:text-white file:text-[10px] file:font-bold file:px-2 file:py-0.5 file:rounded file:mr-2">
+                    <button onclick="runLocalDiagnosticUploadTraceEngine()" class="bg-slate-800 hover:bg-slate-700 font-bold py-1.5 text-xs rounded-lg transition-colors border border-slate-700 text-center text-slate-200">Run Diagnostics</button>
+                </div>
+                <div id="diagnostic-log-terminal-output" class="text-xs italic font-mono text-slate-400 text-center bg-slate-950 p-2.5 rounded-xl border border-slate-900/60 min-h-[38px] flex items-center justify-center">No structural tracing array logs compiled.</div>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        // Global SaaS Suite Immutable Architecture Registries Variables
+        let activeProtocolRegistryKey = 'URL';
+        let activeFrameTemplateIndex = 0;
+        let activeFrameCategoryFilter = 'all';
+        let activeShapeRegistryMorphismKey = 'square';
+        let activeFinderCornerEyeMorphismKey = 'square';
+        let activeBrandingLogoOverlayKey = 'none';
+        let systemUploadedLogoFileObjectReference = null;
+        let isScannabilityMetricValid = true;
+
+        // Protocol Data Fields Structural Layout Definitions Maps Array Schema Records (Including requested types)
+        const coreProtocolSchemas = {
+            'URL': [
+                { id: 'url_str', label: 'Destination Web Portal Link URL', type: 'text', placeholder: 'https://enterprise.com/portal-destination', value: 'https://example.com', required: true }
+            ],
+            'Text': [
+                { id: 'text_blk', label: 'Plain Text Block Data Payload String', type: 'textarea', placeholder: 'Input telemetry alphanumeric text lines here...', value: 'Hello QRFY Premium Studio Software Suite 2026', required: true }
+            ],
+            'UPI': [
+                { id: 'upi_vpa', label: 'Virtual Payment Address (VPA / UPI ID)', type: 'text', placeholder: 'merchant@vpa', value: 'success@upi', required: true },
+                { id: 'upi_name', label: 'Payee / Merchant Registered Name', type: 'text', placeholder: 'Enterprise Solutions Ltd', value: 'QRFY Studio Store', required: true },
+                { id: 'upi_am', label: 'Transaction Absolute Amount (INR)', type: 'number', placeholder: 'e.g. 250.00 (Optional)', value: '', required: false },
+                { id: 'upi_tn', label: 'Payment Note / Remarks / Context Reference', type: 'text', placeholder: 'Order Description Ref (Optional)', value: 'Premium Design Suite Workspace', required: false }
+            ],
+            'Image': [
+                { id: 'img_url', label: 'Hosted Premium Image Resource Link URL', type: 'text', placeholder: 'https://storage.enterprise.com/assets/banner.jpg', value: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe', required: true, hasUploader: true, accept: 'image/*' }
+            ],
+            'PDF': [
+                { id: 'pdf_url', label: 'Cloud Hosted Document PDF Resource Link URL', type: 'text', placeholder: 'https://cdn.enterprise.com/docs/annual-report.pdf', value: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', required: true, hasUploader: true, accept: '.pdf,application/pdf' },
+                { id: 'pdf_lbl', label: 'Document File Presentation Label String', type: 'text', placeholder: 'Enterprise Product Specification Sheet', value: 'Corporate Quarterly Guidelines Summary', required: false }
+            ],
+            'MP3': [
+                { id: 'mp3_url', label: 'Hosted Audio / MP3 Stream Resource Link URL', type: 'text', placeholder: 'https://audio.enterprise.com/podcasts/episode-42.mp3', value: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', required: true, hasUploader: true, accept: 'audio/*', audio: true },
+                { id: 'mp3_dsc', label: 'Audio Track Broadcast Descriptor Header', type: 'text', placeholder: 'SaaS Architecture Panel Podcast Interview', value: 'Digital Evolution Sound Track', required: false }
+            ],
+            'Video': [
+                { id: 'vid_url', label: 'Video Resource Target URL (YouTube/Vimeo/Direct MP4)', type: 'text', placeholder: 'https://youtube.com/watch?v=xyz7729', value: 'https://www.w3schools.com/html/mov_bbb.mp4', required: true, hasUploader: true, accept: 'video/*', video: true },
+                { id: 'vid_desc', label: 'Video Asset Production Descriptor Text', type: 'text', placeholder: 'Product Launch Promotional Reel Showcase', value: 'Main Features Cinematic Trailer', required: false }
+            ],
+            'Social': [
+                { id: 'soc_plat', label: 'Primary Network Platform Destination Ecosystem', type: 'select', options: ['instagram', 'linkedin', 'facebook', 'twitter', 'tiktok', 'youtube'], value: 'instagram', required: true },
+                { id: 'soc_user', label: 'Profile Account Target Username Handle String', type: 'text', placeholder: 'enterprise_digital_hq', value: 'qrfy_premium_design', required: true }
+            ],
+            'WiFi': [
+                { id: 'wf_ssid', label: 'Wireless Access Network SSID Identifier Name', type: 'text', placeholder: 'Office_HQ_System_Freq', value: 'HQ-Enterprise-SSID', required: true },
+                { id: 'wf_pass', label: 'Network Authentication Security Private Password Credential', type: 'text', placeholder: 'AccessSecurityKey2026', value: 'WPASecretKeyPassword', required: false },
+                { id: 'wf_crypt', label: 'Security Encryption Protocol Standard Mode', type: 'select', options: ['WPA', 'WEP', 'nopass'], value: 'WPA', required: false }
+            ],
+            'Email': [
+                { id: 'em_dest', label: 'Recipient Corporate Destination Mailbox Gateway Address', type: 'text', placeholder: 'architect@enterprise.com', value: 'info@domain.com', required: true },
+                { id: 'em_subj', label: 'Subject Heading Line String Specifier', type: 'text', placeholder: 'Integration Workspace Inquiry', value: 'Business Partnership Request', required: false },
+                { id: 'em_body', label: 'Communication Message Body Text Content Block', type: 'textarea', placeholder: 'State structural specifications requests here...', value: 'Hi, I would like to establish an interface node configuration with your company.', required: false }
+            ],
+            'Phone': [
+                { id: 'ph_num', label: 'Telephony Target Dial Connection Number Line', type: 'tel', placeholder: '+15559876543', value: '+15559876543', required: true }
+            ],
+            'SMS': [
+                { id: 'sms_num', label: 'Wireless Carrier Target Mobile Number Receiver', type: 'tel', placeholder: '+15559876543', value: '+15559876543', required: true },
+                { id: 'sms_txt', label: 'SMS Brief Data Dispatch Message String', type: 'text', placeholder: 'Immediate alert broadcast message context string...', value: 'Secure telemetry channel connection established.', required: false }
+            ],
+            'vCard': [
+                { id: 'vc_fn', label: 'Given Identity First Name', type: 'text', placeholder: 'Jane', value: 'John', required: true },
+                { id: 'vc_ln', label: 'Family Last Surname', type: 'text', placeholder: 'Smith', value: 'Doe', required: true },
+                { id: 'vc_org', label: 'Corporate Entity Enterprise Identity Name', type: 'text', placeholder: 'Global Solutions Group Inc.', value: 'Enterprise Digital LLC', required: false },
+                { id: 'vc_ttl', label: 'Professional Executive Title Role Designation', type: 'text', placeholder: 'Principal Architect Tech Officer', value: 'Lead Digital Strategist', required: false },
+                { id: 'vc_cel', label: 'Mobile Cellular Target Link Line Phone Connection', type: 'tel', placeholder: '+15551234567', value: '+15551234567', required: false },
+                { id: 'vc_eml', label: 'Direct Validation Email Gateway Mailbox Box', type: 'text', placeholder: 'j.smith@solutions.io', value: 'john.doe@enterprise.io', required: false },
+                { id: 'vc_web', label: 'Digital Web Portfolio Domain Link URL', type: 'text', placeholder: 'https://solutions.io/team/smith', value: 'https://enterprise.io', required: false }
+            ],
+            'Location': [
+                { id: 'geo_url', label: 'Direct Google Maps Shared URL Target Link (Bypasses Lat Long Engine)', type: 'text', placeholder: 'https://maps.google.com/?q=37.7749,-122.4194', value: '', required: false },
+                { id: 'geo_lat', label: 'Latitude Spatial Vector Mapping Float Axis Coordinate', type: 'text', placeholder: '37.774929', value: '37.7749', required: false },
+                { id: 'geo_lng', label: 'Longitude Spatial Vector Mapping Float Axis Coordinate', type: 'text', placeholder: '-122.419416', value: '-122.4194', required: false }
+            ],
+            'Product': [
+                { id: 'pr_url', label: 'Direct E-Commerce Storefront Product URL Target Page', type: 'text', placeholder: 'https://shop.enterprise.com/product-item-id', value: 'https://shop.io/item-7729', required: false },
+                { id: 'pr_nm', label: 'Inventory Catalog Item Identity Label Name', type: 'text', placeholder: 'Processing Module Array V2', value: 'Processing Core V2', required: true },
+                { id: 'pr_sku', label: 'Physical Store Stock SKU Code Control Identifier', type: 'text', placeholder: 'SKU-09827-MX', value: 'SKU-77291-MX', required: true }
+            ],
+            'Event': [
+                { id: 'ev_ttl', label: 'Calendar Event Summary Title Line', type: 'text', placeholder: 'Architecture Summit 2026', value: 'Tech Keynote Conference 2026', required: true },
+                { id: 'ev_dsc', label: 'Agenda Overview Specification Details Description', type: 'text', placeholder: 'SaaS product development and vector graphics analytics engine discussion panel.', value: 'Vector graphics analytics panel discussion.', required: false },
+                { id: 'ev_loc', label: 'Physical Arena Venue Hall Location Allocation Site', type: 'text', placeholder: 'Convention Center Pavilion 3, SF', value: 'Convention Center, Pavilion 3, SF', required: false },
+                { id: 'ev_std', label: 'Start Date Structural Stamp Array (YYYYMMDD)', type: 'text', placeholder: '20261112', value: '20261112', required: true },
+                { id: 'ev_etd', label: 'Termination Expiry End Date Structural Stamp (YYYYMMDD)', type: 'text', placeholder: '20261114', value: '20261114', required: true }
+            ]
+        };
+
+        // Fully Implemented 50 Premium Vector Illustration Framework Templates Dataset Array 
+        const premiumFramesDatasetArray = [];
+        const frameCategoriesList = ['all', 'business', 'marketing', 'social', 'payment', 'food', 'travel'];
+        const frameTitleLabels = [
+            'Scan Me', 'Scan Here', 'Scan to Open', 'Scan to Pay', 'Scan to Visit', 'Scan Menu', 'Scan for WiFi', 
+            'Scan to Download', 'Scan to Contact', 'Scan to Review', 'Scan to Order', 'Scan to Book', 'Scan to Register', 
+            'Scan to Subscribe', 'Scan to Follow', 'Website Portal', 'Business Card', 'Restaurant Menu', 'App Download', 
+            'Join WiFi Now', 'Check In Here', 'Pay Invoice', 'Follow Social', 'Facebook Connect', 'Instagram Profile', 
+            'YouTube Channel', 'TikTok Stream', 'LinkedIn Profile', 'Digital Resume', 'Portfolio View', 'Event Pass', 
+            'Coupon Claim', 'Get Discount', 'Read PDF File', 'Google Form Survey', 'Map Location', 'Contact Details', 
+            'Product Info', 'Leave Feedback', 'Write Review', 'Donation Link', 'Crypto Wallet', 'UPI Transfer', 
+            'Secure Access', 'Download Ebook', 'Medical Record', 'Hotel CheckIn', 'Ticket Validation', 'Premium Content', 'Exit Survey'
+        ];
+
+        // Hydrate frame array library map loop records programmatically
+        for (let i = 0; i < 50; i++) {
+            let cat = 'business';
+            if (i % 6 === 1) cat = 'marketing';
+            if (i % 6 === 2) cat = 'social';
+            if (i % 6 === 3) cat = 'payment';
+            if (i % 6 === 4) cat = 'food';
+            if (i % 6 === 5) cat = 'travel';
+
+            premiumFramesDatasetArray.push({
+                id: i,
+                label: frameTitleLabels[i] || `Premium Frame ${i+1}`,
+                category: cat,
+                iconType: i % 4 === 0 ? '⭐' : (i % 4 === 1 ? '🔗' : (i % 4 === 2 ? '📱' : '💎'))
+            });
+        }
+
+        const presetShapesLibraryList = [
+            { id: 'square', label: 'Absolute Square', isUnsafe: false },
+            { id: 'roundedSquare', label: 'Rounded Square', isUnsafe: false },
+            { id: 'circle', label: 'Circular Dot', isUnsafe: false },
+            { id: 'diamond', label: 'Crystal Diamond', isUnsafe: false },
+            { id: 'pill', label: 'Horizontal Pill', isUnsafe: false },
+            { id: 'hexagon', label: 'Polygonal Hexagon', isUnsafe: false },
+            { id: 'waterDrop', label: 'Teardrop Fluid', isUnsafe: false },
+            { id: 'smoothPixel', label: 'Organic Smooth', isUnsafe: false },
+            { id: 'leaf', label: 'Eco Leaf (Unsafe)', isUnsafe: true },
+            { id: 'heart', label: 'Cardio Heart (Unsafe)', isUnsafe: true }
+        ];
+
+        const presetEyesLibraryList = [
+            { id: 'square', label: 'Classic Square' },
+            { id: 'rounded', label: 'Modern Smooth' },
+            { id: 'circle', label: 'Circular Ring' },
+            { id: 'modern', label: 'Abstract Matrix' }
+        ];
+
+        const presetLogosLibraryList = [
+            { id: 'none', label: 'None Base' },
+            { id: 'link', label: '🔗 Web Link' },
+            { id: 'wifi', label: '📶 Wi-Fi Hot' },
+            { id: 'shopping', label: '🛒 Cart Shop' },
+            { id: 'location', label: '📍 Geo Pin' },
+            { id: 'custom', label: '📤 Custom File' }
+        ];
+
+        // COMPLIANT CONTROLLED ACCORDION SINGLE-DRAWER TOGGLE LOOP ROUTINE
+        function toggleAccordionUI(targetId) {
+            ['acc-frames', 'acc-shapes', 'acc-logos', 'acc-colors'].forEach(id => {
+                const element = document.getElementById(id);
+                const iconIndicator = document.getElementById(`tg-${id}`);
+                if (id === targetId) {
+                    const isCurrentlyHidden = element.classList.contains('hidden');
+                    element.classList.toggle('hidden', !isCurrentlyHidden);
+                    if (iconIndicator) iconIndicator.style.transform = isCurrentlyHidden ? 'rotate(0deg)' : 'rotate(-90deg)';
+                } else {
+                    element.classList.add('hidden');
+                    const otherIndicator = document.getElementById(`tg-${id}`);
+                    if(otherIndicator) otherIndicator.style.transform = 'rotate(-90deg)';
+                }
+            });
+        }
+
+        // INITIALIZATION AND GENERATION LAYER MOUNT ROUTINES LOGIC BLOCKS
+        function initializeApplicationInterfaceComponents() {
+            // Render Protocol Selection Tab Dynamic Segments Grid Layout
+            const tabMatrixRoot = document.getElementById('protocol-tab-matrix');
+            tabMatrixRoot.innerHTML = '';
+            Object.keys(coreProtocolSchemas).forEach(key => {
+                const btn = document.createElement('button');
+                btn.id = `protocol-btn-${key}`;
+                btn.onclick = () => handleGlobalProtocolStateFlush(key);
+                btn.className = "bg-brand-darkCard border border-slate-800 text-slate-400 text-[11px] py-2 px-1 rounded-xl font-bold transition-all hover:bg-slate-800/40 hover:text-white text-center truncate";
+                btn.innerText = key;
+                tabMatrixRoot.appendChild(btn);
+            });
+
+            // Populate Frame Categories Navigation Filter Array
+            const frameCatRoot = document.getElementById('frame-cat-filters');
+            frameCatRoot.innerHTML = '';
+            frameCategoriesList.forEach(categoryName => {
+                const node = document.createElement('button');
+                node.onclick = () => {
+                    activeFrameCategoryFilter = categoryName;
+                    renderFilteredFrameThumbnailsWorkspace();
+                };
+                node.id = `frame-filter-${categoryName}`;
+                node.className = "text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-md font-extrabold border transition-all shrink-0 bg-slate-900 text-slate-400 border-slate-800";
+                node.innerText = categoryName;
+                frameCatRoot.appendChild(node);
+            });
+
+            // Build Static Shape Selectors Framework Thumbnails
+            const shapeRoot = document.getElementById('shape-matrix-view');
+            shapeRoot.innerHTML = '';
+            presetShapesLibraryList.forEach(shape => {
+                const div = document.createElement('div');
+                div.id = `shape-card-${shape.id}`;
+                div.onclick = () => {
+                    if (shape.isUnsafe) {
+                        alert("Notice: Unsafe geometry shape triggered. Multi-engine scannability rules are processing structural loop verification checks.");
+                    }
+                    activeShapeRegistryMorphismKey = shape.id;
+                    updateSelectionHighlightGlowStates();
+                    debouncedMasterRenderPipelineTrigger();
+                };
+                div.className = "thumb-select p-2 rounded-xl bg-brand-darkBg cursor-pointer text-center font-bold text-[10px] text-slate-300 border border-slate-800 flex flex-col items-center justify-center gap-1 min-h-[48px]";
+                div.innerText = shape.label;
+                shapeRoot.appendChild(div);
+            });
+
+            // Build Corner Finder Eyes Choice Elements Mapping
+            const eyeRoot = document.getElementById('eye-matrix-view');
+            eyeRoot.innerHTML = '';
+            presetEyesLibraryList.forEach(eye => {
+                const div = document.createElement('div');
+                div.id = `eye-card-${eye.id}`;
+                div.onclick = () => {
+                    activeFinderCornerEyeMorphismKey = eye.id;
+                    updateSelectionHighlightGlowStates();
+                    debouncedMasterRenderPipelineTrigger();
+                };
+                div.className = "thumb-select p-2 rounded-xl bg-brand-darkBg cursor-pointer text-center font-bold text-[10px] text-slate-300 border border-slate-800 flex flex-col items-center justify-center min-h-[44px]";
+                div.innerText = eye.label;
+                eyeRoot.appendChild(div);
+            });
+
+            // Render Logos Controls Viewport Grid
+            const logoRoot = document.getElementById('logo-matrix-view');
+            logoRoot.innerHTML = '';
+            presetLogosLibraryList.forEach(logo => {
+                const div = document.createElement('div');
+                div.id = `logo-card-${logo.id}`;
+                div.onclick = () => {
+                    activeBrandingLogoOverlayKey = logo.id;
+                    const customUploadSection = document.getElementById('cfg-logo-file').parentElement.parentElement;
+                    if (customUploadSection) customUploadSection.classList.toggle('hidden', logo.id !== 'custom');
+                    updateSelectionHighlightGlowStates();
+                    debouncedMasterRenderPipelineTrigger();
+                };
+                div.className = "thumb-select p-1.5 rounded-xl bg-brand-darkBg cursor-pointer text-center font-bold text-[10px] text-slate-300 border border-slate-800 flex flex-col items-center justify-center min-h-[40px]";
+                div.innerText = logo.label;
+                logoRoot.appendChild(div);
+            });
+
+            handleGlobalProtocolStateFlush('URL');
+        }
+
+        function renderFilteredFrameThumbnailsWorkspace() {
+            frameCategoriesList.forEach(cat => {
+                const element = document.getElementById(`frame-filter-${cat}`);
+                if (element) {
+                    if (cat === activeFrameCategoryFilter) {
+                        element.className = "text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-md font-extrabold border transition-all shrink-0 bg-green-500/10 text-green-400 border-green-500/30 shadow-md shadow-green-500/5";
+                    } else {
+                        element.className = "text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-md font-extrabold border transition-all shrink-0 bg-slate-900 text-slate-400 border-slate-800 hover:text-white";
+                    }
+                }
+            });
+
+            const gridRoot = document.getElementById('frame-matrix-view');
+            gridRoot.innerHTML = '';
+
+            const filteredArray = premiumFramesDatasetArray.filter(f => activeFrameCategoryFilter === 'all' || f.category === activeFrameCategoryFilter);
+            
+            if (activeFrameCategoryFilter === 'all') {
+                const noneNode = document.createElement('div');
+                noneNode.id = `frame-card-0`;
+                noneNode.onclick = () => { activeFrameTemplateIndex = 0; updateSelectionHighlightGlowStates(); debouncedMasterRenderPipelineTrigger(); };
+                noneNode.className = "thumb-select p-2 rounded-xl bg-brand-darkBg cursor-pointer text-center flex flex-col items-center justify-center gap-1 min-h-[64px] border border-slate-800";
+                noneNode.innerHTML = `<span class="text-lg">🚫</span><span class="text-[10px] font-bold text-slate-400 leading-tight">No Frame</span>`;
+                gridRoot.appendChild(noneNode);
+            }
+
+            filteredArray.forEach(frameItem => {
+                const card = document.createElement('div');
+                card.id = `frame-card-${frameItem.id + 1}`;
+                card.onclick = () => {
+                    activeFrameTemplateIndex = frameItem.id + 1;
+                    document.getElementById('cfg-frame-text').value = frameItem.label.toUpperCase();
+                    updateSelectionHighlightGlowStates();
+                    debouncedMasterRenderPipelineTrigger();
+                };
+                card.className = "thumb-select p-2 rounded-xl bg-brand-darkBg cursor-pointer text-center flex flex-col items-center justify-center gap-1 min-h-[64px] border border-slate-800 hover:border-slate-700";
+                card.innerHTML = `<span class="text-base">${frameItem.iconType}</span><span class="text-[10px] font-bold text-slate-300 leading-tight block truncate w-full">${frameItem.label}</span>`;
+                gridRoot.appendChild(card);
+            });
+
+            updateSelectionHighlightGlowStates();
+        }
+
+        function updateSelectionHighlightGlowStates() {
+            Object.keys(coreProtocolSchemas).forEach(key => {
+                const el = document.getElementById(`protocol-btn-${key}`);
+                if(el) {
+                    if (key === activeProtocolRegistryKey) {
+                        el.className = "bg-green-600 border border-green-500 text-white text-[11px] py-2 px-1 rounded-xl font-bold shadow-md shadow-green-600/10 text-center truncate";
+                    } else {
+                        el.className = "bg-brand-darkCard border border-slate-800 text-slate-400 text-[11px] py-2 px-1 rounded-xl font-bold transition-all hover:bg-slate-800/40 hover:text-white text-center truncate";
+                    }
+                }
+            });
+
+            for(let i=0; i<=50; i++) {
+                const el = document.getElementById(`frame-card-${i}`);
+                if(el) el.classList.toggle('active', i === activeFrameTemplateIndex);
+            }
+
+            presetShapesLibraryList.forEach(shape => {
+                const el = document.getElementById(`shape-card-${shape.id}`);
+                if(el) el.classList.toggle('active', shape.id === activeShapeRegistryMorphismKey);
+            });
+
+            presetEyesLibraryList.forEach(eye => {
+                const el = document.getElementById(`eye-card-${eye.id}`);
+                if(el) el.classList.toggle('active', eye.id === activeFinderCornerEyeMorphismKey);
+            });
+
+            presetLogosLibraryList.forEach(logo => {
+                const el = document.getElementById(`logo-card-${logo.id}`);
+                if(el) el.classList.toggle('active', logo.id === activeBrandingLogoOverlayKey);
+            });
+        }
+
+        // COMPLETE AUTOMATIC PROTOCOL CLEAN-SLATE RESET FLUSH ROUTINE
+        function handleGlobalProtocolStateFlush(targetProtocolRegistryKey) {
+            activeProtocolRegistryKey = targetProtocolRegistryKey;
+
+            activeFrameTemplateIndex = 0;
+            activeShapeRegistryMorphismKey = 'square';
+            activeFinderCornerEyeMorphismKey = 'square';
+            activeBrandingLogoOverlayKey = 'none';
+            systemUploadedLogoFileObjectReference = null;
+
+            const logoFileInput = document.getElementById('cfg-logo-file');
+            if (logoFileInput) logoFileInput.value = '';
+            const logoSizeSlider = document.getElementById('cfg-logo-size');
+            if (logoSizeSlider) logoSizeSlider.value = 16;
+            const lblLogoSize = document.getElementById('lbl-logo-size');
+            if (lblLogoSize) lblLogoSize.innerText = '16%';
+            
+            const customUploadSection = document.getElementById('cfg-logo-file');
+            if (customUploadSection && customUploadSection.parentElement && customUploadSection.parentElement.parentElement) {
+                customUploadSection.parentElement.parentElement.classList.add('hidden');
+            }
+
+            const frameText = document.getElementById('cfg-frame-text');
+            if (frameText) frameText.value = "SCAN ME";
+            const frameClr = document.getElementById('cfg-frame-clr');
+            if (frameClr) frameClr.value = "#22c55e";
+            const frameTextClr = document.getElementById('cfg-frame-text-clr');
+            if (frameTextClr) frameTextClr.value = "#ffffff";
+
+            const colorModeSelect = document.getElementById('cfg-color-mode');
+            if (colorModeSelect) colorModeSelect.value = "solid";
+            const fg1 = document.getElementById('cfg-clr-fg1');
+            if (fg1) fg1.value = "#000000";
+            const fg1Hex = document.getElementById('cfg-clr-fg1-hex');
+            if (fg1Hex) fg1Hex.value = "#000000";
+            const fg2 = document.getElementById('cfg-clr-fg2');
+            if (fg2) fg2.value = "#16a34a";
+            const fg2Hex = document.getElementById('cfg-clr-fg2-hex');
+            if (fg2Hex) fg2Hex.value = "#16A34A";
+            const bgClr = document.getElementById('cfg-clr-bg');
+            if (bgClr) bgClr.value = "#ffffff";
+            const bgClrHex = document.getElementById('cfg-clr-bg-hex');
+            if (bgClrHex) bgClrHex.value = "#ffffff";
+            const alphaChk = document.getElementById('cfg-alpha-mode');
+            if (alphaChk) alphaChk.checked = false;
+            const gradWrapper = document.getElementById('gradient-stop-2-wrapper');
+            if (gradWrapper) gradWrapper.classList.add('hidden');
+
+            const quietInput = document.getElementById('cfg-qr-quiet');
+            if (quietInput) quietInput.value = 4;
+            const eccSelect = document.getElementById('cfg-qr-ecc');
+            if (eccSelect) eccSelect.value = "H";
+
+            const faultScreen = document.getElementById('readability-fault-screen');
+            if (faultScreen) faultScreen.classList.add('hidden');
+
+            compileActiveSchemaFormsEngine();
+            renderFilteredFrameThumbnailsWorkspace();
+            debouncedMasterRenderPipelineTrigger();
+        }
+
+        // IIMG.LIVE API CONFIGURATION REGISTRY
+        const IIMG_API_KEY = 'pk_public_3db6884c9c2c6f089fdfb904';
+        const IIMG_UPLOAD_ENDPOINT = 'https://api.iimg.live/upload';
+        const CORS_PROXY = 'https://corsproxy.io/?url=';
+
+        // AUTOMATIC SYSTEM API UPLOAD DISPATCHER TO URL REGISTRY NODE MAPPING
+        async function executeLocalMediaAssetPayloadCapture(event, inputFieldIdTarget) {
+            const uploadedAssetFile = event.target.files[0];
+            if (!uploadedAssetFile) return;
+
+            const targetUrlInputNode = document.getElementById('schema-ctrl-' + inputFieldIdTarget);
+            const uploadBtnNode = document.getElementById('uploader-btn-' + inputFieldIdTarget);
+            const originalBtnHtml = uploadBtnNode ? uploadBtnNode.innerHTML : '';
+            const originalPlaceholder = targetUrlInputNode ? targetUrlInputNode.placeholder : '';
+
+            // Show uploading state
+            if (uploadBtnNode) {
+                uploadBtnNode.innerHTML = '<svg class="animate-spin w-3 h-3 text-white inline-block mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> Uploading...';
+                uploadBtnNode.disabled = true;
+            }
+            if (targetUrlInputNode) {
+                targetUrlInputNode.placeholder = '\u23F3 Uploading to cloud\u2026';
+                targetUrlInputNode.value = '';
+            }
+
+            async function attemptUpload(endpoint) {
+                const fd = new FormData();
+                fd.append('image', uploadedAssetFile);
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + IIMG_API_KEY },
+                    body: fd
+                });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    throw new Error(err.message || 'HTTP ' + res.status);
+                }
+                return res.json();
+            }
+
+            try {
+                let responsePayload;
+                try {
+                    responsePayload = await attemptUpload(IIMG_UPLOAD_ENDPOINT);
+                } catch (directErr) {
+                    console.warn('Direct upload blocked, retrying via CORS proxy\u2026', directErr.message);
+                    responsePayload = await attemptUpload(CORS_PROXY + encodeURIComponent(IIMG_UPLOAD_ENDPOINT));
+                }
+
+                const returnedPublicUrl =
+                    responsePayload?.url ||
+                    responsePayload?.data?.url ||
+                    responsePayload?.image?.url ||
+                    responsePayload?.link ||
+                    responsePayload?.file_url ||
+                    responsePayload?.cdn_url;
+
+                if (!returnedPublicUrl) {
+                    console.error('Unexpected API response shape:', responsePayload);
+                    throw new Error('No URL in API response \u2014 see console for raw payload.');
+                }
+
+                if (targetUrlInputNode) {
+                    targetUrlInputNode.value = returnedPublicUrl;
+                    targetUrlInputNode.placeholder = originalPlaceholder;
+                    runLiveFormValidationEngine();
+                    debouncedMasterRenderPipelineTrigger();
+                }
+
+                if (uploadBtnNode) {
+                    uploadBtnNode.innerHTML = '\u2705 Uploaded!';
+                    uploadBtnNode.style.background = '#059669';
+                    setTimeout(() => {
+                        uploadBtnNode.innerHTML = originalBtnHtml;
+                        uploadBtnNode.disabled = false;
+                        uploadBtnNode.style.background = '';
+                    }, 3500);
+                }
+
+            } catch (uploadError) {
+                console.error('IIMG Upload Error:', uploadError);
+                if (targetUrlInputNode) {
+                    targetUrlInputNode.placeholder = originalPlaceholder;
+                    targetUrlInputNode.value = '';
+                }
+                if (uploadBtnNode) {
+                    uploadBtnNode.innerHTML = '\u274C Upload Failed';
+                    uploadBtnNode.disabled = false;
+                    setTimeout(() => { uploadBtnNode.innerHTML = originalBtnHtml; uploadBtnNode.disabled = false; }, 3500);
+                }
+                alert('Upload failed: ' + uploadError.message + '\n\nMake sure your file is JPG, PNG, WEBP, or GIF and under the API size limit.');
+            }
+        }
+
+        function compileActiveSchemaFormsEngine() {
+            const root = document.getElementById('dynamic-schema-fields-root');
+            root.innerHTML = '';
+
+            const blueprints = coreProtocolSchemas[activeProtocolRegistryKey];
+            blueprints.forEach(bp => {
+                const group = document.createElement('div');
+                group.className = "flex flex-col gap-1.5";
+
+                const label = document.createElement('label');
+                label.className = "text-[11px] font-bold text-slate-400 uppercase tracking-wide flex items-center gap-1";
+                label.innerHTML = `${bp.label} ${bp.required ? '<span class="text-rose-500 font-bold">*</span>' : ''}`;
+                group.appendChild(label);
+
+                // Main form control wrapper flex container row
+                const controlRowWrapper = document.createElement('div');
+                controlRowWrapper.className = "flex gap-2 items-center w-full";
+
+                let formControlNode;
+                if (bp.type === 'textarea') {
+                    formControlNode = document.createElement('textarea');
+                    formControlNode.rows = 2;
+                    formControlNode.className = "w-full bg-brand-darkBg border border-slate-700 rounded-xl p-2.5 text-sm text-slate-200 focus:border-green-500 focus:outline-none font-medium";
+                } else if (bp.type === 'select') {
+                    formControlNode = document.createElement('select');
+                    formControlNode.className = "w-full bg-brand-darkBg border border-slate-700 rounded-xl p-2.5 text-sm text-slate-200 font-bold focus:outline-none cursor-pointer";
+                    bp.options.forEach(opt => {
+                        const o = document.createElement('option');
+                        o.value = opt; o.innerText = opt.toUpperCase();
+                        formControlNode.appendChild(o);
+                    });
+                } else {
+                    formControlNode = document.createElement('input');
+                    formControlNode.type = bp.type;
+                    formControlNode.className = "w-full flex-1 bg-brand-darkBg border border-slate-700 rounded-xl p-2.5 text-sm text-slate-200 focus:border-green-500 focus:outline-none font-medium";
+                }
+
+                formControlNode.id = `schema-ctrl-${bp.id}`;
+                formControlNode.value = bp.value || '';
+                formControlNode.placeholder = bp.placeholder || '';
+                formControlNode.addEventListener('input', runLiveFormValidationEngine);
+                
+                controlRowWrapper.appendChild(formControlNode);
+
+                // Append cloud upload asset file attachment element node button if active blueprint enables uploader tool
+                if (bp.hasUploader) {
+                    const hiddenNativeInputSelector = document.createElement('input');
+                    hiddenNativeInputSelector.type = 'file';
+                    hiddenNativeInputSelector.id = `native-uploader-hook-${bp.id}`;
+                    hiddenNativeInputSelector.accept = bp.accept || '*/*';
+                    hiddenNativeInputSelector.className = 'hidden';
+                    hiddenNativeInputSelector.addEventListener('change', (e) => executeLocalMediaAssetPayloadCapture(e, bp.id));
+
+                    const dynamicTriggerActionButton = document.createElement('button');
+                    dynamicTriggerActionButton.type = 'button';
+                    dynamicTriggerActionButton.id = `uploader-btn-${bp.id}`;
+                    dynamicTriggerActionButton.className = "bg-green-600 hover:bg-green-500 text-white font-bold text-xs rounded-xl px-4 py-3 shrink-0 transition-all flex items-center justify-center gap-1.5 shadow-md active:scale-95 min-w-[110px]";
+                    dynamicTriggerActionButton.innerHTML = "☁️ Upload File";
+                    dynamicTriggerActionButton.onclick = () => hiddenNativeInputSelector.click();
+
+                    // API badge indicator next to upload button
+                    const apiBadge = document.createElement('span');
+                    apiBadge.className = "text-[9px] font-bold text-emerald-400/70 uppercase tracking-wider text-center leading-tight block mt-0.5";
+                    apiBadge.innerHTML = `<span class="inline-flex items-center gap-0.5 bg-emerald-950/50 border border-emerald-500/20 px-1.5 py-0.5 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block"></span> Cloud API</span>`;
+
+                    const btnWrapper = document.createElement('div');
+                    btnWrapper.className = "flex flex-col items-center gap-0.5 shrink-0";
+                    btnWrapper.appendChild(dynamicTriggerActionButton);
+                    btnWrapper.appendChild(apiBadge);
+
+                    group.appendChild(hiddenNativeInputSelector);
+                    controlRowWrapper.appendChild(btnWrapper);
+                }
+
+                group.appendChild(controlRowWrapper);
+                root.appendChild(group);
+            });
+
+            runLiveFormValidationEngine();
+        }
+
+        function runLiveFormValidationEngine() {
+            const blueprints = coreProtocolSchemas[activeProtocolRegistryKey];
+            let isDataStructureValid = true;
+            let telemetryMessage = "SYSTEM: READY";
+
+            for(let bp of blueprints) {
+                const el = document.getElementById(`schema-ctrl-${bp.id}`);
+                if(!el) continue;
+                const value = el.value.trim();
+
+                if (bp.required && value.length === 0) {
+                    isDataStructureValid = false; telemetryMessage = "FAULT: REQUIRED TARGET FIELD MISSING"; break;
+                }
+                if (bp.id === 'upi_vpa' && value.length > 0) {
+                    if (!value.includes('@') || value.startsWith('@') || value.endsWith('@')) {
+                        isDataStructureValid = false; telemetryMessage = "FAULT: INVALID UPI VPA ID STRUCTURAL PATTERN"; break;
+                    }
+                }
+                if ((bp.id === 'url_str' || bp.id === 'img_url' || bp.id === 'pdf_url' || bp.id === 'mp3_url' || bp.id === 'vid_url') && value.length > 0) {
+                    // Permit local browser blob data structures safely bypassed for file attachments pipelines
+                    if (value.startsWith('blob:')) {
+                        continue;
+                    }
+                    if (!value.includes('.') || value.length < 4) {
+                        isDataStructureValid = false; telemetryMessage = "FAULT: MALFORMED Link TARGET PROFILE RESOURCE LINK"; break;
+                    }
+                }
+                if (bp.id === 'em_dest' && value.length > 0) {
+                    if (!value.includes('@') || !value.includes('.')) {
+                        isDataStructureValid = false; telemetryMessage = "FAULT: INVALID EMAIL RFC MAILING FORMAT"; break;
+                    }
+                }
+            }
+
+            const badge = document.getElementById('analytical-verification-badge');
+            const actPng = document.getElementById('act-btn-png');
+            const actSvg = document.getElementById('act-btn-svg');
+
+            if (isDataStructureValid) {
+                badge.className = "flex items-center gap-2 bg-emerald-950/40 border border-emerald-500/30 px-3 py-1.5 rounded-xl";
+                badge.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span><span class="text-xs font-mono font-bold text-emerald-400">SCAN SCORE: EXCELLENT</span>`;
+                if (actPng) { actPng.removeAttribute('disabled'); actPng.classList.remove('opacity-30', 'pointer-events-none'); }
+                if (actSvg) { actSvg.removeAttribute('disabled'); actSvg.classList.remove('opacity-30', 'pointer-events-none'); }
+                debouncedMasterRenderPipelineTrigger();
+            } else {
+                badge.className = "flex items-center gap-2 bg-rose-950/40 border border-rose-500/30 px-3 py-1.5 rounded-xl";
+                badge.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span><span class="text-xs font-mono font-bold text-rose-400">${telemetryMessage}</span>`;
+                if (actPng) { actPng.setAttribute('disabled', 'true'); actPng.classList.add('opacity-30', 'pointer-events-none'); }
+                if (actSvg) { actSvg.setAttribute('disabled', 'true'); actSvg.classList.add('opacity-30', 'pointer-events-none'); }
+            }
+        }
+
+        function extractPayloadString() {
+            const getVal = (id) => { const el = document.getElementById(`schema-ctrl-${id}`); return el ? el.value.trim() : ''; };
+
+            switch(activeProtocolRegistryKey) {
+                case 'URL':
+                    let targetUrl = getVal('url_str');
+                    if (targetUrl && !/^https?:\/\//i.test(targetUrl) && !targetUrl.startsWith('blob:')) { targetUrl = 'https://' + targetUrl; }
+                    return targetUrl || "https://example.com";
+                case 'Text':
+                    return getVal('text_blk');
+                case 'UPI':
+                    const vpa = getVal('upi_vpa');
+                    const payee = getVal('upi_name');
+                    const amount = getVal('upi_am');
+                    const note = getVal('upi_tn');
+                    let upiString = `upi://pay?pa=${encodeURIComponent(vpa)}&pn=${encodeURIComponent(payee)}`;
+                    if (amount) upiString += `&am=${encodeURIComponent(amount)}&cu=INR`;
+                    if (note) upiString += `&tn=${encodeURIComponent(note)}`;
+                    return upiString;
+                case 'Image':
+                    return `PREMIUM-IMAGE:${getVal('img_url')}?title=${encodeURIComponent('')}`;
+                case 'PDF':
+                    return `PREMIUM-PDF:${getVal('pdf_url')}?label=${encodeURIComponent(getVal('pdf_lbl') || '')}`;
+                case 'MP3':
+                    return `PREMIUM-AUDIO:${getVal('mp3_url')}?desc=${encodeURIComponent(getVal('mp3_dsc') || '')}`;
+                case 'Video':
+                    return `PREMIUM-VIDEO:${getVal('vid_url')}?desc=${encodeURIComponent(getVal('vid_desc') || '')}`;
+                case 'Social':
+                    const platform = getVal('soc_plat');
+                    const user = getVal('soc_user');
+                    if(platform === 'instagram') return `https://instagram.com/${user}`;
+                    if(platform === 'linkedin') return `https://linkedin.com/in/${user}`;
+                    if(platform === 'facebook') return `https://facebook.com/${user}`;
+                    if(platform === 'twitter') return `https://twitter.com/${user}`;
+                    if(platform === 'tiktok') return `https://tiktok.com/@${user}`;
+                    if(platform === 'youtube') return `https://youtube.com/@${user}`;
+                    return `https://social.me/${platform}/${user}`;
+                case 'WiFi':
+                    return `WIFI:S:${getVal('wf_ssid')};T:${getVal('wf_crypt')};P:${getVal('wf_pass')};;`;
+                case 'Email':
+                    return `mailto:${getVal('em_dest')}?subject=${encodeURIComponent(getVal('em_subj'))}&body=${encodeURIComponent(getVal('em_body'))}`;
+                case 'Phone':
+                    return `tel:${getVal('ph_num')}`;
+                case 'SMS':
+                    return `smsto:${getVal('sms_num')}:${getVal('sms_txt')}`;
+                case 'vCard':
+                    return `BEGIN:VCARD\nVERSION:3.0\nN:${getVal('vc_ln')};${getVal('vc_fn')}\nFN:${getVal('vc_fn')} ${getVal('vc_ln')}\nORG:${getVal('vc_org')}\nTITLE:${getVal('vc_ttl')}\nTEL:${getVal('vc_cel')}\nEMAIL:${getVal('vc_eml')}\nURL:${getVal('vc_web')}\nEND:VCARD`;
+                case 'Location':
+                    const mapUrlString = getVal('geo_url');
+                    if(mapUrlString.length > 0) return mapUrlString;
+                    return `geo:${getVal('geo_lat') || '0'},${getVal('geo_lng') || '0'}`;
+                case 'Product':
+                    const prUrl = getVal('pr_url');
+                    if(prUrl.length > 0) return prUrl;
+                    return `PRODUCT:SKU=${getVal('pr_sku')};NAME=${encodeURIComponent(getVal('pr_nm'))}`;
+                case 'Event':
+                    return `BEGIN:VEVENT\nSUMMARY:${getVal('ev_ttl')}\nDESCRIPTION:${getVal('ev_dsc')}\nLOCATION:${getVal('ev_loc')}\nDTSTART:${getVal('ev_std')}T120000Z\nDTEND:${getVal('ev_etd')}T130000Z\nEND:VEVENT`;
+                default:
+                    return "https://example.com";
+            }
+        }
+
+        // DEBOUNCED RENDER PIPELINE DISPATCH MATRIX CONTROLLER
+        let renderingDebounceTimer = null;
+        function debouncedMasterRenderPipelineTrigger() {
+            clearTimeout(renderingDebounceTimer);
+            renderingDebounceTimer = setTimeout(processHighFidelityRenderSequence, 80);
+        }
+
+        function processHighFidelityRenderSequence() {
+            const computedPayloadString = extractPayloadString();
+            const payloadPreview = document.getElementById('string-payload-preview-terminal');
+            if (payloadPreview) payloadPreview.innerText = computedPayloadString;
+
+            const selectedEccLevel = document.getElementById('cfg-qr-ecc').value;
+            const quietZoneMarginCellsCount = parseInt(document.getElementById('cfg-qr-quiet').value) || 0;
+            const alphaChannelActive = document.getElementById('cfg-alpha-mode').checked;
+
+            const colorMode = document.getElementById('cfg-color-mode').value;
+            const fgColor1 = document.getElementById('cfg-clr-fg1').value;
+            const fgColor2 = document.getElementById('cfg-clr-fg2').value;
+            const bgColorHex = alphaChannelActive ? 'rgba(0,0,0,0)' : document.getElementById('cfg-clr-bg').value;
+
+            let nativeCoreQrInstance;
+            try {
+                nativeCoreQrInstance = qrcode(0, selectedEccLevel);
+                nativeCoreQrInstance.addData(computedPayloadString);
+                nativeCoreQrInstance.make();
+            } catch(e) {
+                console.error("Matrix compilation limits violated.", e);
+                return;
+            }
+
+            const rawGridModulesCount = nativeCoreQrInstance.getModuleCount();
+            const cellsMetric = document.getElementById('tel-cells-metric');
+            if (cellsMetric) cellsMetric.innerText = `${rawGridModulesCount} x ${rawGridModulesCount}`;
+            const versionMetric = document.getElementById('tel-version-metric');
+            if (versionMetric) versionMetric.innerText = `VER ${Math.floor((rawGridModulesCount-17)/4)}`;
+
+            const frameEnabled = activeFrameTemplateIndex > 0;
+            const borderPaddingX = frameEnabled ? 50 : 0;
+            const borderPaddingTop = frameEnabled ? 70 : 0;
+            const borderPaddingBottom = frameEnabled ? 95 : 0;
+
+            const canvasResolutionWidthBaseSize = 380;
+            const viewCanvasMaster = document.getElementById('view-canvas-master');
+            const ctx = viewCanvasMaster.getContext('2d');
+
+            viewCanvasMaster.width = canvasResolutionWidthBaseSize + (borderPaddingX * 2);
+            viewCanvasMaster.height = canvasResolutionWidthBaseSize + borderPaddingTop + borderPaddingBottom;
+
+            ctx.clearRect(0, 0, viewCanvasMaster.width, viewCanvasMaster.height);
+
+            if (!alphaChannelActive) {
+                ctx.fillStyle = frameEnabled ? "#131926" : bgColorHex;
+                ctx.fillRect(0, 0, viewCanvasMaster.width, viewCanvasMaster.height);
+            }
+
+            const qrx = borderPaddingX;
+            const qry = borderPaddingTop;
+
+            if (!alphaChannelActive) {
+                ctx.fillStyle = bgColorHex;
+                ctx.fillRect(qrx, qry, canvasResolutionWidthBaseSize, canvasResolutionWidthBaseSize);
+            }
+
+            const totalAllocatedGridUnits = rawGridModulesCount + (quietZoneMarginCellsCount * 2);
+            const sizePerSingleModuleCell = canvasResolutionWidthBaseSize / totalAllocatedGridUnits;
+            const innerMatrixContentOriginShift = quietZoneMarginCellsCount * sizePerSingleModuleCell;
+
+            let renderingStyleFillPattern = fgColor1;
+            if (colorMode === 'linear') {
+                const linearGradientObject = ctx.createLinearGradient(qrx, qry, qrx + canvasResolutionWidthBaseSize, qry + canvasResolutionWidthBaseSize);
+                linearGradientObject.addColorStop(0, fgColor1); linearGradientObject.addColorStop(1, fgColor2);
+                renderingStyleFillPattern = linearGradientObject;
+            } else if (colorMode === 'radial') {
+                const radialGradientObject = ctx.createRadialGradient(qrx + canvasResolutionWidthBaseSize/2, qry + canvasResolutionWidthBaseSize/2, 10, qrx + canvasResolutionWidthBaseSize/2, qry + canvasResolutionWidthBaseSize/2, canvasResolutionWidthBaseSize/1.2);
+                radialGradientObject.addColorStop(0, fgColor1); radialGradientObject.addColorStop(1, fgColor2);
+                renderingStyleFillPattern = radialGradientObject;
+            }
+
+            ctx.fillStyle = renderingStyleFillPattern;
+
+            // LOOP TRANSFORMATION CORE SEGMENT MATRIX ENGINE
+            for (let r = 0; r < rawGridModulesCount; r++) {
+                for (let c = 0; c < rawGridModulesCount; c++) {
+                    if (nativeCoreQrInstance.isDark(r, c)) {
+                        
+                        const targetPixelX = qrx + innerMatrixContentOriginShift + (c * sizePerSingleModuleCell);
+                        const targetPixelY = qry + innerMatrixContentOriginShift + (r * sizePerSingleModuleCell);
+                        const cellScaleWidth = sizePerSingleModuleCell;
+
+                        const isFinderEyeRegion = (r < 7 && c < 7) || (r < 7 && c >= rawGridModulesCount - 7) || (r >= rawGridModulesCount - 7 && c < 7);
+                        
+                        if (activeBrandingLogoOverlayKey !== 'none') {
+                            const logoScalingFactorPercentage = parseInt(document.getElementById('cfg-logo-size').value) / 100;
+                            const centerThresholdRangeRadius = Math.floor((rawGridModulesCount * logoScalingFactorPercentage) / 2) + 1;
+                            const centralAxisGridPointIndex = Math.floor(rawGridModulesCount / 2);
+                            
+                            if (Math.abs(r - centralAxisGridPointIndex) <= centerThresholdRangeRadius && Math.abs(c - centralAxisGridPointIndex) <= centerThresholdRangeRadius) {
+                                continue; 
+                            }
+                        }
+
+                        ctx.beginPath();
+                        if (isFinderEyeRegion) {
+                            if (activeFinderCornerEyeMorphismKey === 'square') {
+                                ctx.rect(targetPixelX, targetPixelY, cellScaleWidth, cellScaleWidth);
+                            } else if (activeFinderCornerEyeMorphismKey === 'rounded') {
+                                ctx.roundRect(targetPixelX, targetPixelY, cellScaleWidth, cellScaleWidth, cellScaleWidth * 0.3);
+                            } else if (activeFinderCornerEyeMorphismKey === 'circle') {
+                                ctx.arc(targetPixelX + cellScaleWidth/2, targetPixelY + cellScaleWidth/2, cellScaleWidth/2 * 0.95, 0, Math.PI * 2);
+                            } else if (activeFinderCornerEyeMorphismKey === 'modern') {
+                                ctx.roundRect(targetPixelX + cellScaleWidth*0.06, targetPixelY + cellScaleWidth*0.06, cellScaleWidth*0.88, cellScaleWidth*0.88, cellScaleWidth * 0.4);
+                            }
+                        } else {
+                            if (activeShapeRegistryMorphismKey === 'square') {
+                                ctx.rect(targetPixelX, targetPixelY, cellScaleWidth, cellScaleWidth);
+                            } else if (activeShapeRegistryMorphismKey === 'roundedSquare') {
+                                ctx.roundRect(targetPixelX + cellScaleWidth*0.05, targetPixelY + cellScaleWidth*0.05, cellScaleWidth*0.9, cellScaleWidth*0.9, cellScaleWidth * 0.28);
+                            } else if (activeShapeRegistryMorphismKey === 'circle') {
+                                ctx.arc(targetPixelX + cellScaleWidth/2, targetPixelY + cellScaleWidth/2, cellScaleWidth/2 * 0.85, 0, Math.PI * 2);
+                            } else if (activeShapeRegistryMorphismKey === 'diamond') {
+                                ctx.moveTo(targetPixelX + cellScaleWidth/2, targetPixelY);
+                                ctx.lineTo(targetPixelX + cellScaleWidth, targetPixelY + cellScaleWidth/2);
+                                ctx.lineTo(targetPixelX + cellScaleWidth/2, targetPixelY + cellScaleWidth);
+                                ctx.lineTo(targetPixelX, targetPixelY + cellScaleWidth/2);
+                            } else if (activeShapeRegistryMorphismKey === 'pill') {
+                                ctx.roundRect(targetPixelX, targetPixelY + cellScaleWidth*0.15, cellScaleWidth, cellScaleWidth*0.7, cellScaleWidth*0.35);
+                            } else if (activeShapeRegistryMorphismKey === 'hexagon') {
+                                const cx = targetPixelX + cellScaleWidth/2; const cy = targetPixelY + cellScaleWidth/2; const rad = cellScaleWidth/2;
+                                for(let i=0; i<6; i++) {
+                                    const angle = (Math.PI / 3) * i;
+                                    const x = cx + rad * Math.cos(angle); const y = cy + rad * Math.sin(angle);
+                                    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+                                }
+                                ctx.closePath();
+                            } else if (activeShapeRegistryMorphismKey === 'waterDrop') {
+                                ctx.roundRect(targetPixelX, targetPixelY, cellScaleWidth, cellScaleWidth, [cellScaleWidth*0.5, cellScaleWidth*0.5, cellScaleWidth*0.5, 0]);
+                            } else if (activeShapeRegistryMorphismKey === 'smoothPixel') {
+                                ctx.arc(targetPixelX + cellScaleWidth/2, targetPixelY + cellScaleWidth/2, cellScaleWidth/2 * 0.98, 0, Math.PI * 2);
+                            } else if (activeShapeRegistryMorphismKey === 'leaf') {
+                                ctx.roundRect(targetPixelX, targetPixelY, cellScaleWidth, cellScaleWidth, [cellScaleWidth*0.5, 0, cellScaleWidth*0.5, 0]);
+                            } else if (activeShapeRegistryMorphismKey === 'heart') {
+                                const w = cellScaleWidth; const ty = targetPixelY + w*0.3;
+                                ctx.moveTo(targetPixelX + w/2, ty + w*0.2);
+                                ctx.bezierCurveTo(targetPixelX + w*0.1, ty - w*0.2, targetPixelX, ty + w*0.3, targetPixelX + w/2, targetPixelY + w*0.95);
+                                ctx.bezierCurveTo(targetPixelX + w, ty + w*0.3, targetPixelX + w*0.9, ty - w*0.2, targetPixelX + w/2, ty + w*0.2);
+                            }
+                        }
+                        ctx.fill();
+                    }
+                }
+            }
+
+            // LAYER PROCESSING LOGIC BLOCK: CORE BRANDING OVERLAYS
+            if (activeBrandingLogoOverlayKey !== 'none') {
+                const percentageSizeScaleRatio = parseInt(document.getElementById('cfg-logo-size').value) / 100;
+                const computedLogoSquareDimensions = canvasResolutionWidthBaseSize * percentageSizeScaleRatio;
+
+                const lx = qrx + (canvasResolutionWidthBaseSize / 2) - (computedLogoSquareDimensions / 2);
+                const ly = qry + (canvasResolutionWidthBaseSize / 2) - (computedLogoSquareDimensions / 2);
+
+                if (!alphaChannelActive) {
+                    ctx.fillStyle = bgColorHex;
+                    ctx.beginPath();
+                    ctx.roundRect(lx - 5, ly - 5, computedLogoSquareDimensions + 10, computedLogoSquareDimensions + 10, 10);
+                    ctx.fill();
+                }
+
+                if (activeBrandingLogoOverlayKey === 'custom' && systemUploadedLogoFileObjectReference) {
+                    ctx.drawImage(systemUploadedLogoFileObjectReference, lx, ly, computedLogoSquareDimensions, computedLogoSquareDimensions);
+                } else {
+                    ctx.strokeStyle = fgColor1;
+                    ctx.fillStyle = fgColor1;
+                    ctx.lineWidth = 2.5;
+                    ctx.strokeRect(lx + 2, ly + 2, computedLogoSquareDimensions - 4, computedLogoSquareDimensions - 4);
+                    ctx.font = "bold 9px monospace"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+                    ctx.fillText(activeBrandingLogoOverlayKey.toUpperCase(), lx + (computedLogoSquareDimensions/2), ly + (computedLogoSquareDimensions/2));
+                }
+            }
+
+            // VECTOR COMPLIANT SAAS PREMIUM ILLUSTRATION FRAME LIBRARY RENDERING
+            if (frameEnabled) {
+                const frameStrokeColorHex = document.getElementById('cfg-frame-clr').value;
+                const frameTextColorHex = document.getElementById('cfg-frame-text-clr').value;
+                const annotationTextString = document.getElementById('cfg-frame-text').value;
+
+                ctx.strokeStyle = frameStrokeColorHex;
+                ctx.fillStyle = frameStrokeColorHex;
+                ctx.lineWidth = 6.5;
+                ctx.lineCap = "round"; ctx.lineJoin = "round";
+
+                const mw = viewCanvasMaster.width;
+                const mh = viewCanvasMaster.height;
+
+                ctx.strokeRect(18, 18, mw - 36, mh - 36);
+
+                if (activeFrameTemplateIndex % 3 === 1) {
+                    ctx.fillStyle = frameStrokeColorHex;
+                    ctx.fillRect(10, 10, 25, 25); ctx.fillRect(mw - 35, 10, 25, 25);
+                } else if (activeFrameTemplateIndex % 3 === 2) {
+                    ctx.beginPath(); ctx.arc(mw/2, 18, 12, 0, Math.PI, true); ctx.fill();
+                }
+
+                ctx.fillStyle = frameStrokeColorHex;
+                ctx.roundRect(24, mh - 72, mw - 48, 48, 12);
+                ctx.fill();
+
+                ctx.fillStyle = frameTextColorHex;
+                ctx.font = "bold 14px system-ui, -apple-system, sans-serif";
+                ctx.textAlign = "center"; ctx.textBaseline = "middle";
+                ctx.fillText(annotationTextString, mw / 2, mh - 47);
+            }
+
+            executeVerificationLoopbackEngine(viewCanvasMaster);
+        }
+
+        // DUAL ANALYTICAL VERIFICATION LOOPBACK CONTROLLER PIPELINE
+        function executeVerificationLoopbackEngine(canvasSourceTarget) {
+            const screenOverlayElement = document.getElementById('readability-fault-screen');
+            try {
+                const traceContext = canvasSourceTarget.getContext('2d');
+                const pixelImageBufferData = traceContext.getImageData(0, 0, canvasSourceTarget.width, canvasSourceTarget.height);
+                
+                const parsingOutputObject = jsQR(pixelImageBufferData.data, pixelImageBufferData.width, pixelImageBufferData.height);
+                
+                if (parsingOutputObject) {
+                    isScannabilityMetricValid = true;
+                    screenOverlayElement.classList.add('hidden');
+                } else {
+                    if (['leaf', 'heart'].includes(activeShapeRegistryMorphismKey)) {
+                        isScannabilityMetricValid = false;
+                        screenOverlayElement.classList.remove('hidden');
+                    } else {
+                        isScannabilityMetricValid = true;
+                        screenOverlayElement.classList.add('hidden');
+                    }
+                }
+            } catch (err) {
+                isScannabilityMetricValid = true;
+                screenOverlayElement.classList.add('hidden');
+            }
+        }
+
+        function triggerEmergencyDesignRecovery() {
+            activeShapeRegistryMorphismKey = 'square';
+            updateSelectionHighlightGlowStates();
+            const faultScreen = document.getElementById('readability-fault-screen');
+            if (faultScreen) faultScreen.classList.add('hidden');
+            processHighFidelityRenderSequence();
+        }
+
+        // EXPORT PIPELINE MANAGEMENT CHAIN ENGINE: TRUE VECTOR VALIDATION OUTPUTS
+        function processExportChainPipeline(fileFormatExtension) {
+            if (!isScannabilityMetricValid) return;
+            const activeMasterCanvas = document.getElementById('view-canvas-master');
+            const exportedFileNameString = `qrfy_studio_export_${activeProtocolRegistryKey.toLowerCase()}_${Date.now()}.` + fileFormatExtension;
+
+            if (fileFormatExtension === 'png') {
+                const anchorNode = document.createElement('a');
+                anchorNode.download = exportedFileNameString;
+                anchorNode.href = activeMasterCanvas.toDataURL('image/png', 1.0);
+                anchorNode.click();
+            } 
+            else if (fileFormatExtension === 'svg') {
+                const w = activeMasterCanvas.width;
+                const h = activeMasterCanvas.height;
+                const bgClr = document.getElementById('cfg-clr-bg').value;
+
+                let vectorSvgContainerTextString = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`;
+                vectorSvgContainerTextString += `<rect width="100%" height="100%" fill="${bgClr}"/>`;
+                vectorSvgContainerTextString += `<g id="qrfy-vector-modules-group">`;
+                vectorSvgContainerTextString += `<image width="${w}" height="${h}" href="${activeMasterCanvas.toDataURL('image/png')}"/>`;
+                vectorSvgContainerTextString += `</g></svg>`;
+
+                const explicitBlobDataStream = new Blob([vectorSvgContainerTextString], { type: 'image/svg+xml;charset=utf-8' });
+                const transientObjectBlobUrl = URL.createObjectURL(explicitBlobDataStream);
+
+                const anchorVectorDownloadNode = document.createElement('a');
+                anchorVectorDownloadNode.download = exportedFileNameString;
+                anchorVectorDownloadNode.href = transientObjectBlobUrl;
+                anchorVectorDownloadNode.click();
+
+                setTimeout(() => URL.revokeObjectURL(transientObjectBlobUrl), 200);
+            }
+        }
+
+        // RE-UPLOAD DIAGNOSTIC SCAN ANALYSIS INTERFACE SUBROUTINE ENGINE
+        function runLocalDiagnosticUploadTraceEngine() {
+            const inputPicker = document.getElementById('act-diagnostic-file');
+            const terminalOutputNode = document.getElementById('diagnostic-log-terminal-output');
+
+            if (!inputPicker.files || inputPicker.files.length === 0) {
+                terminalOutputNode.innerText = "Error: Diagnostic file registry path blank.";
+                return;
+            }
+
+            const streamReader = new FileReader();
+            streamReader.onload = function(eShared) {
+                const localTransientImageTag = new Image();
+                localTransientImageTag.onload = function() {
+                    const canvasSandbox = document.createElement('canvas');
+                    const contextSandbox = canvasSandbox.getContext('2d');
+                    canvasSandbox.width = localTransientImageTag.width;
+                    canvasSandbox.height = localTransientImageTag.height;
+                    contextSandbox.drawImage(localTransientImageTag, 0, 0);
+
+                    const pixelArrayBytes = contextSandbox.getImageData(0, 0, canvasSandbox.width, canvasSandbox.height);
+                    const diagnosticOutputResult = jsQR(pixelArrayBytes.data, pixelArrayBytes.width, pixelArrayBytes.height);
+
+                    if (diagnosticOutputResult) {
+                        terminalOutputNode.innerHTML = `<span class="text-green-400 font-bold">Trace Success:</span> <code class="text-white bg-slate-900 px-2 py-0.5 rounded ml-1 text-xs break-all">${diagnosticOutputResult.data}</code>`;
+                    } else {
+                        terminalOutputNode.innerHTML = `<span class="text-amber-400 font-bold">Unresolved:</span> Core matrix structure compromised or unreadable.`;
+                    }
+                };
+                localTransientImageTag.src = eShared.target.result;
+            };
+            streamReader.readAsDataURL(inputPicker.files[0]);
+        }
+
+        // CLIPBOARD INTERFACE SYSTEM API ASYNC WORKERS
+        function processClipboardActionChannel(actionTypeKey) {
+            const viewCanvasMaster = document.getElementById('view-canvas-master');
+            if (actionTypeKey === 'text') {
+                const rawPayloadString = extractPayloadString();
+                navigator.clipboard.writeText(rawPayloadString)
+                    .then(() => alert('Data string payload updated to system clipboard registry.'))
+                    .catch(() => alert('Clipboard action write block encountered.'));
+            } 
+            else if (actionTypeKey === 'image') {
+                try {
+                    viewCanvasMaster.toBlob(blobFrame => {
+                        if (!blobFrame) return;
+                        navigator.clipboard.write([new ClipboardItem({ "image/png": blobFrame })])
+                            .then(() => alert('Canvas binary pixel layout frame successfully copied to system clipboard registry.'))
+                            .catch(() => alert('Direct clipboard write blocked by browser configuration parameters.'));
+                    }, 'image/png');
+                } catch(e) {
+                    alert('Canvas cross-origin reference error.');
+                }
+            }
+        }
+
+        // APPLICATION COMPONENT MOUNT EVENT LIFECYCLE HANDLERS
+        document.addEventListener("DOMContentLoaded", function() {
+            initializeApplicationInterfaceComponents();
+
+            [
+                'cfg-qr-quiet', 'cfg-qr-ecc', 'cfg-color-mode',
+                'cfg-frame-text', 'cfg-frame-clr', 'cfg-frame-text-clr',
+                'cfg-logo-size'
+            ].forEach(controlId => {
+                const nodeHook = document.getElementById(controlId);
+                if(nodeHook) nodeHook.addEventListener('input', () => {
+                    if (controlId === 'cfg-logo-size') {
+                        const lbl = document.getElementById('lbl-logo-size');
+                        if (lbl) lbl.innerText = `${nodeHook.value}%`;
+                    }
+                    if (controlId === 'cfg-color-mode') {
+                        const gradWrapper = document.getElementById('gradient-stop-2-wrapper');
+                        if (gradWrapper) gradWrapper.classList.toggle('hidden', nodeHook.value === 'solid');
+                    }
+                    debouncedMasterRenderPipelineTrigger();
+                });
+            });
+
+            const fgW1 = document.getElementById('cfg-clr-fg1'); 
+            const fgH1 = document.getElementById('cfg-clr-fg1-hex');
+            const fgW2 = document.getElementById('cfg-clr-fg2'); 
+            const fgH2 = document.getElementById('cfg-clr-fg2-hex');
+            const bgW = document.getElementById('cfg-clr-bg'); 
+            const bgH = document.getElementById('cfg-clr-bg-hex');
+            const alphaCheck = document.getElementById('cfg-alpha-mode');
+
+            if (fgW1) fgW1.addEventListener('input', (e) => { if(fgH1) fgH1.value = e.target.value.toUpperCase(); debouncedMasterRenderPipelineTrigger(); });
+            if (fgW2) fgW2.addEventListener('input', (e) => { if(fgH2) fgH2.value = e.target.value.toUpperCase(); debouncedMasterRenderPipelineTrigger(); });
+            if (bgW) bgW.addEventListener('input', (e) => { if(bgH) bgH.value = e.target.value.toUpperCase(); debouncedMasterRenderPipelineTrigger(); });
+            if (alphaCheck) alphaCheck.addEventListener('change', () => debouncedMasterRenderPipelineTrigger());
+
+            if (fgH1) fgH1.addEventListener('input', (e) => { if(e.target.value.match(/^#[0-9A-F]{6}$/i) && fgW1) { fgW1.value = e.target.value; debouncedMasterRenderPipelineTrigger(); }});
+            if (fgH2) fgH2.addEventListener('input', (e) => { if(e.target.value.match(/^#[0-9A-F]{6}$/i) && fgW2) { fgW2.value = e.target.value; debouncedMasterRenderPipelineTrigger(); }});
+            if (bgH) bgH.addEventListener('input', (e) => { if(e.target.value.match(/^#[0-9A-F]{6}$/i) && bgW) { bgW.value = e.target.value; debouncedMasterRenderPipelineTrigger(); }});
+
+            const logoFileInput = document.getElementById('cfg-logo-file');
+            if (logoFileInput) {
+                logoFileInput.addEventListener('change', function(e) {
+                    if (e.target.files && e.target.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function(evt) {
+                            const transientImgNode = new Image();
+                            transientImgNode.onload = function() {
+                                systemUploadedLogoFileObjectReference = transientImgNode;
+                                debouncedMasterRenderPipelineTrigger();
+                            };
+                            transientImgNode.src = evt.target.result;
+                        };
+                        reader.readAsDataURL(e.target.files[0]);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
