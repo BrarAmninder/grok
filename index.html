@@ -1,1395 +1,1153 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QRFY Ultra Premium QR Engine & SaaS Design Suite</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: '#f0fdf4', 100: '#dcfce7', 500: '#22c55e', 600: '#16a34a',
-                            darkBg: '#090d16', darkCard: '#131926', borderDark: '#1e293b'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <title>V12 Engine 0.1 - Premium SaaS Image Compressor (MB to KB)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        :root {
+            --font-sans: 'Plus Jakarta Sans', sans-serif;
+        }
+        
         body {
-            background-color: #090d16;
-            background-image: radial-gradient(circle at 0% 0%, rgba(34, 197, 94, 0.08) 0, transparent 50%), radial-gradient(circle at 100% 100%, rgba(59, 130, 246, 0.08) 0, transparent 50%);
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: var(--font-sans);
+            background-color: #030014;
+            overflow-x: hidden;
         }
-        .glass-card {
-            background: rgba(19, 25, 38, 0.7);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
+
+        /* Glassmorphism Presets */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
-        .thumb-select {
-            border: 2px solid transparent;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        
+        .glass-panel-interactive {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .thumb-select.active {
-            border-color: #22c55e;
-            background: rgba(34, 197, 94, 0.08);
-            box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);
+        
+        .glass-panel-interactive:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 40px -15px rgba(124, 58, 237, 0.3);
+            transform: translateY(-6px) scale(1.01);
         }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #090d16; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 99px; }
+
+        /* Continuous Ambient Blobs */
+        .blob-ambient {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.4;
+            mix-blend-mode: screen;
+            animation: blobfloat 12s infinite ease-in-out alternate;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes blobfloat {
+            0% { transform: translate(0px, 0px) scale(1); }
+            50% { transform: translate(40px, -60px) scale(1.2); }
+            100% { transform: translate(-30px, 30px) scale(0.9); }
+        }
+
+        /* Premium Infinite Marquee */
+        .marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+            display: flex;
+        }
+        
+        .marquee-content {
+            display: inline-flex;
+            animation: marquee 30s linear infinite;
+        }
+        
+        .marquee-container:hover .marquee-content {
+            animation-play-state: paused;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Custom Split Before/After Slider Handling */
+        .comparison-slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Intersection Observer Scroll Reveal Engine styling */
+        .reveal-element {
+            opacity: 0;
+            filter: blur(10px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .reveal-element.revealed {
+            opacity: 1;
+            filter: blur(0px);
+            transform: none !important;
+        }
+
+        /* Mouse Tracklight Effect */
+        #cursor-glow {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            mix-blend-mode: plus-lighter;
+            display: none;
+        }
+
+        /* Custom Continuous Micro-Floating for premium graphics */
+        .floating-graphic {
+            animation: smoothFloat 6s infinite ease-in-out alternate;
+        }
+        @keyframes smoothFloat {
+            0% { transform: translateY(0px) rotate(0deg); }
+            100% { transform: translateY(-15px) rotate(2deg); }
+        }
+
+        /* Underline growth from center effect */
+        .nav-link-effect {
+            position: relative;
+        }
+        .nav-link-effect::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            transform: scaleX(0);
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background: linear-gradient(90deg, #8b5cf6, #ec4899);
+            transform-origin: bottom center;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .nav-link-effect:hover::after {
+            transform: scaleX(1);
+        }
     </style>
 </head>
-<body class="text-slate-100 min-h-screen flex flex-col antialiased">
+<body class="text-slate-200 selection:bg-purple-500 selection:text-white">
 
-    <header class="w-full border-b border-slate-800/60 bg-brand-darkBg/80 backdrop-blur-md sticky top-0 z-50 px-4 lg:px-8 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-green-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-green-500/20">
-                <span class="font-black text-white text-lg tracking-tighter">Q</span>
+    <!-- Preloader Experience Screen -->
+    <div id="preloader" class="fixed inset-0 bg-[#030014] z-[99999] flex flex-col items-center justify-center transition-opacity duration-700">
+        <div class="relative flex flex-col items-center">
+            <div class="w-16 h-16 rounded-full border-2 border-purple-500/20 border-t-purple-500 animate-spin mb-4"></div>
+            <div class="text-sm tracking-widest uppercase font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 animate-pulse">
+                V12 Engine 0.1 Initialization
             </div>
-            <div>
-                <div class="flex items-center gap-2">
-                    <span class="text-lg font-extrabold text-white tracking-tight">QRFY Studio</span>
-                    <span class="text-[10px] bg-green-500/10 text-green-400 font-bold px-2 py-0.5 rounded-full border border-green-500/20 uppercase tracking-widest">Enterprise</span>
+            <div class="w-48 h-1 bg-white/5 rounded-full mt-4 overflow-hidden">
+                <div class="w-full h-full bg-gradient-to-r from-purple-500 to-pink-500 origin-left scale-x-0 animate-[progress_1.5s_ease-in-out_all] forwards" style="animation-fill-mode: forwards;"></div>
+            </div>
+        </div>
+    </div>
+    <style>
+        @keyframes progress {
+            to { transform: scaleX(1); }
+        }
+    </style>
+
+    <!-- Interactive Cursor Ambient Glow Element -->
+    <div id="cursor-glow"></div>
+
+    <!-- Scroll Progress Top Status Indicator -->
+    <div id="scroll-progress" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 z-[60] w-0 transition-all duration-700"></div>
+
+    <!-- Global Background Elements Layer -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div class="blob-ambient w-[500px] h-[500px] bg-purple-600/20 top-[-100px] left-[-100px]"></div>
+        <div class="blob-ambient w-[600px] h-[600px] bg-blue-600/15 top-[30%] right-[-100px] [animation-delay:2s]"></div>
+        <div class="blob-ambient w-[550px] h-[550px] bg-pink-600/10 bottom-[10%] left-[5%] [animation-delay:4s]"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.015)_1px,transparent_1px)] [background-size:24px_24px]"></div>
+    </div>
+
+    <!-- 1. Premium Navigation Pill Bar Design -->
+    <header class="fixed top-4 left-0 w-full z-50 px-4 md:px-8">
+        <nav class="max-w-7xl mx-auto glass-panel rounded-full px-6 py-3 flex items-center justify-between shadow-[0_10px_30px_rgba(0,0,0,0.5)] border-white/5 transition-all duration-300">
+            <!-- Brand Logo -->
+            <a href="#" class="flex items-center gap-2 group">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center shadow-lg group-hover:rotate-12 transition-transform duration-500">
+                    <i data-lucide="zap" class="w-5 h-5 text-white animate-pulse"></i>
                 </div>
-                <p class="text-[11px] text-slate-400">Multi-engine verification & native vector rendering pipeline</p>
+                <span class="text-xl font-extrabold tracking-tight text-white">V12 Engine<span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500"> 0.1</span></span>
+            </a>
+
+            <!-- Central Desktop Navigation Layout Links -->
+            <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-400">
+                <a href="#compressor" class="text-slate-200 nav-link-effect hover:text-white transition-colors">Compressor</a>
+                <a href="#features" class="nav-link-effect hover:text-white transition-colors">Features</a>
+                <a href="#how-it-works" class="nav-link-effect hover:text-white transition-colors">How It Works</a>
+                <a href="#comparison" class="nav-link-effect hover:text-white transition-colors">Live Compare</a>
+                <a href="#faq" class="nav-link-effect hover:text-white transition-colors">FAQ</a>
             </div>
-        </div>
-        <div id="analytical-verification-badge" class="flex items-center gap-2 bg-emerald-950/40 border border-emerald-500/30 px-3 py-1.5 rounded-xl">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span class="text-xs font-mono font-bold text-emerald-400">SCAN SCORE: EXCELLENT</span>
-        </div>
+
+            <!-- CTA Actions Block -->
+            <div class="flex items-center gap-4">
+                <a href="#compressor" class="relative group overflow-hidden px-5 py-2.5 rounded-full text-sm font-bold text-white bg-gradient-to-r from-purple-600 to-pink-500 transition-all duration-300 shadow-[0_4px_20px_rgba(139,92,246,0.4)] hover:shadow-[0_4px_30px_rgba(236,72,153,0.6)] hover:scale-105 active:scale-95">
+                    <span class="relative z-10 flex items-center gap-2">
+                        Compress Now <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                    </span>
+                    <div class="absolute inset-0 bg-gradient-to-r from-pink-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                </a>
+            </div>
+        </nav>
     </header>
 
-    <main class="flex-1 w-full max-w-[1600px] mx-auto p-4 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        <section class="lg:col-span-7 flex flex-col gap-6">
+    <!-- 2. Interactive Premium Hero Section -->
+    <section class="relative min-h-screen pt-32 pb-20 flex items-center justify-center z-10 px-4">
+        <div class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             
-            <div class="glass-card rounded-2xl p-6 shadow-2xl flex flex-col gap-4">
-                <div class="flex items-center gap-3 border-b border-slate-800 pb-3">
-                    <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-green-400 flex items-center justify-center font-bold text-sm">1</div>
-                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-200">Data Type Registry & Live Validation</h2>
+            <!-- Left Side Core SaaS Pitch Messaging -->
+            <div class="space-y-8 text-center lg:text-left">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-xs font-bold text-purple-300 tracking-wide uppercase mx-auto lg:mx-0 reveal-element [transform:translateY(30px)]">
+                    <span class="w-2 h-2 rounded-full bg-purple-400 animate-ping"></span> Secure Image Compression
                 </div>
                 
-                <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2" id="protocol-tab-matrix">
+                <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight text-white reveal-element [transform:translateY(30px)] [transition-delay:0.1s]">
+                    Compress Images from <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400">MB to KB</span> Instantly.
+                </h1>
+                
+                <p class="text-lg text-slate-400 max-w-xl mx-auto lg:mx-0 reveal-element [transform:translateY(30px)] [transition-delay:0.2s]">
+                    Our advanced compression engine reduces file size while maintaining excellent image quality. No uploads required, complete privacy, and instant results.
+                </p>
+
+                <!-- Premium Metrics Counters Block -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-6 pt-4 max-w-md mx-auto lg:mx-0 reveal-element [transform:translateY(30px)] [transition-delay:0.3s]">
+                    <div class="border-l-2 border-purple-500/30 pl-4 text-left">
+                        <div class="text-2xl sm:text-3xl font-black text-white stat-counter" data-target="50">0</div>
+                        <div class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Images Compressed</div>
                     </div>
-
-                <div id="dynamic-schema-fields-root" class="grid grid-cols-1 gap-4 pt-3 mt-2 border-t border-slate-800/40">
+                    <div class="border-l-2 border-pink-500/30 pl-4 text-left">
+                        <div class="text-2xl sm:text-3xl font-black text-white stat-counter" data-target="99">0</div>
+                        <div class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Quality Preserved</div>
                     </div>
-            </div>
-
-            <div class="glass-card rounded-2xl p-6 shadow-2xl flex flex-col gap-4">
-                <div class="flex items-center gap-3 border-b border-slate-800 pb-3">
-                    <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-green-400 flex items-center justify-center font-bold text-sm">2</div>
-                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-200">Design Customization Workspace</h2>
-                </div>
-
-                <div class="border border-slate-800/60 rounded-xl overflow-hidden bg-slate-900/20">
-                    <button onclick="toggleAccordionUI('acc-frames')" class="w-full text-left px-4 py-3.5 font-bold text-xs uppercase tracking-wide flex justify-between items-center hover:bg-slate-800/40 transition-colors">
-                        <span class="flex items-center gap-2">🖼️ Frame Template Library <span id="frame-count-badge" class="text-[10px] bg-slate-800 px-2 py-0.5 rounded-md text-slate-400">50 Templates</span></span>
-                        <span id="tg-acc-frames" class="text-slate-500 transition-transform">▼</span>
-                    </button>
-                    <div id="acc-frames" class="p-4 flex flex-col gap-4 border-t border-slate-800/60">
-                        <div class="flex gap-2 pb-2 overflow-x-auto border-b border-slate-800/40" id="frame-cat-filters">
-                            </div>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-h-60 overflow-y-auto pr-1" id="frame-matrix-view">
-                            </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-slate-800/40">
-                            <div class="flex flex-col gap-1.5">
-                                <label class="text-[11px] font-bold text-slate-400 uppercase">Custom Frame Label String</label>
-                                <input type="text" id="cfg-frame-text" value="SCAN ME" class="w-full bg-brand-darkBg border border-slate-700 rounded-lg p-2 text-sm text-slate-200 focus:border-green-500 focus:outline-none">
-                            </div>
-                            <div class="grid grid-cols-2 gap-2">
-                                <div class="flex flex-col gap-1">
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase">Frame Primary</label>
-                                    <input type="color" id="cfg-frame-clr" value="#22c55e" class="w-full h-9 bg-transparent border-0 cursor-pointer rounded-lg">
-                                </div>
-                                <div class="flex flex-col gap-1">
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase">Text Color</label>
-                                    <input type="color" id="cfg-frame-text-clr" value="#ffffff" class="w-full h-9 bg-transparent border-0 cursor-pointer rounded-lg">
-                                </div>
-                            </div>
-                        </div>
+                    <div class="border-l-2 border-blue-500/30 pl-4 text-left col-span-2 sm:col-span-1">
+                        <div class="text-2xl sm:text-3xl font-black text-white">0%</div>
+                        <div class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Data Uploaded to Servers</div>
                     </div>
                 </div>
 
-                <div class="border border-slate-800/60 rounded-xl overflow-hidden bg-slate-900/20">
-                    <button onclick="toggleAccordionUI('acc-shapes')" class="w-full text-left px-4 py-3.5 font-bold text-xs uppercase tracking-wide flex justify-between items-center hover:bg-slate-800/40 transition-colors">
-                        <span>🧩 Matrix Shapes & Corner Eyes Geometry</span>
-                        <span id="tg-acc-shapes" class="text-slate-500 transition-transform">▶</span>
-                    </button>
-                    <div id="acc-shapes" class="hidden p-4 flex flex-col gap-4 border-t border-slate-800/60">
-                        <div>
-                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wide block mb-2">Internal Module Geometry Morphism Style</span>
-                            <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2" id="shape-matrix-view">
-                                </div>
-                        </div>
-                        <div class="pt-3 border-t border-slate-800/40">
-                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wide block mb-2">Isolated Finder Corner Eye Style Configuration</span>
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" id="eye-matrix-view">
-                                </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="border border-slate-800/60 rounded-xl overflow-hidden bg-slate-900/20">
-                    <button onclick="toggleAccordionUI('acc-logos')" class="w-full text-left px-4 py-3.5 font-bold text-xs uppercase tracking-wide flex justify-between items-center hover:bg-slate-800/40 transition-colors">
-                        <span>🛡️ Central Branding Vector Logo Overlay</span>
-                        <span id="tg-acc-logos" class="text-slate-500 transition-transform">▶</span>
-                    </button>
-                    <div id="acc-logos" class="hidden p-4 flex flex-col gap-4 border-t border-slate-800/60">
-                        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2" id="logo-matrix-view">
-                            </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-slate-800/40 bg-slate-900/40 p-3 rounded-xl border border-slate-800/40">
-                            <div class="flex flex-col gap-1.5">
-                                <label class="text-[10px] font-bold text-slate-400 uppercase">Upload Premium Custom Identity File (PNG/SVG)</label>
-                                <input type="file" id="cfg-logo-file" accept="image/*" class="w-full bg-brand-darkBg text-xs border border-slate-700 rounded-lg p-1.5 cursor-pointer file:bg-green-600 file:border-0 file:text-white file:text-[10px] file:font-bold file:px-2.5 file:py-1 file:rounded-md file:mr-2 file:hover:bg-green-500">
-                            </div>
-                            <div class="flex flex-col gap-1.5 justify-center">
-                                <label class="text-[10px] font-bold text-slate-400 uppercase flex justify-between">
-                                    <span>Logo Bounding Safe Area Scale Limit</span>
-                                    <span id="lbl-logo-size" class="text-green-400 font-mono">16%</span>
-                                </label>
-                                <input type="range" id="cfg-logo-size" min="10" max="25" value="16" class="w-full accent-green-500 bg-slate-800 h-2 rounded-lg">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="border border-slate-800/60 rounded-xl overflow-hidden bg-slate-900/20">
-                    <button onclick="toggleAccordionUI('acc-colors')" class="w-full text-left px-4 py-3.5 font-bold text-xs uppercase tracking-wide flex justify-between items-center hover:bg-slate-800/40 transition-colors">
-                        <span>🎨 Advanced Palette Gradient & Background Color Engine</span>
-                        <span id="tg-acc-colors" class="text-slate-500 transition-transform">▶</span>
-                    </button>
-                    <div id="acc-colors" class="hidden p-4 flex flex-col gap-4 border-t border-slate-800/60">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="flex flex-col gap-1.5">
-                                <label class="text-[11px] font-bold text-slate-400 uppercase">Color Engine Mode</label>
-                                <select id="cfg-color-mode" class="w-full bg-brand-darkBg border border-slate-700 rounded-lg p-2 text-xs text-slate-200 font-bold focus:outline-none">
-                                    <option value="solid">Solid Absolute Color Monochromatic</option>
-                                    <option value="linear">Linear Multi-Stop Engine Gradient</option>
-                                    <option value="radial">Radial Focal Vector Gradient</option>
-                                </select>
-                            </div>
-                            <div class="flex flex-col gap-1.5">
-                                <label class="text-[11px] font-bold text-slate-400 uppercase">Primary Foreground Color Stop</label>
-                                <div class="flex items-center bg-brand-darkBg border border-slate-700 rounded-lg p-1.5 gap-2">
-                                    <input type="color" id="cfg-clr-fg1" value="#000000" class="w-7 h-7 bg-transparent border-0 cursor-pointer rounded">
-                                    <input type="text" id="cfg-clr-fg1-hex" value="#000000" class="bg-transparent font-mono font-bold text-xs text-white uppercase w-full focus:outline-none">
-                                </div>
-                            </div>
-                            <div id="gradient-stop-2-wrapper" class="hidden flex flex-col gap-1.5">
-                                <label class="text-[11px] font-bold text-slate-400 uppercase">Secondary Gradient Stop</label>
-                                <div class="flex items-center bg-brand-darkBg border border-slate-700 rounded-lg p-1.5 gap-2">
-                                    <input type="color" id="cfg-clr-fg2" value="#16a34a" class="w-7 h-7 bg-transparent border-0 cursor-pointer rounded">
-                                    <input type="text" id="cfg-clr-fg2-hex" value="#16A34A" class="bg-transparent font-mono font-bold text-xs text-white uppercase w-full focus:outline-none">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-slate-800/40">
-                            <div class="flex flex-col gap-1.5">
-                                <label class="text-[11px] font-bold text-slate-400 uppercase">Matrix Canvas Background fill</label>
-                                <div class="flex items-center bg-brand-darkBg border border-slate-700 rounded-lg p-1.5 gap-2">
-                                    <input type="color" id="cfg-clr-bg" value="#ffffff" class="w-7 h-7 bg-transparent border-0 cursor-pointer rounded">
-                                    <input type="text" id="cfg-clr-bg-hex" value="#ffffff" class="bg-transparent font-mono font-bold text-xs text-white uppercase w-full focus:outline-none">
-                                </div>
-                            </div>
-                            <div class="flex flex-col gap-1.5 justify-center">
-                                <label class="text-[11px] font-bold text-slate-400 uppercase block mb-1">Canvas Transparency Channel</label>
-                                <label class="flex items-center gap-3 bg-brand-darkBg border border-slate-700 p-2.5 rounded-lg cursor-pointer">
-                                    <input type="checkbox" id="cfg-alpha-mode" class="w-4 h-4 accent-green-500 rounded">
-                                    <span class="text-xs text-slate-400 font-medium">Render alpha channel mask layer transparent</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="glass-card rounded-2xl p-6 shadow-2xl grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wide">Output Grid Quiet Zone Bounds</label>
-                    <input type="number" id="cfg-qr-quiet" value="4" min="0" max="10" class="w-full bg-brand-darkBg border border-slate-700 text-slate-200 font-mono font-bold rounded-xl p-2.5 text-center focus:outline-none focus:border-green-500">
-                    <span class="text-[10px] text-slate-500">Isolation tracks safe padding cells</span>
-                </div>
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wide">Error Correction Level (ECC)</label>
-                    <select id="cfg-qr-ecc" class="w-full bg-brand-darkBg border border-slate-700 text-slate-200 font-bold rounded-xl p-2.5 text-center focus:outline-none cursor-pointer">
-                        <option value="L">Level L (7% Recovery Standard)</option>
-                        <option value="M">Level M (15% Recovery Shielded)</option>
-                        <option value="Q">Level Q (25% High Density Overlay)</option>
-                        <option value="H" selected>Level H (30% Max Redundant Recovery)</option>
-                    </select>
-                    <span class="text-[10px] text-slate-500">Protects internal data cells matrix payload</span>
-                </div>
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wide">System Performance Debouncer</label>
-                    <div class="w-full bg-brand-darkBg border border-slate-700 text-xs font-semibold text-slate-400 p-3 rounded-xl text-center">
-                        ⚡ Active Multi-Engine Loop
-                    </div>
-                    <span class="text-[10px] text-slate-500">Protects thread against execution blocks</span>
+                <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 reveal-element [transform:translateY(30px)] [transition-delay:0.4s]">
+                    <a href="#compressor" class="px-8 py-4 rounded-xl bg-white text-slate-950 font-bold hover:bg-slate-100 transition-all shadow-xl hover:scale-105 active:scale-95">Start Compressing for Free</a>
+                    <a href="#features" class="px-8 py-4 rounded-xl glass-panel text-white font-semibold border-white/10 hover:bg-white/5 transition-all">Explore Features</a>
                 </div>
             </div>
 
-        </section>
-
-        <section class="lg:col-span-5 flex flex-col gap-6 sticky top-24">
-            
-            <div class="glass-card rounded-2xl p-6 shadow-2xl flex flex-col gap-5">
-                <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                    <div>
-                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-200">Step 4: SaaS Live Viewport Preview</h3>
-                        <p class="text-[11px] text-slate-400 mt-0.5">Real-time vector assembly output rendering engine matrix</p>
+            <!-- Right Side Complex Live Dynamic Composition Block -->
+            <div id="hero-graphic" class="relative w-full aspect-square max-w-[500px] mx-auto flex items-center justify-center reveal-element [transform:scale(0.95)] [transition-delay:0.2s]">
+                <!-- Outer Ring Orbit Animations -->
+                <div class="absolute inset-0 rounded-full border border-purple-500/10 animate-[spin_40s_linear_infinite]"></div>
+                <div class="absolute inset-12 rounded-full border border-dashed border-pink-500/10 animate-[spin_20s_linear_infinite_reverse]"></div>
+                
+                <!-- Central Micro System Presentation Mockup Card -->
+                <div class="relative w-72 h-80 glass-panel rounded-2xl border-white/10 p-6 flex flex-col justify-between shadow-2xl floating-graphic z-10">
+                    <div class="flex items-center justify-between border-b border-white/5 pb-4">
+                        <span class="text-xs font-bold text-slate-400 tracking-wider uppercase">Engine Monitor</span>
+                        <span class="w-2 h-2 rounded-full bg-green-400 shadow-[0_0_10px_#4ade80]"></span>
                     </div>
-                </div>
-
-                <canvas id="analytical-loopback-buffer-canvas" class="hidden"></canvas>
-
-                <div class="bg-brand-darkBg/90 border border-slate-800/80 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[380px] relative overflow-hidden group shadow-inner">
-                    <canvas id="view-canvas-master" class="max-w-full h-auto object-contain transition-all duration-300 rounded-lg shadow-2xl group-hover:scale-[1.01]"></canvas>
                     
-                    <div id="readability-fault-screen" class="hidden absolute inset-0 bg-rose-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-fadeIn z-20">
-                        <div class="w-12 h-12 rounded-full bg-rose-500/10 text-rose-400 flex items-center justify-center text-2xl font-bold mb-3 border border-rose-500/20">⚠️</div>
-                        <h4 class="text-base font-bold text-white uppercase tracking-wider">Matrix Scannability Structural Fault</h4>
-                        <p class="text-xs text-rose-300/90 mt-1.5 max-w-sm leading-relaxed">The applied layout shapes, extreme asset dimensions, or weak canvas color contrast limits violate phone camera parser rules.</p>
-                        <button onclick="triggerEmergencyDesignRecovery()" class="mt-4 bg-white text-rose-950 font-bold text-xs px-5 py-2.5 rounded-xl hover:bg-rose-100 transition-transform active:scale-95 shadow-lg">Restore Safe Calibration Presets</button>
+                    <!-- Dynamic Live Graphic Vector Presentation -->
+                    <div class="my-auto space-y-4 relative py-6">
+                        <div class="w-full bg-white/5 rounded-xl p-3 flex items-center gap-3 border border-white/5">
+                            <div class="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400 font-bold text-xs">RAW</div>
+                            <div class="flex-1">
+                                <div class="w-16 h-2 bg-white/20 rounded mb-1"></div>
+                                <div class="w-24 h-1.5 bg-white/10 rounded"></div>
+                            </div>
+                            <span class="text-xs font-bold text-purple-400">4.2 MB</span>
+                        </div>
+                        
+                        <!-- Flow Dynamic Direction Icon Connect -->
+                        <div class="flex justify-center my-1">
+                            <div class="w-8 h-8 rounded-full bg-pink-500/20 border border-pink-500/40 flex items-center justify-center text-pink-400 animate-bounce">
+                                <i data-lucide="arrow-down" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+
+                        <div class="w-full bg-white/5 rounded-xl p-3 flex items-center gap-3 border border-white/5">
+                            <div class="w-10 h-10 rounded-lg bg-pink-500/20 flex items-center justify-center text-pink-400 font-bold text-xs">OPT</div>
+                            <div class="flex-1">
+                                <div class="w-20 h-2 bg-white/20 rounded mb-1"></div>
+                                <div class="w-12 h-1.5 bg-white/10 rounded"></div>
+                            </div>
+                            <span class="text-xs font-bold text-pink-400">180 KB</span>
+                        </div>
+                    </div>
+
+                    <!-- Progress Status Tracking Ring -->
+                    <div class="flex items-center justify-between bg-purple-950/20 border border-purple-500/20 rounded-xl p-2.5">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="zap" class="w-4 h-4 text-purple-400 animate-pulse"></i>
+                            <span class="text-[11px] font-bold text-slate-300">Reduction Scale Factor</span>
+                        </div>
+                        <span class="text-xs font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">-95.7%</span>
                     </div>
                 </div>
 
-                <div class="bg-slate-900/40 border border-slate-800/60 rounded-xl p-3 grid grid-cols-2 gap-2 font-mono text-[11px]">
-                    <div class="flex justify-between border-r border-slate-800 pr-2">
-                        <span class="text-slate-500">CONTRAST SCORE:</span>
-                        <span id="tel-contrast-metric" class="text-green-400 font-bold">PASS (14.2:1)</span>
-                    </div>
-                    <div class="flex justify-between pl-2">
-                        <span class="text-slate-500">LOGO LIMIT:</span>
-                        <span id="tel-logo-safety" class="text-green-400 font-bold">SAFE BOUNDS</span>
-                    </div>
-                    <div class="flex justify-between border-r border-slate-800 pr-2 pt-1 border-t border-slate-800/40">
-                        <span class="text-slate-500">VERSION TYPE:</span>
-                        <span id="tel-version-metric" class="text-blue-400 font-bold">AUTO DETECT</span>
-                    </div>
-                    <div class="flex justify-between pl-2 pt-1 border-t border-slate-800/40">
-                        <span class="text-slate-500">TOTAL CELLS:</span>
-                        <span id="tel-cells-metric" class="text-blue-400 font-bold">29 x 29</span>
+                <!-- Abstract Layer Tags and Cards Layout Inside Composition Background -->
+                <div class="absolute top-8 left-4 glass-panel border-white/5 px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg floating-graphic [animation-delay:1.5s] z-20 text-xs font-bold">
+                    <i data-lucide="image" class="w-4 h-4 text-blue-400"></i> PNG Lossless
+                </div>
+                <div class="absolute bottom-12 right-2 glass-panel border-white/5 px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg floating-graphic [animation-delay:0.7s] z-20 text-xs font-bold">
+                    <i data-lucide="shield-check" class="w-4 h-4 text-green-400"></i> 100% Local Sandbox
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- 11. Infinite Scrolling Trusted Logos Marquee -->
+    <section class="border-y border-white/5 py-10 bg-black/40 backdrop-blur-md relative z-10 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 text-center mb-6">
+            <span class="text-xs font-bold uppercase tracking-widest text-slate-500">Trusted by Teams Worldwide</span>
+        </div>
+        <div class="marquee-container w-full">
+            <div class="marquee-content gap-16 text-lg font-bold text-slate-400 tracking-wider">
+                <span>📸 Photographers</span>
+                <span class="text-purple-500">•</span>
+                <span>🎨 UI/UX Designers</span>
+                <span class="text-pink-500">•</span>
+                <span>💻 Frontend Developers</span>
+                <span class="text-blue-500">•</span>
+                <span>🎓 Students</span>
+                <span class="text-green-500">•</span>
+                <span>🛒 E-Commerce Managers</span>
+                <span class="text-purple-500">•</span>
+                <span>💼 Business Teams</span>
+                <span class="text-pink-500">•</span>
+                <!-- Duplicate Content Loop to Support Fluid Scrolling Animation -->
+                <span>📸 Photographers</span>
+                <span class="text-purple-500">•</span>
+                <span>🎨 UI/UX Designers</span>
+                <span class="text-pink-500">•</span>
+                <span>💻 Frontend Developers</span>
+                <span class="text-blue-500">•</span>
+                <span>🎓 Students</span>
+                <span class="text-green-500">•</span>
+                <span>🛒 E-Commerce Managers</span>
+                <span class="text-purple-500">•</span>
+                <span>💼 Business Teams</span>
+                <span class="text-pink-500">•</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Live Core Functional App: MB to KB Compression Component -->
+    <section id="compressor" class="py-24 relative z-10 px-4">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center space-y-4 mb-12 reveal-element [transform:translateY(20px)]">
+                <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white">Smart Image Compression</h2>
+                <p class="text-slate-400 max-w-lg mx-auto">Upload an image, choose your target file size, and compress it instantly in your browser.</p>
+            </div>
+
+            <!-- Integrated Drag Drop and Parameter Panel Matrix -->
+            <div class="glass-panel rounded-3xl border-white/10 p-6 md:p-8 space-y-6 shadow-2xl relative reveal-element [transform:translateY(30px)]">
+                
+                <!-- Upload Dropzone Interface -->
+                <div id="dropzone" class="border-2 border-dashed border-white/10 hover:border-purple-500/50 bg-white/[0.01] hover:bg-purple-500/[0.02] rounded-2xl p-8 md:p-12 text-center transition-all duration-300 cursor-pointer group relative overflow-hidden">
+                    <input type="file" id="file-input" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/jpeg, image/png, image/webp">
+                    <div class="space-y-4 pointer-events-none relative z-10">
+                        <div class="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center mx-auto border border-white/10 group-hover:scale-110 group-hover:border-purple-500/30 transition-all duration-500">
+                            <i data-lucide="upload-cloud" class="w-6 h-6 text-slate-400 group-hover:text-purple-400 transition-colors"></i>
+                        </div>
+                        <div>
+                            <p class="text-base font-bold text-white">Drag & drop your image here or click to browse</p>
+                            <p class="text-xs text-slate-500 mt-1">Supported formats: JPG, JPEG, PNG, WEBP</p>
+                        </div>
+                        <button type="button" class="px-5 py-2 rounded-xl bg-white/5 group-hover:bg-purple-600 group-hover:text-white transition-all text-xs font-bold text-slate-300 border border-white/10">Browse Files</button>
                     </div>
                 </div>
 
-                <div class="bg-brand-darkBg rounded-xl p-3 border border-slate-800/80">
-                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Encoded System Payload Matrix String Output</span>
-                    <p id="string-payload-preview-terminal" class="text-xs font-mono text-green-400 break-all select-all bg-slate-950 p-2 rounded border border-slate-900/60">https://example.com</p>
+                <!-- Preview Area State Manager (Hidden state when vacant) -->
+                <div id="preview-container" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6 bg-white/[0.01] border border-white/5 rounded-2xl p-4">
+                    <div class="space-y-2">
+                        <span class="text-xs font-bold text-slate-400 tracking-wider uppercase block">Original Size</span>
+                        <div class="relative aspect-video bg-black/40 rounded-xl overflow-hidden flex items-center justify-center border border-white/5">
+                            <img id="input-img" src="" alt="Source preview" class="max-w-full max-h-full object-contain">
+                        </div>
+                        <div class="flex justify-between text-xs font-medium text-slate-400 px-1">
+                            <span id="input-name" class="truncate max-w-[200px]">filename.jpg</span>
+                            <span id="input-size" class="font-bold text-purple-400">0.00 MB</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <span class="text-xs font-bold text-slate-400 tracking-wider uppercase block">Compression Results</span>
+                        <div class="relative aspect-video bg-black/40 rounded-xl overflow-hidden flex items-center justify-center border border-white/5">
+                            <img id="output-img" src="" alt="Compressed preview" class="max-w-full max-h-full object-contain blur-sm">
+                            <!-- Live Progress Ring Overlay overlay -->
+                            <div id="processing-overlay" class="hidden absolute inset-0 bg-black/60 flex flex-col items-center justify-center space-y-2">
+                                <div class="w-10 h-10 border-2 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
+                                <span class="text-xs font-bold text-pink-400 uppercase tracking-widest animate-pulse">Working on your image</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between text-xs font-medium text-slate-400 px-1">
+                            <span>Target Size Met</span>
+                            <span id="output-size" class="font-bold text-pink-400">0.00 KB</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="flex flex-col gap-2">
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="processExportChainPipeline('png')" id="act-btn-png" class="bg-green-600 hover:bg-green-500 text-white font-bold py-3.5 px-4 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-green-600/10 active:scale-[0.98]">⬇️ Download PNG Image</button>
-                        <button onclick="processExportChainPipeline('svg')" id="act-btn-svg" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 px-4 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-md active:scale-[0.98]">⬇️ Download Vector SVG</button>
+                <!-- Fine Tuning Tuning Parameters Grid Matrix -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-white/5">
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm font-bold text-slate-300 flex items-center gap-2">
+                                <i data-lucide="sliders" class="w-4 h-4 text-purple-400"></i> Quality Level
+                            </label>
+                            <span id="quality-val" class="text-xs font-extrabold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded">80%</span>
+                        </div>
+                        <input type="range" id="quality-slider" min="5" max="100" value="80" class="w-full accent-purple-500 cursor-pointer bg-white/10 h-1.5 rounded-full appearance-none">
                     </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="processClipboardActionChannel('text')" class="bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold py-2.5 px-3 rounded-xl text-[11px] transition-colors border border-slate-800 flex items-center justify-center gap-1.5">📋 Copy Text Data</button>
-                        <button onclick="processClipboardActionChannel('image')" class="bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold py-2.5 px-3 rounded-xl text-[11px] transition-colors border border-slate-800 flex items-center justify-center gap-1.5">🖼️ Copy Canvas Layer</button>
+
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm font-bold text-slate-300 flex items-center gap-2">
+                                <i data-lucide="target" class="w-4 h-4 text-pink-400"></i> Target Size
+                            </label>
+                            <div class="flex items-center gap-1.5">
+                                <input type="number" id="target-kb-input" value="200" min="10" max="5000" class="w-20 bg-white/5 border border-white/10 rounded px-2 py-0.5 text-xs font-bold text-pink-400 text-center outline-none focus:border-pink-500">
+                                <span class="text-xs font-bold text-slate-500">KB</span>
+                            </div>
+                        </div>
+                        <input type="range" id="kb-slider" min="10" max="2000" value="200" class="w-full accent-pink-500 cursor-pointer bg-white/10 h-1.5 rounded-full appearance-none">
+                    </div>
+                </div>
+
+                <!-- Bottom Form Control Layout Actions Box -->
+                <div class="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-2 text-xs text-slate-400">
+                        <i data-lucide="lock" class="w-4 h-4 text-green-400"></i> No data is sent to any server. Everything runs securely in your browser.
+                    </div>
+                    <button id="download-btn" disabled class="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold opacity-40 cursor-not-allowed transition-all duration-300 shadow-lg flex items-center justify-center gap-2 group">
+                        <i data-lucide="download" class="w-4 h-4"></i> Download Compressed Image
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+
+
+    <!-- 3. Dynamic Interactive Alternating Content Information Blocks -->
+    <section class="py-24 relative z-10 px-4 max-w-7xl mx-auto space-y-32">
+        
+        <!-- Alternate Block Row 1: Text Left / Composition Right -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div class="space-y-6 reveal-element [transform:translateX(-30px)]">
+                <div class="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+                    <i data-lucide="zap" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-3xl font-extrabold text-white tracking-tight">Quality-Focused Compression</h3>
+                <p class="text-slate-400 leading-relaxed">The compression process is designed to preserve important visual details while significantly reducing image size. By intelligently balancing quality and compression levels, images remain sharp, clean, and suitable for both professional and personal use.</p>
+                <ul class="space-y-3 text-sm text-slate-300 font-medium">
+                    <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-purple-400"></i> Smart quality optimization preserves important image details</li>
+                    <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-purple-400"></i> Optimized file sizes without compromising visual clarity</li>
+                </ul>
+            </div>
+            <div class="relative w-full aspect-video bg-white/[0.01] glass-panel border-white/5 rounded-2xl p-4 shadow-2xl floating-graphic reveal-element [transform:translateX(30px)]">
+                <div class="w-full h-full flex items-center justify-center overflow-hidden rounded-xl">
+    <img 
+        src="stergo-fantasy-2049567_1920.jpg" 
+        alt="Canvas Processing Pipeline" 
+        class="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity duration-300"
+    />
+</div>
+            </div>
+        </div>
+
+        <!-- Alternate Block Row 2: Composition Left / Text Right -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div class="relative w-full aspect-video bg-white/[0.01] glass-panel border-white/5 rounded-2xl p-4 shadow-2xl floating-graphic [animation-delay:1s] order-2 lg:order-1 reveal-element [transform:translateX(-30px)]">
+                <div class="w-full h-full flex items-center justify-center overflow-hidden rounded-xl">
+    <img 
+        src="gpt-image-2_a_cinematic_photo_of_Create_a_modern_premium_SaaS-style_UI_section_for_an_image_-0 (1).jpg" 
+        alt="Canvas Processing Pipeline" 
+        class="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity duration-300"
+    />
+</div>
+            </div>
+            <div class="space-y-6 order-1 lg:order-2 reveal-element [transform:translateX(30px)]">
+                <div class="w-12 h-12 rounded-2xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400">
+                    <i data-lucide="shield-check" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-3xl font-extrabold text-white tracking-tight">Fast Browser-Based Processing</h3>
+                <p class="text-slate-400 leading-relaxed">
+                   Compress images quickly without waiting for uploads or server processing.Our advanced compression engine works entirely within your browser, allowing images to be processed in real time while maintaining excellent visual quality. By handling everything locally, the tool delivers faster results, reduced waiting times, and a smoother compression experience for images of all sizes.
+                </p>
+                <ul class="space-y-3 text-sm text-slate-300 font-medium">
+                    <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-pink-400"></i> Processes images directly in your browser for faster results</li>
+                    <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-pink-400"></i> No uploads or server delays, ensuring instant compression</li>
+                </ul>
+            </div>
+        </div>
+ 
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div class="space-y-6 reveal-element [transform:translateX(-30px)]">
+                <div class="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+                    <i data-lucide="zap" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-3xl font-extrabold text-white tracking-tight">Designed for Everyone</h3>
+                <p class="text-slate-400 leading-relaxed">Simple enough for beginners, powerful enough for professionals.Whether you're a student, designer, developer, marketer, or business owner, the platform provides an intuitive compression experience that helps you reduce file sizes quickly without requiring technical knowledge.</p>
+                <ul class="space-y-3 text-sm text-slate-300 font-medium">
+                    <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-purple-400"></i> Simple and intuitive interface designed for users of all skill levels</li>
+                    <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-purple-400"></i> Perfect for students, designers, developers, businesses, and content creators</li>
+                </ul>
+            </div>
+            <div class="relative w-full aspect-video bg-white/[0.01] glass-panel border-white/5 rounded-2xl p-4 shadow-2xl floating-graphic reveal-element [transform:translateX(30px)]">
+                <div class="w-full h-full flex items-center justify-center overflow-hidden rounded-xl">
+    <img 
+        src="gpt-image-2_a_cinematic_photo_of_Create_a_premium_modern_SaaS_landing_page_hero_section_in_a-0 (1).jpg" 
+        alt="Canvas Processing Pipeline" 
+        class="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity duration-300"
+    />
+</div>
+            </div>
+        </div>
+
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div class="relative w-full aspect-video bg-white/[0.01] glass-panel border-white/5 rounded-2xl p-4 shadow-2xl floating-graphic [animation-delay:1s] order-2 lg:order-1 reveal-element [transform:translateX(-30px)]">
+                <div class="w-full h-full flex items-center justify-center overflow-hidden rounded-xl">
+    <img 
+        src="gpt-image-2_a_cinematic_photo_of_Create_a_modern_premium_SaaS-style_UI_section_for_an_image_-0 (10).jpg" 
+        alt="Canvas Processing Pipeline" 
+        class="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity duration-300"
+    />
+</div>
+            </div>
+            <div class="space-y-6 order-1 lg:order-2 reveal-element [transform:translateX(30px)]">
+                <div class="w-12 h-12 rounded-2xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400">
+                    <i data-lucide="shield-check" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-3xl font-extrabold text-white tracking-tight">Universal Format Support</h3>
+                <p class="text-slate-400 leading-relaxed">
+                   Works with the image formats you use every day.Upload and compress JPG, JPEG, PNG, and WEBP images with ease. The platform is built to handle a wide range of image types, providing a consistent and reliable compression experience regardless of the format.
+                </p>
+                <ul class="space-y-3 text-sm text-slate-300 font-medium">
+                    <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-pink-400"></i> Works with the most widely used image formats</li>
+                    <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-pink-400"></i> Reliable compression across all supported file types</li>
+                </ul>
+            </div>
+        </div>
+
+        
+    </section>
+
+    <!-- 6. Structured Workflow Sequence Segment -->
+    <section id="how-it-works" class="py-24 bg-black/30 relative z-10 px-4 border-y border-white/5">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center space-y-4 mb-16 reveal-element [transform:translateY(20px)]">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">How It Works</h2>
+                <p class="text-slate-400 max-w-md mx-auto">Four simple steps to compress images quickly and securely.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 relative">
+                <!-- Card Item 1 -->
+                <div class="glass-panel-interactive rounded-2xl p-6 relative flex flex-col space-y-4 reveal-element [transform:translateY(30px)]">
+                    <div class="text-xs font-black text-purple-400/40 font-mono tracking-widest uppercase">Stage 01</div>
+                    <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400">
+                        <i data-lucide="file-up" class="w-5 h-5"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-white">Upload Image</h4>
+                    <p class="text-slate-400 text-sm">Select an image from your device or drag and drop it into the upload area. We support JPG, JPEG, PNG, and WEBP files.</p>
+                </div>
+                <!-- Card Item 2 -->
+                <div class="glass-panel-interactive rounded-2xl p-6 relative flex flex-col space-y-4 reveal-element [transform:translateY(30px)] [transition-delay:0.1s]">
+                    <div class="text-xs font-black text-pink-400/40 font-mono tracking-widest uppercase">Stage 02</div>
+                    <div class="w-10 h-10 rounded-xl bg-pink-500/10 flex items-center justify-center text-pink-400">
+                        <i data-lucide="binary" class="w-5 h-5"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-white">Set Your Target Size</h4>
+                    <p class="text-slate-400 text-sm">Enter the file size you want in KB. The compression engine will automatically prepare the best settings to help reach your target.</p>
+                </div>
+                <!-- Card Item 3 -->
+                <div class="glass-panel-interactive rounded-2xl p-6 relative flex flex-col space-y-4 reveal-element [transform:translateY(30px)] [transition-delay:0.2s]">
+                    <div class="text-xs font-black text-blue-400/40 font-mono tracking-widest uppercase">Stage 03</div>
+                    <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400">
+                        <i data-lucide="cpu" class="w-5 h-5"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-white">Compress Your Image</h4>
+                    <p class="text-slate-400 text-sm">The compression engine automatically balances file size and image quality to achieve the best possible result.</p>
+                </div>
+                <!-- Card Item 4 -->
+                <div class="glass-panel-interactive rounded-2xl p-6 relative flex flex-col space-y-4 reveal-element [transform:translateY(30px)] [transition-delay:0.3s]">
+                    <div class="text-xs font-black text-green-400/40 font-mono tracking-widest uppercase">Stage 04</div>
+                    <div class="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center text-green-400">
+                        <i data-lucide="file-check" class="w-5 h-5"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-white">Download Your Image</h4>
+                    <p class="text-slate-400 text-sm">Once compression is complete, download your optimized image instantly and use it wherever you need.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- 8. Premium Interactive Before/After Comparison Slider Block -->
+    <section id="comparison" class="py-24 relative z-10 px-4 max-w-5xl mx-auto">
+        <div class="text-center space-y-4 mb-12 reveal-element [transform:translateY(20px)]">
+            <h2 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">Interactive Quality Comparison</h2>
+            <p class="text-slate-400 max-w-md mx-auto">Drag the slider to compare the original image with the compressed version in real time.</p>
+        </div>
+
+        <!-- Before/After Interactive Control Layout Wrap -->
+        <div id="slider-wrap" class="relative w-full aspect-video rounded-3xl overflow-hidden glass-panel border-white/10 select-none cursor-ew-resize shadow-2xl group reveal-element [transform:scale(0.98)]">
+            
+            <!-- Before Asset Block Layer -->
+            <div class="absolute inset-0 bg-[#0f0c22]">
+                <img src="julius_silver-polynesia-3021072_1920.jpg" alt="Source" class="w-full h-full object-cover">
+                <div class="absolute top-4 left-4 glass-panel bg-black/60 border-white/10 px-4 py-1.5 rounded-full text-xs font-bold text-white tracking-widest uppercase">
+                    Raw Vector Space [4.8 MB]
+                </div>
+            </div>
+
+            <!-- After Asset Split Clip Panel Layer -->
+            <div id="compressed-clip-panel" class="absolute inset-0 pointer-events-none transition-all duration-75" style="clip-path: inset(0 0 0 50%);">
+                <img src="julius_silver-polynesia-3021072_1920.jpg" alt="Compressed" class="w-full h-full object-cover filter brightness-90">
+                <div class="absolute top-4 right-4 glass-panel bg-pink-600/80 border-white/10 px-4 py-1.5 rounded-full text-xs font-bold text-white tracking-widest uppercase">
+                    V12 Engine 0.1 Target Variant [140 KB]
+                </div>
+            </div>
+
+            <!-- Interactive Handle Bar Overlay Line -->
+            <div id="slider-handle" class="absolute top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 via-pink-500 to-blue-500 left-1/2 pointer-events-none shadow-[0_0_10px_rgba(236,72,153,0.5)]">
+                <div class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-white text-slate-950 flex items-center justify-center shadow-2xl border-4 border-[#030014]">
+                    <i data-lucide="chevrons-left-right" class="w-4 h-4"></i>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+
+
+
+    <!-- 7. Premium Structured Grids Feature Block Layout -->
+    <section id="features" class="py-24 max-w-7xl mx-auto px-4 relative z-10">
+        <div class="text-center space-y-4 mb-16 reveal-element [transform:translateY(20px)]">
+            <h2 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">Powerful Features</h2>
+            <p class="text-slate-400 max-w-md mx-auto">Everything you need to compress images quickly, accurately, and securely.</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Feature Item 1 -->
+            <div class="glass-panel-interactive rounded-2xl p-6 space-y-4 reveal-element [transform:translateY(30px)]">
+                <div class="w-11 h-11 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400"><i data-lucide="target" class="w-5 h-5"></i>
+                </div>
+                <h4 class="text-xl font-bold text-white">Exact KB Size</h4>
+                <p class="text-slate-400 text-sm leading-relaxed">Set your desired file size in KB and let the compression engine work towards achieving your target with the best possible balance of size and quality.</p>
+            </div>
+            <!-- Feature Item 2 -->
+            <div class="glass-panel-interactive rounded-2xl p-6 space-y-4 reveal-element [transform:translateY(30px)] [transition-delay:0.1s]">
+                <div class="w-11 h-11 rounded-xl bg-pink-500/10 flex items-center justify-center text-pink-400"><i data-lucide="cpu" class="w-5 h-5"></i>
+                </div>
+                <h4 class="text-xl font-bold text-white">Smart Compression</h4>
+                <p class="text-slate-400 text-sm leading-relaxed">Advanced optimization automatically adjusts compression settings to reduce file size while preserving important visual details and image clarity.</p>
+            </div>
+             <div class="glass-panel-interactive rounded-2xl p-6 space-y-4 reveal-element [transform:translateY(30px)] [transition-delay:0.1s]">
+                <div class="w-11 h-11 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400"><i data-lucide="shield-check" class="w-5 h-5"></i>
+                </div>
+                <h4 class="text-xl font-bold text-white">Browser-Based Processing</h4>
+                <p class="text-slate-400 text-sm leading-relaxed">All image processing takes place directly in your browser, delivering fast results while keeping your files completely private.</p>
+            </div>
+             <div class="glass-panel-interactive rounded-2xl p-6 space-y-4 reveal-element [transform:translateY(30px)] [transition-delay:0.1s]">
+                <div class="w-11 h-11 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400"><i data-lucide="eye" class="w-5 h-5"></i>
+                </div>
+                <h4 class="text-xl font-bold text-white">Live Size Preview</h4>
+                <p class="text-slate-400 text-sm leading-relaxed">View estimated file sizes, quality levels, and compression progress in real time as the engine processes your image.</p>
+            </div>
+             <div class="glass-panel-interactive rounded-2xl p-6 space-y-4 reveal-element [transform:translateY(30px)] [transition-delay:0.1s]">
+                <div class="w-11 h-11 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400"><i data-lucide="binary" class="w-5 h-5"></i>
+                </div>
+                <h4 class="text-xl font-bold text-white">High Accuracy</h4>
+                <p class="text-slate-400 text-sm leading-relaxed">Designed to consistently produce reliable results and help you meet file size requirements with greater precision.</p>
+            </div>
+             <div class="glass-panel-interactive rounded-2xl p-6 space-y-4 reveal-element [transform:translateY(30px)] [transition-delay:0.1s]">
+                <div class="w-11 h-11 rounded-xl bg-pink-500/10 flex items-center justify-center text-pink-400"><i data-lucide="zap" class="w-5 h-5"></i>
+                </div>
+                <h4 class="text-xl font-bold text-white">Fast Performance</h4>
+                <p class="text-slate-400 text-sm leading-relaxed">Optimized for speed, allowing images to be compressed in seconds without unnecessary delays or waiting times.</p>
+            </div>
+             <div class="glass-panel-interactive rounded-2xl p-6 space-y-4 reveal-element [transform:translateY(30px)] [transition-delay:0.1s]">
+                <div class="w-11 h-11 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400"><i data-lucide="image" class="w-5 h-5"></i>
+                </div>
+                <h4 class="text-xl font-bold text-white">PNG Transparency Support</h4>
+                <p class="text-slate-400 text-sm leading-relaxed">Compress PNG images while preserving transparent backgrounds and maintaining overall image quality.</p>
+            </div>
+            <!-- Feature Item 3 -->
+            <div class="glass-panel-interactive rounded-2xl p-6 space-y-4 reveal-element [transform:translateY(30px)] [transition-delay:0.2s]">
+                <div class="w-11 h-11 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400"><i data-lucide="box" class="w-5 h-5"></i>
+                </div>
+                <h4 class="text-xl font-bold text-white">Complete Privacy</h4>
+                <p class="text-slate-400 text-sm leading-relaxed">Your files are never uploaded, stored, or shared. Everything is processed locally on your device for maximum privacy.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 13. Dynamic Accordion FAQ Section Segment -->
+    <section id="faq" class="py-24 max-w-4xl mx-auto px-4 relative z-10">
+        <div class="text-center space-y-4 mb-16 reveal-element [transform:translateY(20px)]">
+            <h2 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">Frequently Asked Questions</h2>
+            <p class="text-slate-400 max-w-sm mx-auto">Core algorithmic parameters explained cleanly for integration protocols.</p>
+        </div>
+
+        <div class="space-y-4">
+            <!-- Accordion Item 1 -->
+            <div class="glass-panel rounded-2xl border-white/5 overflow-hidden transition-all duration-300 reveal-element [transform:translateY(20px)]">
+                <button type="button" class="w-full px-6 py-5 text-left flex items-center justify-between font-bold text-white hover:bg-white/[0.02] transition-colors faq-trigger">
+                    <span>How fast is the compression process?</span>
+                    <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+                </button>
+                <div class="max-h-0 overflow-hidden transition-all duration-500 ease-in-out faq-content">
+                    <div class="px-6 pb-5 pt-2 text-sm text-slate-400 leading-relaxed border-t border-white/5 bg-black/20">
+                       Most images are compressed within a few seconds. Processing speed may vary depending on image size, format, and your device's performance.
                     </div>
                 </div>
             </div>
 
-            <div class="glass-card rounded-2xl p-4 shadow-xl flex flex-col gap-3">
-                <div>
-                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Independent Image Verification Terminal</h4>
-                    <p class="text-[10px] text-slate-500 mt-0.5">Drop a file matrix block here to trace system decoding logic streams</p>
+            <!-- Accordion Item 2 -->
+            <div class="glass-panel rounded-2xl border-white/5 overflow-hidden transition-all duration-300 reveal-element [transform:translateY(20px)]">
+                <button type="button" class="w-full px-6 py-5 text-left flex items-center justify-between font-bold text-white hover:bg-white/[0.02] transition-colors faq-trigger">
+                    <span>Is my data kept private and secure?</span>
+                    <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+                </button>
+                <div class="max-h-0 overflow-hidden transition-all duration-500 ease-in-out faq-content">
+                    <div class="px-6 pb-5 pt-2 text-sm text-slate-400 leading-relaxed border-t border-white/5 bg-black/20">
+                       Absolutely. Your files remain on your device throughout the entire process. No data is uploaded, stored, or shared with any external server.
+                    </div>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <input type="file" id="act-diagnostic-file" accept="image/*" class="sm:col-span-2 bg-brand-darkBg text-[11px] border border-slate-800 rounded-lg p-1.5 file:bg-slate-800 file:border-0 file:text-white file:text-[10px] file:font-bold file:px-2 file:py-0.5 file:rounded file:mr-2">
-                    <button onclick="runLocalDiagnosticUploadTraceEngine()" class="bg-slate-800 hover:bg-slate-700 font-bold py-1.5 text-xs rounded-lg transition-colors border border-slate-700 text-center text-slate-200">Run Diagnostics</button>
+            </div>
+               <!-- Accordion Item 2 -->
+            <div class="glass-panel rounded-2xl border-white/5 overflow-hidden transition-all duration-300 reveal-element [transform:translateY(20px)]">
+                <button type="button" class="w-full px-6 py-5 text-left flex items-center justify-between font-bold text-white hover:bg-white/[0.02] transition-colors faq-trigger">
+                    <span>Which file formats are supported?</span>
+                    <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+                </button>
+                <div class="max-h-0 overflow-hidden transition-all duration-500 ease-in-out faq-content">
+                    <div class="px-6 pb-5 pt-2 text-sm text-slate-400 leading-relaxed border-t border-white/5 bg-black/20">
+                       The tool supports JPG, JPEG, PNG, and WEBP image formats, allowing you to compress the most commonly used image types.
+                    </div>
                 </div>
-                <div id="diagnostic-log-terminal-output" class="text-xs italic font-mono text-slate-400 text-center bg-slate-950 p-2.5 rounded-xl border border-slate-900/60 min-h-[38px] flex items-center justify-center">No structural tracing array logs compiled.</div>
+            </div>
+               <!-- Accordion Item 2 -->
+            <div class="glass-panel rounded-2xl border-white/5 overflow-hidden transition-all duration-300 reveal-element [transform:translateY(20px)]">
+                <button type="button" class="w-full px-6 py-5 text-left flex items-center justify-between font-bold text-white hover:bg-white/[0.02] transition-colors faq-trigger">
+                    <span>Are my images processed locally?</span>
+                    <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+                </button>
+                <div class="max-h-0 overflow-hidden transition-all duration-500 ease-in-out faq-content">
+                    <div class="px-6 pb-5 pt-2 text-sm text-slate-400 leading-relaxed border-t border-white/5 bg-black/20">
+                       Yes. All processing takes place directly in your browser. Your images are never uploaded to a server, ensuring complete privacy and security.
+                    </div>
+                </div>
+            </div>
+               <!-- Accordion Item 2 -->
+            <div class="glass-panel rounded-2xl border-white/5 overflow-hidden transition-all duration-300 reveal-element [transform:translateY(20px)]">
+                <button type="button" class="w-full px-6 py-5 text-left flex items-center justify-between font-bold text-white hover:bg-white/[0.02] transition-colors faq-trigger">
+                    <span>How many images can I compress per day?</span>
+                    <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+                </button>
+                <div class="max-h-0 overflow-hidden transition-all duration-500 ease-in-out faq-content">
+                    <div class="px-6 pb-5 pt-2 text-sm text-slate-400 leading-relaxed border-t border-white/5 bg-black/20">
+                        You can compress unlimited images for free without paying any fees.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 14. CTA Banner Section -->
+    <section class="py-24 max-w-7xl mx-auto px-4 relative z-10 text-center">
+        <div class="glass-panel rounded-3xl border-purple-500/20 bg-gradient-to-tr from-purple-950/20 via-black/40 to-pink-950/10 p-12 relative overflow-hidden shadow-2xl space-y-6 reveal-element [transform:translateY(30px)]">
+            <div class="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-pink-500/5 opacity-50"></div>
+            <h3 class="text-3xl sm:text-4xl font-extrabold text-white relative z-10">Compress Your Images in Seconds</h3>
+            <p class="text-slate-400 max-w-lg mx-auto relative z-10 text-base">Reduce image size instantly while maintaining high visual quality.</p>
+            <div class="relative z-10 pt-4">
+                <a href="#compressor" class="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-500 rounded-xl font-bold text-white inline-flex items-center gap-2 hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] hover:scale-105 transition-all duration-300">
+                    Compress Now <i data-lucide="zap" class="w-4 h-4"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 15. Premium Redesigned Massive Footer Section Layout Area -->
+    <footer class="bg-black/80 border-t border-white/5 pt-20 pb-10 relative z-10 px-4">
+        <div class="absolute bottom-[-10%] right-[-5%] w-[30vw] h-[30vw] bg-indigo-600/5 rounded-full blur-[100px] pointer-events-none z-0 transition-all duration-700 group-hover/footer:bg-indigo-600/10 group-hover/footer:scale-110"></div>
+        <div class="absolute top-[-5%] left-[-5%] w-[25vw] h-[25vw] bg-pink-600/5 rounded-full blur-[80px] pointer-events-none z-0 transition-all duration-700 group-hover/footer:bg-pink-600/10 group-hover/footer:scale-110"></div>
+
+        <div class="max-w-7xl mx-auto px-6 sm:px-8 pt-16 pb-8 relative z-10">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-10 pb-12 border-b border-white/5">
+                
+                <div class="md:col-span-3 space-y-4">
+                    <a href="#" class="flex items-center gap-2.5 group/logo w-fit transition-all duration-300 hover:translate-x-0.5">
+                        <div class="w-8 h-8 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center text-white font-bold shadow-md shadow-indigo-500/10 group-hover/logo:rotate-12 group-hover/logo:scale-110 group-hover/logo:shadow-indigo-500/30 transition-all duration-300">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                        </div>
+                        <span class="font-display text-lg font-bold text-white tracking-tight transition-colors group-hover/logo:text-indigo-400">V12 Engine <span class="text-indigo-400 font-mono text-xs group-hover/logo:text-pink-400 transition-colors">0.1</span></span>
+                    </a>
+                    <p class="text-sm text-slate-400 leading-relaxed max-w-sm">
+                       Fast and secure image compression running directly in your browser.
+                    </p>
+                </div>
+
+                <div class="md:col-span-9 grid grid-cols-1 sm:grid-cols-3 gap-8">
+                    <div class="space-y-3 group/cat">
+                        <h4 class="text-xs font-semibold tracking-wider text-slate-300 uppercase transition-colors group-hover/cat:text-indigo-400 cursor-default">Features</h4>
+                        <ul class="space-y-2">
+                            <li><a href="f1.html" class="text-sm text-slate-400 hover:text-white hover:font-medium flex items-center gap-1 transition-all duration-200 hover:translate-x-1.5">Image Compression</a></li>
+                            <li><a href="f2.html" class="text-sm text-slate-400 hover:text-white hover:font-medium flex items-center gap-1 transition-all duration-200 hover:translate-x-1.5">Large File Support</a></li>
+                            <li><a href="f3.html" class="text-sm text-slate-400 hover:text-white hover:font-medium flex items-center gap-1 transition-all duration-200 hover:translate-x-1.5">High Quality Output</a></li>
+                            <li><a href="f4.html" class="text-sm text-slate-400 hover:text-white hover:font-medium flex items-center gap-1 transition-all duration-200 hover:translate-x-1.5">Fast Processing</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="space-y-3 group/cat">
+                        <h4 class="text-xs font-semibold tracking-wider text-slate-300 uppercase transition-colors group-hover/cat:text-indigo-400 cursor-default">Privacy</h4>
+                        <ul class="space-y-2">
+                            <li><a href="f5.html" class="text-sm text-slate-400 hover:text-white hover:font-medium flex items-center gap-1 transition-all duration-200 hover:translate-x-1.5">Local Processing</a></li>
+                            <li><a href="f6.html" class="text-sm text-slate-400 hover:text-white hover:font-medium flex items-center gap-1 transition-all duration-200 hover:translate-x-1.5">Your Images Stay Private</a></li>
+                            <li><a href="f7.html" class="text-sm text-slate-400 hover:text-white hover:font-medium flex items-center gap-1 transition-all duration-200 hover:translate-x-1.5">No Data Storage</a></li>
+                            <li><a href="f8.html" class="text-sm text-slate-400 hover:text-white hover:font-medium flex items-center gap-1 transition-all duration-200 hover:translate-x-1.5">No File Uploads</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="space-y-3 group/cat">
+                        <h4 class="text-xs font-semibold tracking-wider text-slate-300 uppercase transition-colors group-hover/cat:text-pink-400 cursor-default">Resources</h4>
+                        <ul class="space-y-2">
+                            <li><a href="f9.html" class="text-sm text-slate-400 hover:text-white hover:font-medium flex items-center gap-1 transition-all duration-200 hover:translate-x-1.5">FAQ</a></li>
+                            <li><a href="f10.html" class="text-sm text-slate-400 hover:text-white hover:font-medium flex items-center gap-1 transition-all duration-200 hover:translate-x-1.5">Privacy Policy</a></li>
+                            <li><a href="f11.html" class="text-sm text-slate-400 hover:text-white hover:font-medium flex items-center gap-1 transition-all duration-200 hover:translate-x-1.5">Terms of Use</a></li>
+                            <li><a href="f12.html" class="text-sm text-slate-400 hover:text-white hover:font-medium flex items-center gap-1 transition-all duration-200 hover:translate-x-1.5">Contact</a></li>
+                        </ul>
+                    </div>
+                </div>
+
             </div>
 
-        </section>
-    </main>
+        <!-- Lower Bounds Bar -->
+        <div class="relative flex flex-col sm:flex-row items-center justify-center pt-8 text-xs text-slate-500 w-full min-h-[44px]">
+                <p class="text-center transition-colors duration-300 hover:text-slate-400 cursor-default">
+                    © <span id="footerYear">2026</span> V12 Engine. Secure local browser utilities.
+                </p>
+        </div>
+        </div>
+    </footer>
 
+    <!-- Comprehensive JavaScript Logic Architecture Engine Core -->
     <script>
-        // Global SaaS Suite Immutable Architecture Registries Variables
-        let activeProtocolRegistryKey = 'URL';
-        let activeFrameTemplateIndex = 0;
-        let activeFrameCategoryFilter = 'all';
-        let activeShapeRegistryMorphismKey = 'square';
-        let activeFinderCornerEyeMorphismKey = 'square';
-        let activeBrandingLogoOverlayKey = 'none';
-        let systemUploadedLogoFileObjectReference = null;
-        let isScannabilityMetricValid = true;
+        document.addEventListener("DOMContentLoaded", () => {
+            // Re-initialize Lucide Icons Context Mapping
+            lucide.createIcons();
 
-        // Protocol Data Fields Structural Layout Definitions Maps Array Schema Records (Including requested types)
-        const coreProtocolSchemas = {
-            'URL': [
-                { id: 'url_str', label: 'Destination Web Portal Link URL', type: 'text', placeholder: 'https://enterprise.com/portal-destination', value: 'https://example.com', required: true }
-            ],
-            'Text': [
-                { id: 'text_blk', label: 'Plain Text Block Data Payload String', type: 'textarea', placeholder: 'Input telemetry alphanumeric text lines here...', value: 'Hello QRFY Premium Studio Software Suite 2026', required: true }
-            ],
-            'UPI': [
-                { id: 'upi_vpa', label: 'Virtual Payment Address (VPA / UPI ID)', type: 'text', placeholder: 'merchant@vpa', value: 'success@upi', required: true },
-                { id: 'upi_name', label: 'Payee / Merchant Registered Name', type: 'text', placeholder: 'Enterprise Solutions Ltd', value: 'QRFY Studio Store', required: true },
-                { id: 'upi_am', label: 'Transaction Absolute Amount (INR)', type: 'number', placeholder: 'e.g. 250.00 (Optional)', value: '', required: false },
-                { id: 'upi_tn', label: 'Payment Note / Remarks / Context Reference', type: 'text', placeholder: 'Order Description Ref (Optional)', value: 'Premium Design Suite Workspace', required: false }
-            ],
-            'Image': [
-                { id: 'img_url', label: 'Hosted Premium Image Resource Link URL', type: 'text', placeholder: 'https://storage.enterprise.com/assets/banner.jpg', value: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe', required: true, hasUploader: true, accept: 'image/*' }
-            ],
-            'PDF': [
-                { id: 'pdf_url', label: 'Cloud Hosted Document PDF Resource Link URL', type: 'text', placeholder: 'https://cdn.enterprise.com/docs/annual-report.pdf', value: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', required: true, hasUploader: true, accept: '.pdf,application/pdf' },
-                { id: 'pdf_lbl', label: 'Document File Presentation Label String', type: 'text', placeholder: 'Enterprise Product Specification Sheet', value: 'Corporate Quarterly Guidelines Summary', required: false }
-            ],
-            'MP3': [
-                { id: 'mp3_url', label: 'Hosted Audio / MP3 Stream Resource Link URL', type: 'text', placeholder: 'https://audio.enterprise.com/podcasts/episode-42.mp3', value: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', required: true, hasUploader: true, accept: 'audio/*', audio: true },
-                { id: 'mp3_dsc', label: 'Audio Track Broadcast Descriptor Header', type: 'text', placeholder: 'SaaS Architecture Panel Podcast Interview', value: 'Digital Evolution Sound Track', required: false }
-            ],
-            'Video': [
-                { id: 'vid_url', label: 'Video Resource Target URL (YouTube/Vimeo/Direct MP4)', type: 'text', placeholder: 'https://youtube.com/watch?v=xyz7729', value: 'https://www.w3schools.com/html/mov_bbb.mp4', required: true, hasUploader: true, accept: 'video/*', video: true },
-                { id: 'vid_desc', label: 'Video Asset Production Descriptor Text', type: 'text', placeholder: 'Product Launch Promotional Reel Showcase', value: 'Main Features Cinematic Trailer', required: false }
-            ],
-            'Social': [
-                { id: 'soc_plat', label: 'Primary Network Platform Destination Ecosystem', type: 'select', options: ['instagram', 'linkedin', 'facebook', 'twitter', 'tiktok', 'youtube'], value: 'instagram', required: true },
-                { id: 'soc_user', label: 'Profile Account Target Username Handle String', type: 'text', placeholder: 'enterprise_digital_hq', value: 'qrfy_premium_design', required: true }
-            ],
-            'WiFi': [
-                { id: 'wf_ssid', label: 'Wireless Access Network SSID Identifier Name', type: 'text', placeholder: 'Office_HQ_System_Freq', value: 'HQ-Enterprise-SSID', required: true },
-                { id: 'wf_pass', label: 'Network Authentication Security Private Password Credential', type: 'text', placeholder: 'AccessSecurityKey2026', value: 'WPASecretKeyPassword', required: false },
-                { id: 'wf_crypt', label: 'Security Encryption Protocol Standard Mode', type: 'select', options: ['WPA', 'WEP', 'nopass'], value: 'WPA', required: false }
-            ],
-            'Email': [
-                { id: 'em_dest', label: 'Recipient Corporate Destination Mailbox Gateway Address', type: 'text', placeholder: 'architect@enterprise.com', value: 'info@domain.com', required: true },
-                { id: 'em_subj', label: 'Subject Heading Line String Specifier', type: 'text', placeholder: 'Integration Workspace Inquiry', value: 'Business Partnership Request', required: false },
-                { id: 'em_body', label: 'Communication Message Body Text Content Block', type: 'textarea', placeholder: 'State structural specifications requests here...', value: 'Hi, I would like to establish an interface node configuration with your company.', required: false }
-            ],
-            'Phone': [
-                { id: 'ph_num', label: 'Telephony Target Dial Connection Number Line', type: 'tel', placeholder: '+15559876543', value: '+15559876543', required: true }
-            ],
-            'SMS': [
-                { id: 'sms_num', label: 'Wireless Carrier Target Mobile Number Receiver', type: 'tel', placeholder: '+15559876543', value: '+15559876543', required: true },
-                { id: 'sms_txt', label: 'SMS Brief Data Dispatch Message String', type: 'text', placeholder: 'Immediate alert broadcast message context string...', value: 'Secure telemetry channel connection established.', required: false }
-            ],
-            'vCard': [
-                { id: 'vc_fn', label: 'Given Identity First Name', type: 'text', placeholder: 'Jane', value: 'John', required: true },
-                { id: 'vc_ln', label: 'Family Last Surname', type: 'text', placeholder: 'Smith', value: 'Doe', required: true },
-                { id: 'vc_org', label: 'Corporate Entity Enterprise Identity Name', type: 'text', placeholder: 'Global Solutions Group Inc.', value: 'Enterprise Digital LLC', required: false },
-                { id: 'vc_ttl', label: 'Professional Executive Title Role Designation', type: 'text', placeholder: 'Principal Architect Tech Officer', value: 'Lead Digital Strategist', required: false },
-                { id: 'vc_cel', label: 'Mobile Cellular Target Link Line Phone Connection', type: 'tel', placeholder: '+15551234567', value: '+15551234567', required: false },
-                { id: 'vc_eml', label: 'Direct Validation Email Gateway Mailbox Box', type: 'text', placeholder: 'j.smith@solutions.io', value: 'john.doe@enterprise.io', required: false },
-                { id: 'vc_web', label: 'Digital Web Portfolio Domain Link URL', type: 'text', placeholder: 'https://solutions.io/team/smith', value: 'https://enterprise.io', required: false }
-            ],
-            'Location': [
-                { id: 'geo_url', label: 'Direct Google Maps Shared URL Target Link (Bypasses Lat Long Engine)', type: 'text', placeholder: 'https://maps.google.com/?q=37.7749,-122.4194', value: '', required: false },
-                { id: 'geo_lat', label: 'Latitude Spatial Vector Mapping Float Axis Coordinate', type: 'text', placeholder: '37.774929', value: '37.7749', required: false },
-                { id: 'geo_lng', label: 'Longitude Spatial Vector Mapping Float Axis Coordinate', type: 'text', placeholder: '-122.419416', value: '-122.4194', required: false }
-            ],
-            'Product': [
-                { id: 'pr_url', label: 'Direct E-Commerce Storefront Product URL Target Page', type: 'text', placeholder: 'https://shop.enterprise.com/product-item-id', value: 'https://shop.io/item-7729', required: false },
-                { id: 'pr_nm', label: 'Inventory Catalog Item Identity Label Name', type: 'text', placeholder: 'Processing Module Array V2', value: 'Processing Core V2', required: true },
-                { id: 'pr_sku', label: 'Physical Store Stock SKU Code Control Identifier', type: 'text', placeholder: 'SKU-09827-MX', value: 'SKU-77291-MX', required: true }
-            ],
-            'Event': [
-                { id: 'ev_ttl', label: 'Calendar Event Summary Title Line', type: 'text', placeholder: 'Architecture Summit 2026', value: 'Tech Keynote Conference 2026', required: true },
-                { id: 'ev_dsc', label: 'Agenda Overview Specification Details Description', type: 'text', placeholder: 'SaaS product development and vector graphics analytics engine discussion panel.', value: 'Vector graphics analytics panel discussion.', required: false },
-                { id: 'ev_loc', label: 'Physical Arena Venue Hall Location Allocation Site', type: 'text', placeholder: 'Convention Center Pavilion 3, SF', value: 'Convention Center, Pavilion 3, SF', required: false },
-                { id: 'ev_std', label: 'Start Date Structural Stamp Array (YYYYMMDD)', type: 'text', placeholder: '20261112', value: '20261112', required: true },
-                { id: 'ev_etd', label: 'Termination Expiry End Date Structural Stamp (YYYYMMDD)', type: 'text', placeholder: '20261114', value: '20261114', required: true }
-            ]
-        };
-
-        // Fully Implemented 50 Premium Vector Illustration Framework Templates Dataset Array 
-        const premiumFramesDatasetArray = [];
-        const frameCategoriesList = ['all', 'business', 'marketing', 'social', 'payment', 'food', 'travel'];
-        const frameTitleLabels = [
-            'Scan Me', 'Scan Here', 'Scan to Open', 'Scan to Pay', 'Scan to Visit', 'Scan Menu', 'Scan for WiFi', 
-            'Scan to Download', 'Scan to Contact', 'Scan to Review', 'Scan to Order', 'Scan to Book', 'Scan to Register', 
-            'Scan to Subscribe', 'Scan to Follow', 'Website Portal', 'Business Card', 'Restaurant Menu', 'App Download', 
-            'Join WiFi Now', 'Check In Here', 'Pay Invoice', 'Follow Social', 'Facebook Connect', 'Instagram Profile', 
-            'YouTube Channel', 'TikTok Stream', 'LinkedIn Profile', 'Digital Resume', 'Portfolio View', 'Event Pass', 
-            'Coupon Claim', 'Get Discount', 'Read PDF File', 'Google Form Survey', 'Map Location', 'Contact Details', 
-            'Product Info', 'Leave Feedback', 'Write Review', 'Donation Link', 'Crypto Wallet', 'UPI Transfer', 
-            'Secure Access', 'Download Ebook', 'Medical Record', 'Hotel CheckIn', 'Ticket Validation', 'Premium Content', 'Exit Survey'
-        ];
-
-        // Hydrate frame array library map loop records programmatically
-        for (let i = 0; i < 50; i++) {
-            let cat = 'business';
-            if (i % 6 === 1) cat = 'marketing';
-            if (i % 6 === 2) cat = 'social';
-            if (i % 6 === 3) cat = 'payment';
-            if (i % 6 === 4) cat = 'food';
-            if (i % 6 === 5) cat = 'travel';
-
-            premiumFramesDatasetArray.push({
-                id: i,
-                label: frameTitleLabels[i] || `Premium Frame ${i+1}`,
-                category: cat,
-                iconType: i % 4 === 0 ? '⭐' : (i % 4 === 1 ? '🔗' : (i % 4 === 2 ? '📱' : '💎'))
-            });
-        }
-
-        const presetShapesLibraryList = [
-            { id: 'square', label: 'Absolute Square', isUnsafe: false },
-            { id: 'roundedSquare', label: 'Rounded Square', isUnsafe: false },
-            { id: 'circle', label: 'Circular Dot', isUnsafe: false },
-            { id: 'diamond', label: 'Crystal Diamond', isUnsafe: false },
-            { id: 'pill', label: 'Horizontal Pill', isUnsafe: false },
-            { id: 'hexagon', label: 'Polygonal Hexagon', isUnsafe: false },
-            { id: 'waterDrop', label: 'Teardrop Fluid', isUnsafe: false },
-            { id: 'smoothPixel', label: 'Organic Smooth', isUnsafe: false },
-            { id: 'leaf', label: 'Eco Leaf (Unsafe)', isUnsafe: true },
-            { id: 'heart', label: 'Cardio Heart (Unsafe)', isUnsafe: true }
-        ];
-
-        const presetEyesLibraryList = [
-            { id: 'square', label: 'Classic Square' },
-            { id: 'rounded', label: 'Modern Smooth' },
-            { id: 'circle', label: 'Circular Ring' },
-            { id: 'modern', label: 'Abstract Matrix' }
-        ];
-
-        const presetLogosLibraryList = [
-            { id: 'none', label: 'None Base' },
-            { id: 'link', label: '🔗 Web Link' },
-            { id: 'wifi', label: '📶 Wi-Fi Hot' },
-            { id: 'shopping', label: '🛒 Cart Shop' },
-            { id: 'location', label: '📍 Geo Pin' },
-            { id: 'custom', label: '📤 Custom File' }
-        ];
-
-        // COMPLIANT CONTROLLED ACCORDION SINGLE-DRAWER TOGGLE LOOP ROUTINE
-        function toggleAccordionUI(targetId) {
-            ['acc-frames', 'acc-shapes', 'acc-logos', 'acc-colors'].forEach(id => {
-                const element = document.getElementById(id);
-                const iconIndicator = document.getElementById(`tg-${id}`);
-                if (id === targetId) {
-                    const isCurrentlyHidden = element.classList.contains('hidden');
-                    element.classList.toggle('hidden', !isCurrentlyHidden);
-                    if (iconIndicator) iconIndicator.style.transform = isCurrentlyHidden ? 'rotate(0deg)' : 'rotate(-90deg)';
-                } else {
-                    element.classList.add('hidden');
-                    const otherIndicator = document.getElementById(`tg-${id}`);
-                    if(otherIndicator) otherIndicator.style.transform = 'rotate(-90deg)';
+            // 17. Close Preloader Experience Screen view Smoothly
+            setTimeout(() => {
+                const loader = document.getElementById('preloader');
+                if (loader) {
+                    loader.classList.add('opacity-0');
+                    setTimeout(() => loader.remove(), 700);
                 }
-            });
-        }
+            }, 1200);
 
-        // INITIALIZATION AND GENERATION LAYER MOUNT ROUTINES LOGIC BLOCKS
-        function initializeApplicationInterfaceComponents() {
-            // Render Protocol Selection Tab Dynamic Segments Grid Layout
-            const tabMatrixRoot = document.getElementById('protocol-tab-matrix');
-            tabMatrixRoot.innerHTML = '';
-            Object.keys(coreProtocolSchemas).forEach(key => {
-                const btn = document.createElement('button');
-                btn.id = `protocol-btn-${key}`;
-                btn.onclick = () => handleGlobalProtocolStateFlush(key);
-                btn.className = "bg-brand-darkCard border border-slate-800 text-slate-400 text-[11px] py-2 px-1 rounded-xl font-bold transition-all hover:bg-slate-800/40 hover:text-white text-center truncate";
-                btn.innerText = key;
-                tabMatrixRoot.appendChild(btn);
-            });
-
-            // Populate Frame Categories Navigation Filter Array
-            const frameCatRoot = document.getElementById('frame-cat-filters');
-            frameCatRoot.innerHTML = '';
-            frameCategoriesList.forEach(categoryName => {
-                const node = document.createElement('button');
-                node.onclick = () => {
-                    activeFrameCategoryFilter = categoryName;
-                    renderFilteredFrameThumbnailsWorkspace();
-                };
-                node.id = `frame-filter-${categoryName}`;
-                node.className = "text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-md font-extrabold border transition-all shrink-0 bg-slate-900 text-slate-400 border-slate-800";
-                node.innerText = categoryName;
-                frameCatRoot.appendChild(node);
-            });
-
-            // Build Static Shape Selectors Framework Thumbnails
-            const shapeRoot = document.getElementById('shape-matrix-view');
-            shapeRoot.innerHTML = '';
-            presetShapesLibraryList.forEach(shape => {
-                const div = document.createElement('div');
-                div.id = `shape-card-${shape.id}`;
-                div.onclick = () => {
-                    if (shape.isUnsafe) {
-                        alert("Notice: Unsafe geometry shape triggered. Multi-engine scannability rules are processing structural loop verification checks.");
-                    }
-                    activeShapeRegistryMorphismKey = shape.id;
-                    updateSelectionHighlightGlowStates();
-                    debouncedMasterRenderPipelineTrigger();
-                };
-                div.className = "thumb-select p-2 rounded-xl bg-brand-darkBg cursor-pointer text-center font-bold text-[10px] text-slate-300 border border-slate-800 flex flex-col items-center justify-center gap-1 min-h-[48px]";
-                div.innerText = shape.label;
-                shapeRoot.appendChild(div);
-            });
-
-            // Build Corner Finder Eyes Choice Elements Mapping
-            const eyeRoot = document.getElementById('eye-matrix-view');
-            eyeRoot.innerHTML = '';
-            presetEyesLibraryList.forEach(eye => {
-                const div = document.createElement('div');
-                div.id = `eye-card-${eye.id}`;
-                div.onclick = () => {
-                    activeFinderCornerEyeMorphismKey = eye.id;
-                    updateSelectionHighlightGlowStates();
-                    debouncedMasterRenderPipelineTrigger();
-                };
-                div.className = "thumb-select p-2 rounded-xl bg-brand-darkBg cursor-pointer text-center font-bold text-[10px] text-slate-300 border border-slate-800 flex flex-col items-center justify-center min-h-[44px]";
-                div.innerText = eye.label;
-                eyeRoot.appendChild(div);
-            });
-
-            // Render Logos Controls Viewport Grid
-            const logoRoot = document.getElementById('logo-matrix-view');
-            logoRoot.innerHTML = '';
-            presetLogosLibraryList.forEach(logo => {
-                const div = document.createElement('div');
-                div.id = `logo-card-${logo.id}`;
-                div.onclick = () => {
-                    activeBrandingLogoOverlayKey = logo.id;
-                    const customUploadSection = document.getElementById('cfg-logo-file').parentElement.parentElement;
-                    if (customUploadSection) customUploadSection.classList.toggle('hidden', logo.id !== 'custom');
-                    updateSelectionHighlightGlowStates();
-                    debouncedMasterRenderPipelineTrigger();
-                };
-                div.className = "thumb-select p-1.5 rounded-xl bg-brand-darkBg cursor-pointer text-center font-bold text-[10px] text-slate-300 border border-slate-800 flex flex-col items-center justify-center min-h-[40px]";
-                div.innerText = logo.label;
-                logoRoot.appendChild(div);
-            });
-
-            handleGlobalProtocolStateFlush('URL');
-        }
-
-        function renderFilteredFrameThumbnailsWorkspace() {
-            frameCategoriesList.forEach(cat => {
-                const element = document.getElementById(`frame-filter-${cat}`);
-                if (element) {
-                    if (cat === activeFrameCategoryFilter) {
-                        element.className = "text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-md font-extrabold border transition-all shrink-0 bg-green-500/10 text-green-400 border-green-500/30 shadow-md shadow-green-500/5";
-                    } else {
-                        element.className = "text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-md font-extrabold border transition-all shrink-0 bg-slate-900 text-slate-400 border-slate-800 hover:text-white";
-                    }
-                }
-            });
-
-            const gridRoot = document.getElementById('frame-matrix-view');
-            gridRoot.innerHTML = '';
-
-            const filteredArray = premiumFramesDatasetArray.filter(f => activeFrameCategoryFilter === 'all' || f.category === activeFrameCategoryFilter);
-            
-            if (activeFrameCategoryFilter === 'all') {
-                const noneNode = document.createElement('div');
-                noneNode.id = `frame-card-0`;
-                noneNode.onclick = () => { activeFrameTemplateIndex = 0; updateSelectionHighlightGlowStates(); debouncedMasterRenderPipelineTrigger(); };
-                noneNode.className = "thumb-select p-2 rounded-xl bg-brand-darkBg cursor-pointer text-center flex flex-col items-center justify-center gap-1 min-h-[64px] border border-slate-800";
-                noneNode.innerHTML = `<span class="text-lg">🚫</span><span class="text-[10px] font-bold text-slate-400 leading-tight">No Frame</span>`;
-                gridRoot.appendChild(noneNode);
-            }
-
-            filteredArray.forEach(frameItem => {
-                const card = document.createElement('div');
-                card.id = `frame-card-${frameItem.id + 1}`;
-                card.onclick = () => {
-                    activeFrameTemplateIndex = frameItem.id + 1;
-                    document.getElementById('cfg-frame-text').value = frameItem.label.toUpperCase();
-                    updateSelectionHighlightGlowStates();
-                    debouncedMasterRenderPipelineTrigger();
-                };
-                card.className = "thumb-select p-2 rounded-xl bg-brand-darkBg cursor-pointer text-center flex flex-col items-center justify-center gap-1 min-h-[64px] border border-slate-800 hover:border-slate-700";
-                card.innerHTML = `<span class="text-base">${frameItem.iconType}</span><span class="text-[10px] font-bold text-slate-300 leading-tight block truncate w-full">${frameItem.label}</span>`;
-                gridRoot.appendChild(card);
-            });
-
-            updateSelectionHighlightGlowStates();
-        }
-
-        function updateSelectionHighlightGlowStates() {
-            Object.keys(coreProtocolSchemas).forEach(key => {
-                const el = document.getElementById(`protocol-btn-${key}`);
-                if(el) {
-                    if (key === activeProtocolRegistryKey) {
-                        el.className = "bg-green-600 border border-green-500 text-white text-[11px] py-2 px-1 rounded-xl font-bold shadow-md shadow-green-600/10 text-center truncate";
-                    } else {
-                        el.className = "bg-brand-darkCard border border-slate-800 text-slate-400 text-[11px] py-2 px-1 rounded-xl font-bold transition-all hover:bg-slate-800/40 hover:text-white text-center truncate";
-                    }
-                }
-            });
-
-            for(let i=0; i<=50; i++) {
-                const el = document.getElementById(`frame-card-${i}`);
-                if(el) el.classList.toggle('active', i === activeFrameTemplateIndex);
-            }
-
-            presetShapesLibraryList.forEach(shape => {
-                const el = document.getElementById(`shape-card-${shape.id}`);
-                if(el) el.classList.toggle('active', shape.id === activeShapeRegistryMorphismKey);
-            });
-
-            presetEyesLibraryList.forEach(eye => {
-                const el = document.getElementById(`eye-card-${eye.id}`);
-                if(el) el.classList.toggle('active', eye.id === activeFinderCornerEyeMorphismKey);
-            });
-
-            presetLogosLibraryList.forEach(logo => {
-                const el = document.getElementById(`logo-card-${logo.id}`);
-                if(el) el.classList.toggle('active', logo.id === activeBrandingLogoOverlayKey);
-            });
-        }
-
-        // COMPLETE AUTOMATIC PROTOCOL CLEAN-SLATE RESET FLUSH ROUTINE
-        function handleGlobalProtocolStateFlush(targetProtocolRegistryKey) {
-            activeProtocolRegistryKey = targetProtocolRegistryKey;
-
-            activeFrameTemplateIndex = 0;
-            activeShapeRegistryMorphismKey = 'square';
-            activeFinderCornerEyeMorphismKey = 'square';
-            activeBrandingLogoOverlayKey = 'none';
-            systemUploadedLogoFileObjectReference = null;
-
-            const logoFileInput = document.getElementById('cfg-logo-file');
-            if (logoFileInput) logoFileInput.value = '';
-            const logoSizeSlider = document.getElementById('cfg-logo-size');
-            if (logoSizeSlider) logoSizeSlider.value = 16;
-            const lblLogoSize = document.getElementById('lbl-logo-size');
-            if (lblLogoSize) lblLogoSize.innerText = '16%';
-            
-            const customUploadSection = document.getElementById('cfg-logo-file');
-            if (customUploadSection && customUploadSection.parentElement && customUploadSection.parentElement.parentElement) {
-                customUploadSection.parentElement.parentElement.classList.add('hidden');
-            }
-
-            const frameText = document.getElementById('cfg-frame-text');
-            if (frameText) frameText.value = "SCAN ME";
-            const frameClr = document.getElementById('cfg-frame-clr');
-            if (frameClr) frameClr.value = "#22c55e";
-            const frameTextClr = document.getElementById('cfg-frame-text-clr');
-            if (frameTextClr) frameTextClr.value = "#ffffff";
-
-            const colorModeSelect = document.getElementById('cfg-color-mode');
-            if (colorModeSelect) colorModeSelect.value = "solid";
-            const fg1 = document.getElementById('cfg-clr-fg1');
-            if (fg1) fg1.value = "#000000";
-            const fg1Hex = document.getElementById('cfg-clr-fg1-hex');
-            if (fg1Hex) fg1Hex.value = "#000000";
-            const fg2 = document.getElementById('cfg-clr-fg2');
-            if (fg2) fg2.value = "#16a34a";
-            const fg2Hex = document.getElementById('cfg-clr-fg2-hex');
-            if (fg2Hex) fg2Hex.value = "#16A34A";
-            const bgClr = document.getElementById('cfg-clr-bg');
-            if (bgClr) bgClr.value = "#ffffff";
-            const bgClrHex = document.getElementById('cfg-clr-bg-hex');
-            if (bgClrHex) bgClrHex.value = "#ffffff";
-            const alphaChk = document.getElementById('cfg-alpha-mode');
-            if (alphaChk) alphaChk.checked = false;
-            const gradWrapper = document.getElementById('gradient-stop-2-wrapper');
-            if (gradWrapper) gradWrapper.classList.add('hidden');
-
-            const quietInput = document.getElementById('cfg-qr-quiet');
-            if (quietInput) quietInput.value = 4;
-            const eccSelect = document.getElementById('cfg-qr-ecc');
-            if (eccSelect) eccSelect.value = "H";
-
-            const faultScreen = document.getElementById('readability-fault-screen');
-            if (faultScreen) faultScreen.classList.add('hidden');
-
-            compileActiveSchemaFormsEngine();
-            renderFilteredFrameThumbnailsWorkspace();
-            debouncedMasterRenderPipelineTrigger();
-        }
-
-        // IIMG.LIVE API CONFIGURATION REGISTRY
-        const IIMG_API_KEY = 'pk_public_3db6884c9c2c6f089fdfb904';
-        const IIMG_UPLOAD_ENDPOINT = 'https://api.iimg.live/upload';
-        const CORS_PROXY = 'https://corsproxy.io/?url=';
-
-        // AUTOMATIC SYSTEM API UPLOAD DISPATCHER TO URL REGISTRY NODE MAPPING
-        async function executeLocalMediaAssetPayloadCapture(event, inputFieldIdTarget) {
-            const uploadedAssetFile = event.target.files[0];
-            if (!uploadedAssetFile) return;
-
-            const targetUrlInputNode = document.getElementById('schema-ctrl-' + inputFieldIdTarget);
-            const uploadBtnNode = document.getElementById('uploader-btn-' + inputFieldIdTarget);
-            const originalBtnHtml = uploadBtnNode ? uploadBtnNode.innerHTML : '';
-            const originalPlaceholder = targetUrlInputNode ? targetUrlInputNode.placeholder : '';
-
-            // Show uploading state
-            if (uploadBtnNode) {
-                uploadBtnNode.innerHTML = '<svg class="animate-spin w-3 h-3 text-white inline-block mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> Uploading...';
-                uploadBtnNode.disabled = true;
-            }
-            if (targetUrlInputNode) {
-                targetUrlInputNode.placeholder = '\u23F3 Uploading to cloud\u2026';
-                targetUrlInputNode.value = '';
-            }
-
-            async function attemptUpload(endpoint) {
-                const fd = new FormData();
-                fd.append('image', uploadedAssetFile);
-                const res = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: { 'Authorization': 'Bearer ' + IIMG_API_KEY },
-                    body: fd
+            // Mouse Ambient Glow Coordinate Listener Tracker
+            const cursorGlow = document.getElementById('cursor-glow');
+            if (window.matchMedia('(pointer: fine)').matches && cursorGlow) {
+                cursorGlow.style.display = 'block';
+                document.addEventListener('mousemove', (e) => {
+                    cursorGlow.style.left = e.clientX + 'px';
+                    cursorGlow.style.top = e.clientY + 'px';
                 });
-                if (!res.ok) {
-                    const err = await res.json().catch(() => ({}));
-                    throw new Error(err.message || 'HTTP ' + res.status);
-                }
-                return res.json();
             }
 
-            try {
-                let responsePayload;
-                try {
-                    responsePayload = await attemptUpload(IIMG_UPLOAD_ENDPOINT);
-                } catch (directErr) {
-                    console.warn('Direct upload blocked, retrying via CORS proxy\u2026', directErr.message);
-                    responsePayload = await attemptUpload(CORS_PROXY + encodeURIComponent(IIMG_UPLOAD_ENDPOINT));
-                }
-
-                const returnedPublicUrl =
-                    responsePayload?.url ||
-                    responsePayload?.data?.url ||
-                    responsePayload?.image?.url ||
-                    responsePayload?.link ||
-                    responsePayload?.file_url ||
-                    responsePayload?.cdn_url;
-
-                if (!returnedPublicUrl) {
-                    console.error('Unexpected API response shape:', responsePayload);
-                    throw new Error('No URL in API response \u2014 see console for raw payload.');
-                }
-
-                if (targetUrlInputNode) {
-                    targetUrlInputNode.value = returnedPublicUrl;
-                    targetUrlInputNode.placeholder = originalPlaceholder;
-                    runLiveFormValidationEngine();
-                    debouncedMasterRenderPipelineTrigger();
-                }
-
-                if (uploadBtnNode) {
-                    uploadBtnNode.innerHTML = '\u2705 Uploaded!';
-                    uploadBtnNode.style.background = '#059669';
-                    setTimeout(() => {
-                        uploadBtnNode.innerHTML = originalBtnHtml;
-                        uploadBtnNode.disabled = false;
-                        uploadBtnNode.style.background = '';
-                    }, 3500);
-                }
-
-            } catch (uploadError) {
-                console.error('IIMG Upload Error:', uploadError);
-                if (targetUrlInputNode) {
-                    targetUrlInputNode.placeholder = originalPlaceholder;
-                    targetUrlInputNode.value = '';
-                }
-                if (uploadBtnNode) {
-                    uploadBtnNode.innerHTML = '\u274C Upload Failed';
-                    uploadBtnNode.disabled = false;
-                    setTimeout(() => { uploadBtnNode.innerHTML = originalBtnHtml; uploadBtnNode.disabled = false; }, 3500);
-                }
-                alert('Upload failed: ' + uploadError.message + '\n\nMake sure your file is JPG, PNG, WEBP, or GIF and under the API size limit.');
-            }
-        }
-
-        function compileActiveSchemaFormsEngine() {
-            const root = document.getElementById('dynamic-schema-fields-root');
-            root.innerHTML = '';
-
-            const blueprints = coreProtocolSchemas[activeProtocolRegistryKey];
-            blueprints.forEach(bp => {
-                const group = document.createElement('div');
-                group.className = "flex flex-col gap-1.5";
-
-                const label = document.createElement('label');
-                label.className = "text-[11px] font-bold text-slate-400 uppercase tracking-wide flex items-center gap-1";
-                label.innerHTML = `${bp.label} ${bp.required ? '<span class="text-rose-500 font-bold">*</span>' : ''}`;
-                group.appendChild(label);
-
-                // Main form control wrapper flex container row
-                const controlRowWrapper = document.createElement('div');
-                controlRowWrapper.className = "flex gap-2 items-center w-full";
-
-                let formControlNode;
-                if (bp.type === 'textarea') {
-                    formControlNode = document.createElement('textarea');
-                    formControlNode.rows = 2;
-                    formControlNode.className = "w-full bg-brand-darkBg border border-slate-700 rounded-xl p-2.5 text-sm text-slate-200 focus:border-green-500 focus:outline-none font-medium";
-                } else if (bp.type === 'select') {
-                    formControlNode = document.createElement('select');
-                    formControlNode.className = "w-full bg-brand-darkBg border border-slate-700 rounded-xl p-2.5 text-sm text-slate-200 font-bold focus:outline-none cursor-pointer";
-                    bp.options.forEach(opt => {
-                        const o = document.createElement('option');
-                        o.value = opt; o.innerText = opt.toUpperCase();
-                        formControlNode.appendChild(o);
-                    });
-                } else {
-                    formControlNode = document.createElement('input');
-                    formControlNode.type = bp.type;
-                    formControlNode.className = "w-full flex-1 bg-brand-darkBg border border-slate-700 rounded-xl p-2.5 text-sm text-slate-200 focus:border-green-500 focus:outline-none font-medium";
-                }
-
-                formControlNode.id = `schema-ctrl-${bp.id}`;
-                formControlNode.value = bp.value || '';
-                formControlNode.placeholder = bp.placeholder || '';
-                formControlNode.addEventListener('input', runLiveFormValidationEngine);
-                
-                controlRowWrapper.appendChild(formControlNode);
-
-                // Append cloud upload asset file attachment element node button if active blueprint enables uploader tool
-                if (bp.hasUploader) {
-                    const hiddenNativeInputSelector = document.createElement('input');
-                    hiddenNativeInputSelector.type = 'file';
-                    hiddenNativeInputSelector.id = `native-uploader-hook-${bp.id}`;
-                    hiddenNativeInputSelector.accept = bp.accept || '*/*';
-                    hiddenNativeInputSelector.className = 'hidden';
-                    hiddenNativeInputSelector.addEventListener('change', (e) => executeLocalMediaAssetPayloadCapture(e, bp.id));
-
-                    const dynamicTriggerActionButton = document.createElement('button');
-                    dynamicTriggerActionButton.type = 'button';
-                    dynamicTriggerActionButton.id = `uploader-btn-${bp.id}`;
-                    dynamicTriggerActionButton.className = "bg-green-600 hover:bg-green-500 text-white font-bold text-xs rounded-xl px-4 py-3 shrink-0 transition-all flex items-center justify-center gap-1.5 shadow-md active:scale-95 min-w-[110px]";
-                    dynamicTriggerActionButton.innerHTML = "☁️ Upload File";
-                    dynamicTriggerActionButton.onclick = () => hiddenNativeInputSelector.click();
-
-                    // API badge indicator next to upload button
-                    const apiBadge = document.createElement('span');
-                    apiBadge.className = "text-[9px] font-bold text-emerald-400/70 uppercase tracking-wider text-center leading-tight block mt-0.5";
-                    apiBadge.innerHTML = `<span class="inline-flex items-center gap-0.5 bg-emerald-950/50 border border-emerald-500/20 px-1.5 py-0.5 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block"></span> Cloud API</span>`;
-
-                    const btnWrapper = document.createElement('div');
-                    btnWrapper.className = "flex flex-col items-center gap-0.5 shrink-0";
-                    btnWrapper.appendChild(dynamicTriggerActionButton);
-                    btnWrapper.appendChild(apiBadge);
-
-                    group.appendChild(hiddenNativeInputSelector);
-                    controlRowWrapper.appendChild(btnWrapper);
-                }
-
-                group.appendChild(controlRowWrapper);
-                root.appendChild(group);
+            // Top Progress Bar Scrolling Tracker Matrix
+            window.addEventListener('scroll', () => {
+                const winScroll = document.documentElement.scrollTop || document.body.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = (winScroll / height) * 100;
+                document.getElementById('scroll-progress').style.width = scrolled + '%';
             });
 
-            runLiveFormValidationEngine();
-        }
-
-        function runLiveFormValidationEngine() {
-            const blueprints = coreProtocolSchemas[activeProtocolRegistryKey];
-            let isDataStructureValid = true;
-            let telemetryMessage = "SYSTEM: READY";
-
-            for(let bp of blueprints) {
-                const el = document.getElementById(`schema-ctrl-${bp.id}`);
-                if(!el) continue;
-                const value = el.value.trim();
-
-                if (bp.required && value.length === 0) {
-                    isDataStructureValid = false; telemetryMessage = "FAULT: REQUIRED TARGET FIELD MISSING"; break;
-                }
-                if (bp.id === 'upi_vpa' && value.length > 0) {
-                    if (!value.includes('@') || value.startsWith('@') || value.endsWith('@')) {
-                        isDataStructureValid = false; telemetryMessage = "FAULT: INVALID UPI VPA ID STRUCTURAL PATTERN"; break;
-                    }
-                }
-                if ((bp.id === 'url_str' || bp.id === 'img_url' || bp.id === 'pdf_url' || bp.id === 'mp3_url' || bp.id === 'vid_url') && value.length > 0) {
-                    // Permit local browser blob data structures safely bypassed for file attachments pipelines
-                    if (value.startsWith('blob:')) {
-                        continue;
-                    }
-                    if (!value.includes('.') || value.length < 4) {
-                        isDataStructureValid = false; telemetryMessage = "FAULT: MALFORMED Link TARGET PROFILE RESOURCE LINK"; break;
-                    }
-                }
-                if (bp.id === 'em_dest' && value.length > 0) {
-                    if (!value.includes('@') || !value.includes('.')) {
-                        isDataStructureValid = false; telemetryMessage = "FAULT: INVALID EMAIL RFC MAILING FORMAT"; break;
-                    }
-                }
-            }
-
-            const badge = document.getElementById('analytical-verification-badge');
-            const actPng = document.getElementById('act-btn-png');
-            const actSvg = document.getElementById('act-btn-svg');
-
-            if (isDataStructureValid) {
-                badge.className = "flex items-center gap-2 bg-emerald-950/40 border border-emerald-500/30 px-3 py-1.5 rounded-xl";
-                badge.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span><span class="text-xs font-mono font-bold text-emerald-400">SCAN SCORE: EXCELLENT</span>`;
-                if (actPng) { actPng.removeAttribute('disabled'); actPng.classList.remove('opacity-30', 'pointer-events-none'); }
-                if (actSvg) { actSvg.removeAttribute('disabled'); actSvg.classList.remove('opacity-30', 'pointer-events-none'); }
-                debouncedMasterRenderPipelineTrigger();
-            } else {
-                badge.className = "flex items-center gap-2 bg-rose-950/40 border border-rose-500/30 px-3 py-1.5 rounded-xl";
-                badge.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span><span class="text-xs font-mono font-bold text-rose-400">${telemetryMessage}</span>`;
-                if (actPng) { actPng.setAttribute('disabled', 'true'); actPng.classList.add('opacity-30', 'pointer-events-none'); }
-                if (actSvg) { actSvg.setAttribute('disabled', 'true'); actSvg.classList.add('opacity-30', 'pointer-events-none'); }
-            }
-        }
-
-        function extractPayloadString() {
-            const getVal = (id) => { const el = document.getElementById(`schema-ctrl-${id}`); return el ? el.value.trim() : ''; };
-
-            switch(activeProtocolRegistryKey) {
-                case 'URL':
-                    let targetUrl = getVal('url_str');
-                    if (targetUrl && !/^https?:\/\//i.test(targetUrl) && !targetUrl.startsWith('blob:')) { targetUrl = 'https://' + targetUrl; }
-                    return targetUrl || "https://example.com";
-                case 'Text':
-                    return getVal('text_blk');
-                case 'UPI':
-                    const vpa = getVal('upi_vpa');
-                    const payee = getVal('upi_name');
-                    const amount = getVal('upi_am');
-                    const note = getVal('upi_tn');
-                    let upiString = `upi://pay?pa=${encodeURIComponent(vpa)}&pn=${encodeURIComponent(payee)}`;
-                    if (amount) upiString += `&am=${encodeURIComponent(amount)}&cu=INR`;
-                    if (note) upiString += `&tn=${encodeURIComponent(note)}`;
-                    return upiString;
-                case 'Image':
-                    return `PREMIUM-IMAGE:${getVal('img_url')}?title=${encodeURIComponent('')}`;
-                case 'PDF':
-                    return `PREMIUM-PDF:${getVal('pdf_url')}?label=${encodeURIComponent(getVal('pdf_lbl') || '')}`;
-                case 'MP3':
-                    return `PREMIUM-AUDIO:${getVal('mp3_url')}?desc=${encodeURIComponent(getVal('mp3_dsc') || '')}`;
-                case 'Video':
-                    return `PREMIUM-VIDEO:${getVal('vid_url')}?desc=${encodeURIComponent(getVal('vid_desc') || '')}`;
-                case 'Social':
-                    const platform = getVal('soc_plat');
-                    const user = getVal('soc_user');
-                    if(platform === 'instagram') return `https://instagram.com/${user}`;
-                    if(platform === 'linkedin') return `https://linkedin.com/in/${user}`;
-                    if(platform === 'facebook') return `https://facebook.com/${user}`;
-                    if(platform === 'twitter') return `https://twitter.com/${user}`;
-                    if(platform === 'tiktok') return `https://tiktok.com/@${user}`;
-                    if(platform === 'youtube') return `https://youtube.com/@${user}`;
-                    return `https://social.me/${platform}/${user}`;
-                case 'WiFi':
-                    return `WIFI:S:${getVal('wf_ssid')};T:${getVal('wf_crypt')};P:${getVal('wf_pass')};;`;
-                case 'Email':
-                    return `mailto:${getVal('em_dest')}?subject=${encodeURIComponent(getVal('em_subj'))}&body=${encodeURIComponent(getVal('em_body'))}`;
-                case 'Phone':
-                    return `tel:${getVal('ph_num')}`;
-                case 'SMS':
-                    return `smsto:${getVal('sms_num')}:${getVal('sms_txt')}`;
-                case 'vCard':
-                    return `BEGIN:VCARD\nVERSION:3.0\nN:${getVal('vc_ln')};${getVal('vc_fn')}\nFN:${getVal('vc_fn')} ${getVal('vc_ln')}\nORG:${getVal('vc_org')}\nTITLE:${getVal('vc_ttl')}\nTEL:${getVal('vc_cel')}\nEMAIL:${getVal('vc_eml')}\nURL:${getVal('vc_web')}\nEND:VCARD`;
-                case 'Location':
-                    const mapUrlString = getVal('geo_url');
-                    if(mapUrlString.length > 0) return mapUrlString;
-                    return `geo:${getVal('geo_lat') || '0'},${getVal('geo_lng') || '0'}`;
-                case 'Product':
-                    const prUrl = getVal('pr_url');
-                    if(prUrl.length > 0) return prUrl;
-                    return `PRODUCT:SKU=${getVal('pr_sku')};NAME=${encodeURIComponent(getVal('pr_nm'))}`;
-                case 'Event':
-                    return `BEGIN:VEVENT\nSUMMARY:${getVal('ev_ttl')}\nDESCRIPTION:${getVal('ev_dsc')}\nLOCATION:${getVal('ev_loc')}\nDTSTART:${getVal('ev_std')}T120000Z\nDTEND:${getVal('ev_etd')}T130000Z\nEND:VEVENT`;
-                default:
-                    return "https://example.com";
-            }
-        }
-
-        // DEBOUNCED RENDER PIPELINE DISPATCH MATRIX CONTROLLER
-        let renderingDebounceTimer = null;
-        function debouncedMasterRenderPipelineTrigger() {
-            clearTimeout(renderingDebounceTimer);
-            renderingDebounceTimer = setTimeout(processHighFidelityRenderSequence, 80);
-        }
-
-        function processHighFidelityRenderSequence() {
-            const computedPayloadString = extractPayloadString();
-            const payloadPreview = document.getElementById('string-payload-preview-terminal');
-            if (payloadPreview) payloadPreview.innerText = computedPayloadString;
-
-            const selectedEccLevel = document.getElementById('cfg-qr-ecc').value;
-            const quietZoneMarginCellsCount = parseInt(document.getElementById('cfg-qr-quiet').value) || 0;
-            const alphaChannelActive = document.getElementById('cfg-alpha-mode').checked;
-
-            const colorMode = document.getElementById('cfg-color-mode').value;
-            const fgColor1 = document.getElementById('cfg-clr-fg1').value;
-            const fgColor2 = document.getElementById('cfg-clr-fg2').value;
-            const bgColorHex = alphaChannelActive ? 'rgba(0,0,0,0)' : document.getElementById('cfg-clr-bg').value;
-
-            let nativeCoreQrInstance;
-            try {
-                nativeCoreQrInstance = qrcode(0, selectedEccLevel);
-                nativeCoreQrInstance.addData(computedPayloadString);
-                nativeCoreQrInstance.make();
-            } catch(e) {
-                console.error("Matrix compilation limits violated.", e);
-                return;
-            }
-
-            const rawGridModulesCount = nativeCoreQrInstance.getModuleCount();
-            const cellsMetric = document.getElementById('tel-cells-metric');
-            if (cellsMetric) cellsMetric.innerText = `${rawGridModulesCount} x ${rawGridModulesCount}`;
-            const versionMetric = document.getElementById('tel-version-metric');
-            if (versionMetric) versionMetric.innerText = `VER ${Math.floor((rawGridModulesCount-17)/4)}`;
-
-            const frameEnabled = activeFrameTemplateIndex > 0;
-            const borderPaddingX = frameEnabled ? 50 : 0;
-            const borderPaddingTop = frameEnabled ? 70 : 0;
-            const borderPaddingBottom = frameEnabled ? 95 : 0;
-
-            const canvasResolutionWidthBaseSize = 380;
-            const viewCanvasMaster = document.getElementById('view-canvas-master');
-            const ctx = viewCanvasMaster.getContext('2d');
-
-            viewCanvasMaster.width = canvasResolutionWidthBaseSize + (borderPaddingX * 2);
-            viewCanvasMaster.height = canvasResolutionWidthBaseSize + borderPaddingTop + borderPaddingBottom;
-
-            ctx.clearRect(0, 0, viewCanvasMaster.width, viewCanvasMaster.height);
-
-            if (!alphaChannelActive) {
-                ctx.fillStyle = frameEnabled ? "#131926" : bgColorHex;
-                ctx.fillRect(0, 0, viewCanvasMaster.width, viewCanvasMaster.height);
-            }
-
-            const qrx = borderPaddingX;
-            const qry = borderPaddingTop;
-
-            if (!alphaChannelActive) {
-                ctx.fillStyle = bgColorHex;
-                ctx.fillRect(qrx, qry, canvasResolutionWidthBaseSize, canvasResolutionWidthBaseSize);
-            }
-
-            const totalAllocatedGridUnits = rawGridModulesCount + (quietZoneMarginCellsCount * 2);
-            const sizePerSingleModuleCell = canvasResolutionWidthBaseSize / totalAllocatedGridUnits;
-            const innerMatrixContentOriginShift = quietZoneMarginCellsCount * sizePerSingleModuleCell;
-
-            let renderingStyleFillPattern = fgColor1;
-            if (colorMode === 'linear') {
-                const linearGradientObject = ctx.createLinearGradient(qrx, qry, qrx + canvasResolutionWidthBaseSize, qry + canvasResolutionWidthBaseSize);
-                linearGradientObject.addColorStop(0, fgColor1); linearGradientObject.addColorStop(1, fgColor2);
-                renderingStyleFillPattern = linearGradientObject;
-            } else if (colorMode === 'radial') {
-                const radialGradientObject = ctx.createRadialGradient(qrx + canvasResolutionWidthBaseSize/2, qry + canvasResolutionWidthBaseSize/2, 10, qrx + canvasResolutionWidthBaseSize/2, qry + canvasResolutionWidthBaseSize/2, canvasResolutionWidthBaseSize/1.2);
-                radialGradientObject.addColorStop(0, fgColor1); radialGradientObject.addColorStop(1, fgColor2);
-                renderingStyleFillPattern = radialGradientObject;
-            }
-
-            ctx.fillStyle = renderingStyleFillPattern;
-
-            // LOOP TRANSFORMATION CORE SEGMENT MATRIX ENGINE
-            for (let r = 0; r < rawGridModulesCount; r++) {
-                for (let c = 0; c < rawGridModulesCount; c++) {
-                    if (nativeCoreQrInstance.isDark(r, c)) {
-                        
-                        const targetPixelX = qrx + innerMatrixContentOriginShift + (c * sizePerSingleModuleCell);
-                        const targetPixelY = qry + innerMatrixContentOriginShift + (r * sizePerSingleModuleCell);
-                        const cellScaleWidth = sizePerSingleModuleCell;
-
-                        const isFinderEyeRegion = (r < 7 && c < 7) || (r < 7 && c >= rawGridModulesCount - 7) || (r >= rawGridModulesCount - 7 && c < 7);
-                        
-                        if (activeBrandingLogoOverlayKey !== 'none') {
-                            const logoScalingFactorPercentage = parseInt(document.getElementById('cfg-logo-size').value) / 100;
-                            const centerThresholdRangeRadius = Math.floor((rawGridModulesCount * logoScalingFactorPercentage) / 2) + 1;
-                            const centralAxisGridPointIndex = Math.floor(rawGridModulesCount / 2);
-                            
-                            if (Math.abs(r - centralAxisGridPointIndex) <= centerThresholdRangeRadius && Math.abs(c - centralAxisGridPointIndex) <= centerThresholdRangeRadius) {
-                                continue; 
-                            }
+            // 3. Scroll Reveal Animations Engine using IntersectionObserver
+            const revealOptions = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" };
+            const revealObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('revealed');
+                        // If target contains stat counters, activate counting mechanism loops
+                        if (entry.target.classList.contains('stat-counter-wrap') || entry.target.querySelector('.stat-counter')) {
+                            triggerStatsCounters(entry.target);
                         }
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, revealOptions);
 
-                        ctx.beginPath();
-                        if (isFinderEyeRegion) {
-                            if (activeFinderCornerEyeMorphismKey === 'square') {
-                                ctx.rect(targetPixelX, targetPixelY, cellScaleWidth, cellScaleWidth);
-                            } else if (activeFinderCornerEyeMorphismKey === 'rounded') {
-                                ctx.roundRect(targetPixelX, targetPixelY, cellScaleWidth, cellScaleWidth, cellScaleWidth * 0.3);
-                            } else if (activeFinderCornerEyeMorphismKey === 'circle') {
-                                ctx.arc(targetPixelX + cellScaleWidth/2, targetPixelY + cellScaleWidth/2, cellScaleWidth/2 * 0.95, 0, Math.PI * 2);
-                            } else if (activeFinderCornerEyeMorphismKey === 'modern') {
-                                ctx.roundRect(targetPixelX + cellScaleWidth*0.06, targetPixelY + cellScaleWidth*0.06, cellScaleWidth*0.88, cellScaleWidth*0.88, cellScaleWidth * 0.4);
-                            }
+            document.querySelectorAll('.reveal-element').forEach(el => revealObserver.observe(el));
+
+            // Stat Counter Incrementation Logic Block Execution
+            function triggerStatsCounters(container) {
+                container.querySelectorAll('.stat-counter').forEach(counter => {
+                    const target = parseInt(counter.getAttribute('data-target'));
+                    let current = 0;
+                    const increment = target / 40;
+                    const timer = setInterval(() => {
+                        current += increment;
+                        if (current >= target) {
+                            counter.innerText = target + "M+";
+                            if (target === 99) counter.innerText = "99%";
+                            clearInterval(timer);
                         } else {
-                            if (activeShapeRegistryMorphismKey === 'square') {
-                                ctx.rect(targetPixelX, targetPixelY, cellScaleWidth, cellScaleWidth);
-                            } else if (activeShapeRegistryMorphismKey === 'roundedSquare') {
-                                ctx.roundRect(targetPixelX + cellScaleWidth*0.05, targetPixelY + cellScaleWidth*0.05, cellScaleWidth*0.9, cellScaleWidth*0.9, cellScaleWidth * 0.28);
-                            } else if (activeShapeRegistryMorphismKey === 'circle') {
-                                ctx.arc(targetPixelX + cellScaleWidth/2, targetPixelY + cellScaleWidth/2, cellScaleWidth/2 * 0.85, 0, Math.PI * 2);
-                            } else if (activeShapeRegistryMorphismKey === 'diamond') {
-                                ctx.moveTo(targetPixelX + cellScaleWidth/2, targetPixelY);
-                                ctx.lineTo(targetPixelX + cellScaleWidth, targetPixelY + cellScaleWidth/2);
-                                ctx.lineTo(targetPixelX + cellScaleWidth/2, targetPixelY + cellScaleWidth);
-                                ctx.lineTo(targetPixelX, targetPixelY + cellScaleWidth/2);
-                            } else if (activeShapeRegistryMorphismKey === 'pill') {
-                                ctx.roundRect(targetPixelX, targetPixelY + cellScaleWidth*0.15, cellScaleWidth, cellScaleWidth*0.7, cellScaleWidth*0.35);
-                            } else if (activeShapeRegistryMorphismKey === 'hexagon') {
-                                const cx = targetPixelX + cellScaleWidth/2; const cy = targetPixelY + cellScaleWidth/2; const rad = cellScaleWidth/2;
-                                for(let i=0; i<6; i++) {
-                                    const angle = (Math.PI / 3) * i;
-                                    const x = cx + rad * Math.cos(angle); const y = cy + rad * Math.sin(angle);
-                                    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-                                }
-                                ctx.closePath();
-                            } else if (activeShapeRegistryMorphismKey === 'waterDrop') {
-                                ctx.roundRect(targetPixelX, targetPixelY, cellScaleWidth, cellScaleWidth, [cellScaleWidth*0.5, cellScaleWidth*0.5, cellScaleWidth*0.5, 0]);
-                            } else if (activeShapeRegistryMorphismKey === 'smoothPixel') {
-                                ctx.arc(targetPixelX + cellScaleWidth/2, targetPixelY + cellScaleWidth/2, cellScaleWidth/2 * 0.98, 0, Math.PI * 2);
-                            } else if (activeShapeRegistryMorphismKey === 'leaf') {
-                                ctx.roundRect(targetPixelX, targetPixelY, cellScaleWidth, cellScaleWidth, [cellScaleWidth*0.5, 0, cellScaleWidth*0.5, 0]);
-                            } else if (activeShapeRegistryMorphismKey === 'heart') {
-                                const w = cellScaleWidth; const ty = targetPixelY + w*0.3;
-                                ctx.moveTo(targetPixelX + w/2, ty + w*0.2);
-                                ctx.bezierCurveTo(targetPixelX + w*0.1, ty - w*0.2, targetPixelX, ty + w*0.3, targetPixelX + w/2, targetPixelY + w*0.95);
-                                ctx.bezierCurveTo(targetPixelX + w, ty + w*0.3, targetPixelX + w*0.9, ty - w*0.2, targetPixelX + w/2, ty + w*0.2);
-                            }
+                            counter.innerText = Math.floor(current) + (target === 99 ? "%" : "M+");
                         }
-                        ctx.fill();
-                    }
-                }
+                    }, 25);
+                });
             }
 
-            // LAYER PROCESSING LOGIC BLOCK: CORE BRANDING OVERLAYS
-            if (activeBrandingLogoOverlayKey !== 'none') {
-                const percentageSizeScaleRatio = parseInt(document.getElementById('cfg-logo-size').value) / 100;
-                const computedLogoSquareDimensions = canvasResolutionWidthBaseSize * percentageSizeScaleRatio;
+            // 8. Before/After Interactive Comparison Slider Math Controls
+            const sliderWrap = document.getElementById('slider-wrap');
+            const clipPanel = document.getElementById('compressed-clip-panel');
+            const handle = document.getElementById('slider-handle');
 
-                const lx = qrx + (canvasResolutionWidthBaseSize / 2) - (computedLogoSquareDimensions / 2);
-                const ly = qry + (canvasResolutionWidthBaseSize / 2) - (computedLogoSquareDimensions / 2);
+            if (sliderWrap && clipPanel && handle) {
+                const moveSlider = (clientX) => {
+                    const rect = sliderWrap.getBoundingClientRect();
+                    const x = clientX - rect.left;
+                    let percentage = (x / rect.width) * 100;
+                    if (percentage < 0) percentage = 0;
+                    if (percentage > 100) percentage = 100;
 
-                if (!alphaChannelActive) {
-                    ctx.fillStyle = bgColorHex;
-                    ctx.beginPath();
-                    ctx.roundRect(lx - 5, ly - 5, computedLogoSquareDimensions + 10, computedLogoSquareDimensions + 10, 10);
-                    ctx.fill();
-                }
-
-                if (activeBrandingLogoOverlayKey === 'custom' && systemUploadedLogoFileObjectReference) {
-                    ctx.drawImage(systemUploadedLogoFileObjectReference, lx, ly, computedLogoSquareDimensions, computedLogoSquareDimensions);
-                } else {
-                    ctx.strokeStyle = fgColor1;
-                    ctx.fillStyle = fgColor1;
-                    ctx.lineWidth = 2.5;
-                    ctx.strokeRect(lx + 2, ly + 2, computedLogoSquareDimensions - 4, computedLogoSquareDimensions - 4);
-                    ctx.font = "bold 9px monospace"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-                    ctx.fillText(activeBrandingLogoOverlayKey.toUpperCase(), lx + (computedLogoSquareDimensions/2), ly + (computedLogoSquareDimensions/2));
-                }
-            }
-
-            // VECTOR COMPLIANT SAAS PREMIUM ILLUSTRATION FRAME LIBRARY RENDERING
-            if (frameEnabled) {
-                const frameStrokeColorHex = document.getElementById('cfg-frame-clr').value;
-                const frameTextColorHex = document.getElementById('cfg-frame-text-clr').value;
-                const annotationTextString = document.getElementById('cfg-frame-text').value;
-
-                ctx.strokeStyle = frameStrokeColorHex;
-                ctx.fillStyle = frameStrokeColorHex;
-                ctx.lineWidth = 6.5;
-                ctx.lineCap = "round"; ctx.lineJoin = "round";
-
-                const mw = viewCanvasMaster.width;
-                const mh = viewCanvasMaster.height;
-
-                ctx.strokeRect(18, 18, mw - 36, mh - 36);
-
-                if (activeFrameTemplateIndex % 3 === 1) {
-                    ctx.fillStyle = frameStrokeColorHex;
-                    ctx.fillRect(10, 10, 25, 25); ctx.fillRect(mw - 35, 10, 25, 25);
-                } else if (activeFrameTemplateIndex % 3 === 2) {
-                    ctx.beginPath(); ctx.arc(mw/2, 18, 12, 0, Math.PI, true); ctx.fill();
-                }
-
-                ctx.fillStyle = frameStrokeColorHex;
-                ctx.roundRect(24, mh - 72, mw - 48, 48, 12);
-                ctx.fill();
-
-                ctx.fillStyle = frameTextColorHex;
-                ctx.font = "bold 14px system-ui, -apple-system, sans-serif";
-                ctx.textAlign = "center"; ctx.textBaseline = "middle";
-                ctx.fillText(annotationTextString, mw / 2, mh - 47);
-            }
-
-            executeVerificationLoopbackEngine(viewCanvasMaster);
-        }
-
-        // DUAL ANALYTICAL VERIFICATION LOOPBACK CONTROLLER PIPELINE
-        function executeVerificationLoopbackEngine(canvasSourceTarget) {
-            const screenOverlayElement = document.getElementById('readability-fault-screen');
-            try {
-                const traceContext = canvasSourceTarget.getContext('2d');
-                const pixelImageBufferData = traceContext.getImageData(0, 0, canvasSourceTarget.width, canvasSourceTarget.height);
-                
-                const parsingOutputObject = jsQR(pixelImageBufferData.data, pixelImageBufferData.width, pixelImageBufferData.height);
-                
-                if (parsingOutputObject) {
-                    isScannabilityMetricValid = true;
-                    screenOverlayElement.classList.add('hidden');
-                } else {
-                    if (['leaf', 'heart'].includes(activeShapeRegistryMorphismKey)) {
-                        isScannabilityMetricValid = false;
-                        screenOverlayElement.classList.remove('hidden');
-                    } else {
-                        isScannabilityMetricValid = true;
-                        screenOverlayElement.classList.add('hidden');
-                    }
-                }
-            } catch (err) {
-                isScannabilityMetricValid = true;
-                screenOverlayElement.classList.add('hidden');
-            }
-        }
-
-        function triggerEmergencyDesignRecovery() {
-            activeShapeRegistryMorphismKey = 'square';
-            updateSelectionHighlightGlowStates();
-            const faultScreen = document.getElementById('readability-fault-screen');
-            if (faultScreen) faultScreen.classList.add('hidden');
-            processHighFidelityRenderSequence();
-        }
-
-        // EXPORT PIPELINE MANAGEMENT CHAIN ENGINE: TRUE VECTOR VALIDATION OUTPUTS
-        function processExportChainPipeline(fileFormatExtension) {
-            if (!isScannabilityMetricValid) return;
-            const activeMasterCanvas = document.getElementById('view-canvas-master');
-            const exportedFileNameString = `qrfy_studio_export_${activeProtocolRegistryKey.toLowerCase()}_${Date.now()}.` + fileFormatExtension;
-
-            if (fileFormatExtension === 'png') {
-                const anchorNode = document.createElement('a');
-                anchorNode.download = exportedFileNameString;
-                anchorNode.href = activeMasterCanvas.toDataURL('image/png', 1.0);
-                anchorNode.click();
-            } 
-            else if (fileFormatExtension === 'svg') {
-                const w = activeMasterCanvas.width;
-                const h = activeMasterCanvas.height;
-                const bgClr = document.getElementById('cfg-clr-bg').value;
-
-                let vectorSvgContainerTextString = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`;
-                vectorSvgContainerTextString += `<rect width="100%" height="100%" fill="${bgClr}"/>`;
-                vectorSvgContainerTextString += `<g id="qrfy-vector-modules-group">`;
-                vectorSvgContainerTextString += `<image width="${w}" height="${h}" href="${activeMasterCanvas.toDataURL('image/png')}"/>`;
-                vectorSvgContainerTextString += `</g></svg>`;
-
-                const explicitBlobDataStream = new Blob([vectorSvgContainerTextString], { type: 'image/svg+xml;charset=utf-8' });
-                const transientObjectBlobUrl = URL.createObjectURL(explicitBlobDataStream);
-
-                const anchorVectorDownloadNode = document.createElement('a');
-                anchorVectorDownloadNode.download = exportedFileNameString;
-                anchorVectorDownloadNode.href = transientObjectBlobUrl;
-                anchorVectorDownloadNode.click();
-
-                setTimeout(() => URL.revokeObjectURL(transientObjectBlobUrl), 200);
-            }
-        }
-
-        // RE-UPLOAD DIAGNOSTIC SCAN ANALYSIS INTERFACE SUBROUTINE ENGINE
-        function runLocalDiagnosticUploadTraceEngine() {
-            const inputPicker = document.getElementById('act-diagnostic-file');
-            const terminalOutputNode = document.getElementById('diagnostic-log-terminal-output');
-
-            if (!inputPicker.files || inputPicker.files.length === 0) {
-                terminalOutputNode.innerText = "Error: Diagnostic file registry path blank.";
-                return;
-            }
-
-            const streamReader = new FileReader();
-            streamReader.onload = function(eShared) {
-                const localTransientImageTag = new Image();
-                localTransientImageTag.onload = function() {
-                    const canvasSandbox = document.createElement('canvas');
-                    const contextSandbox = canvasSandbox.getContext('2d');
-                    canvasSandbox.width = localTransientImageTag.width;
-                    canvasSandbox.height = localTransientImageTag.height;
-                    contextSandbox.drawImage(localTransientImageTag, 0, 0);
-
-                    const pixelArrayBytes = contextSandbox.getImageData(0, 0, canvasSandbox.width, canvasSandbox.height);
-                    const diagnosticOutputResult = jsQR(pixelArrayBytes.data, pixelArrayBytes.width, pixelArrayBytes.height);
-
-                    if (diagnosticOutputResult) {
-                        terminalOutputNode.innerHTML = `<span class="text-green-400 font-bold">Trace Success:</span> <code class="text-white bg-slate-900 px-2 py-0.5 rounded ml-1 text-xs break-all">${diagnosticOutputResult.data}</code>`;
-                    } else {
-                        terminalOutputNode.innerHTML = `<span class="text-amber-400 font-bold">Unresolved:</span> Core matrix structure compromised or unreadable.`;
-                    }
+                    clipPanel.style.clipPath = `inset(0 0 0 ${percentage}%)`;
+                    handle.style.left = `${percentage}%`;
                 };
-                localTransientImageTag.src = eShared.target.result;
-            };
-            streamReader.readAsDataURL(inputPicker.files[0]);
-        }
 
-        // CLIPBOARD INTERFACE SYSTEM API ASYNC WORKERS
-        function processClipboardActionChannel(actionTypeKey) {
-            const viewCanvasMaster = document.getElementById('view-canvas-master');
-            if (actionTypeKey === 'text') {
-                const rawPayloadString = extractPayloadString();
-                navigator.clipboard.writeText(rawPayloadString)
-                    .then(() => alert('Data string payload updated to system clipboard registry.'))
-                    .catch(() => alert('Clipboard action write block encountered.'));
-            } 
-            else if (actionTypeKey === 'image') {
-                try {
-                    viewCanvasMaster.toBlob(blobFrame => {
-                        if (!blobFrame) return;
-                        navigator.clipboard.write([new ClipboardItem({ "image/png": blobFrame })])
-                            .then(() => alert('Canvas binary pixel layout frame successfully copied to system clipboard registry.'))
-                            .catch(() => alert('Direct clipboard write blocked by browser configuration parameters.'));
-                    }, 'image/png');
-                } catch(e) {
-                    alert('Canvas cross-origin reference error.');
-                }
+                sliderWrap.addEventListener('mousemove', (e) => {
+                    if (e.buttons === 1 || e.type === 'mousemove') { // Drag or just mouse over moving tracking
+                        moveSlider(e.clientX);
+                    }
+                });
+
+                sliderWrap.addEventListener('touchmove', (e) => {
+                    if (e.touches[0]) {
+                        moveSlider(e.touches[0].clientX);
+                    }
+                });
             }
-        }
 
-        // APPLICATION COMPONENT MOUNT EVENT LIFECYCLE HANDLERS
-        document.addEventListener("DOMContentLoaded", function() {
-            initializeApplicationInterfaceComponents();
-
-            [
-                'cfg-qr-quiet', 'cfg-qr-ecc', 'cfg-color-mode',
-                'cfg-frame-text', 'cfg-frame-clr', 'cfg-frame-text-clr',
-                'cfg-logo-size'
-            ].forEach(controlId => {
-                const nodeHook = document.getElementById(controlId);
-                if(nodeHook) nodeHook.addEventListener('input', () => {
-                    if (controlId === 'cfg-logo-size') {
-                        const lbl = document.getElementById('lbl-logo-size');
-                        if (lbl) lbl.innerText = `${nodeHook.value}%`;
+            // 13. FAQ Accordion Height Toggle Logic Architecture
+            document.querySelectorAll('.faq-trigger').forEach(trigger => {
+                trigger.addEventListener('click', () => {
+                    const container = trigger.closest('.glass-panel');
+                    const content = container.querySelector('.faq-content');
+                    const icon = trigger.querySelector('[data-lucide="chevron-down"]');
+                    
+                    if (content.style.maxHeight && content.style.maxHeight !== '0px') {
+                        content.style.maxHeight = '0px';
+                        if (icon) icon.style.transform = 'rotate(0deg)';
+                    } else {
+                        // Close all others first optionally
+                        document.querySelectorAll('.faq-content').forEach(c => c.style.maxHeight = '0px');
+                        document.querySelectorAll('.faq-trigger i').forEach(i => i.style.transform = 'rotate(0deg)');
+                        
+                        content.style.maxHeight = content.scrollHeight + 'px';
+                        if (icon) icon.style.transform = 'rotate(180deg)';
                     }
-                    if (controlId === 'cfg-color-mode') {
-                        const gradWrapper = document.getElementById('gradient-stop-2-wrapper');
-                        if (gradWrapper) gradWrapper.classList.toggle('hidden', nodeHook.value === 'solid');
-                    }
-                    debouncedMasterRenderPipelineTrigger();
                 });
             });
 
-            const fgW1 = document.getElementById('cfg-clr-fg1'); 
-            const fgH1 = document.getElementById('cfg-clr-fg1-hex');
-            const fgW2 = document.getElementById('cfg-clr-fg2'); 
-            const fgH2 = document.getElementById('cfg-clr-fg2-hex');
-            const bgW = document.getElementById('cfg-clr-bg'); 
-            const bgH = document.getElementById('cfg-clr-bg-hex');
-            const alphaCheck = document.getElementById('cfg-alpha-mode');
+            // Core Application Matrix Processing Logic Simulator Block (Client-Side HTML5 Canvas Optimization Engine)
+            const fileInput = document.getElementById('file-input');
+            const dropzone = document.getElementById('dropzone');
+            const previewContainer = document.getElementById('preview-container');
+            const inputImg = document.getElementById('input-img');
+            const outputImg = document.getElementById('output-img');
+            const inputName = document.getElementById('input-name');
+            const inputSizeElement = document.getElementById('input-size');
+            const outputSizeElement = document.getElementById('output-size');
+            const qualitySlider = document.getElementById('quality-slider');
+            const qualityVal = document.getElementById('quality-val');
+            const kbSlider = document.getElementById('kb-slider');
+            const targetKbInput = document.getElementById('target-kb-input');
+            const downloadBtn = document.getElementById('download-btn');
+            const processingOverlay = document.getElementById('processing-overlay');
 
-            if (fgW1) fgW1.addEventListener('input', (e) => { if(fgH1) fgH1.value = e.target.value.toUpperCase(); debouncedMasterRenderPipelineTrigger(); });
-            if (fgW2) fgW2.addEventListener('input', (e) => { if(fgH2) fgH2.value = e.target.value.toUpperCase(); debouncedMasterRenderPipelineTrigger(); });
-            if (bgW) bgW.addEventListener('input', (e) => { if(bgH) bgH.value = e.target.value.toUpperCase(); debouncedMasterRenderPipelineTrigger(); });
-            if (alphaCheck) alphaCheck.addEventListener('change', () => debouncedMasterRenderPipelineTrigger());
+            let activeBlobFile = null;
+            let compressedBlob = null;
 
-            if (fgH1) fgH1.addEventListener('input', (e) => { if(e.target.value.match(/^#[0-9A-F]{6}$/i) && fgW1) { fgW1.value = e.target.value; debouncedMasterRenderPipelineTrigger(); }});
-            if (fgH2) fgH2.addEventListener('input', (e) => { if(e.target.value.match(/^#[0-9A-F]{6}$/i) && fgW2) { fgW2.value = e.target.value; debouncedMasterRenderPipelineTrigger(); }});
-            if (bgH) bgH.addEventListener('input', (e) => { if(e.target.value.match(/^#[0-9A-F]{6}$/i) && bgW) { bgW.value = e.target.value; debouncedMasterRenderPipelineTrigger(); }});
+            if (fileInput && dropzone) {
+                // Synchronize numeric target text fields with continuous element sliders
+                kbSlider.addEventListener('input', (e) => { targetKbInput.value = e.target.value; triggerLiveCompressionSimulation(); });
+                targetKbInput.addEventListener('input', (e) => { kbSlider.value = e.target.value; triggerLiveCompressionSimulation(); });
+                qualitySlider.addEventListener('input', (e) => { qualityVal.innerText = e.target.value + '%'; triggerLiveCompressionSimulation(); });
 
-            const logoFileInput = document.getElementById('cfg-logo-file');
-            if (logoFileInput) {
-                logoFileInput.addEventListener('change', function(e) {
-                    if (e.target.files && e.target.files[0]) {
-                        const reader = new FileReader();
-                        reader.onload = function(evt) {
-                            const transientImgNode = new Image();
-                            transientImgNode.onload = function() {
-                                systemUploadedLogoFileObjectReference = transientImgNode;
-                                debouncedMasterRenderPipelineTrigger();
-                            };
-                            transientImgNode.src = evt.target.result;
-                        };
-                        reader.readAsDataURL(e.target.files[0]);
+                // Drag/Drop Listeners
+                ['dragenter', 'dragover'].forEach(name => dropzone.addEventListener(name, (e) => { e.preventDefault(); dropzone.classList.add('border-purple-500', 'bg-purple-500/[0.04]'); }, false));
+                ['dragleave', 'drop'].forEach(name => dropzone.addEventListener(name, (e) => { e.preventDefault(); dropzone.classList.remove('border-purple-500', 'bg-purple-500/[0.04]'); }, false));
+
+                dropzone.addEventListener('drop', (e) => {
+                    const dt = e.dataTransfer;
+                    const files = dt.files;
+                    if (files.length) handleSelectedFile(files[0]);
+                });
+
+                fileInput.addEventListener('change', (e) => {
+                    if (e.target.files.length) handleSelectedFile(e.target.files[0]);
+                });
+            }
+
+            function handleSelectedFile(file) {
+                if (!file.type.startsWith('image/')) return;
+                activeBlobFile = file;
+                compressedBlob = null;
+                _cachedCanvas = null;   // invalidate canvas cache for new image
+                _cachedMime   = null;
+
+                inputName.innerText = file.name;
+                inputSizeElement.innerText = (file.size / (1024 * 1024)).toFixed(2) + " MB";
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    inputImg.src = e.target.result;
+                    previewContainer.classList.remove('hidden');
+                    triggerLiveCompressionSimulation();
+                };
+                reader.readAsDataURL(file);
+            }
+
+            // Promisified canvas.toBlob() helper
+            // ── Cached canvas — only redrawn on new upload, not on every slider move ──
+            let _cachedCanvas = null;
+            let _cachedMime   = null;
+            let _debounceTimer = null;
+            let _runId = 0;
+
+            // Promisified canvas.toBlob() — single source of truth, no estimation
+            function canvasToBlob(canvas, mimeType, quality) {
+                return new Promise((resolve) => {
+                    canvas.toBlob((blob) => resolve(blob), mimeType, quality);
+                });
+            }
+
+            // Debounce: wait 120 ms after last slider event before running
+            function triggerLiveCompressionSimulation() {
+                clearTimeout(_debounceTimer);
+                _debounceTimer = setTimeout(runCompression, 120);
+            }
+
+            async function runCompression() {
+                if (!activeBlobFile) return;
+
+                const thisRun = ++_runId;   // stale-run guard — cancels superseded calls
+
+                processingOverlay.classList.remove('hidden');
+                outputImg.classList.add('blur-sm');
+                compressedBlob = null;
+
+                // Build canvas once per upload; reuse on slider changes
+                if (!_cachedCanvas) {
+                    const imgElement = new Image();
+                    imgElement.src = inputImg.src;
+                    await new Promise(r => { imgElement.onload = r; });
+
+                    _cachedCanvas = document.createElement('canvas');
+                    _cachedCanvas.width  = imgElement.naturalWidth;
+                    _cachedCanvas.height = imgElement.naturalHeight;
+                    _cachedCanvas.getContext('2d').drawImage(imgElement, 0, 0);
+
+                    const srcType = activeBlobFile.type;
+                    _cachedMime   = (srcType === 'image/webp') ? 'image/webp' : 'image/jpeg';
+                }
+
+                if (thisRun !== _runId) return;
+
+                const targetKB    = Math.max(1, parseInt(targetKbInput.value) || 100);
+                const targetBytes = targetKB * 1024;
+                const canvas      = _cachedCanvas;
+                const mime        = _cachedMime;
+
+                // STEP 1: probe at quality=1.0 to know the natural max size (fast, 1 call)
+                const maxBlob = await canvasToBlob(canvas, mime, 1.0);
+                if (thisRun !== _runId) return;
+
+                if (maxBlob.size <= targetBytes) {
+                    // Already under target — show real size, nothing to compress
+                    compressedBlob = maxBlob;
+                } else {
+                    // STEP 2: binary search, max 10 iterations, early-exit within 2 KB
+                    const TOLERANCE = 2 * 1024;
+                    let lo = 0.01, hi = 1.0;
+                    let bestBlob = null;
+                    let bestDiff = Infinity;
+
+                    for (let i = 0; i < 10; i++) {
+                        if (thisRun !== _runId) return;
+
+                        const mid  = (lo + hi) / 2;
+                        const blob = await canvasToBlob(canvas, mime, mid);
+                        const diff = Math.abs(blob.size - targetBytes);
+
+                        if (diff < bestDiff) { bestDiff = diff; bestBlob = blob; }
+
+                        if (diff <= TOLERANCE) break;   // close enough — stop early
+
+                        if (blob.size > targetBytes) hi = mid;
+                        else                         lo = mid;
                     }
+
+                    compressedBlob = bestBlob;
+                }
+
+                if (thisRun !== _runId) return;
+
+                // STEP 3: update UI — Blob is the ONLY source of truth
+                const blobUrl = URL.createObjectURL(compressedBlob);
+                outputImg.src = blobUrl;
+                outputImg.classList.remove('blur-sm');
+                processingOverlay.classList.add('hidden');
+
+                // Displayed size = compressedBlob.size / 1024 — never estimated or mocked
+                outputSizeElement.innerText = (compressedBlob.size / 1024).toFixed(1) + " KB";
+
+                downloadBtn.removeAttribute('disabled');
+                downloadBtn.classList.remove('opacity-40', 'cursor-not-allowed');
+            }
+
+            // Download Asset Execution Trigger Binding
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', () => {
+                    if (!compressedBlob) return;
+                    const url = URL.createObjectURL(compressedBlob);
+                    const link = document.createElement('a');
+                    link.download = `optimized_${inputName.innerText || 'asset.jpg'}`;
+                    link.href = url;
+                    link.click();
+                    setTimeout(() => URL.revokeObjectURL(url), 10000);
                 });
             }
         });
