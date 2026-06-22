@@ -3,1154 +3,1370 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V12 Engine 0.1 - Premium SaaS Image Compressor (MB to KB)</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <title>Merge PDF — Free Online PDF Merger</title>
+    <meta name="description" content="Merge PDF files online for free. Fast, secure, and 100% private — files never leave your device.">
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-        
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         :root {
-            --font-sans: 'Plus Jakarta Sans', sans-serif;
+            --red: #E2001A;
+            --red-dark: #c0001a;
+            --red-light: #fff0f2;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-700: #374151;
+            --gray-900: #111827;
+            --white: #ffffff;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.10);
         }
-        
+
         body {
-            font-family: var(--font-sans);
-            background-color: #030014;
-            overflow-x: hidden;
-        }
-
-        /* Glassmorphism Presets */
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        
-        .glass-panel-interactive {
-            background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        
-        .glass-panel-interactive:hover {
-            background: rgba(255, 255, 255, 0.06);
-            border-color: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 20px 40px -15px rgba(124, 58, 237, 0.3);
-            transform: translateY(-6px) scale(1.01);
-        }
-
-        /* Continuous Ambient Blobs */
-        .blob-ambient {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(120px);
-            opacity: 0.4;
-            mix-blend-mode: screen;
-            animation: blobfloat 12s infinite ease-in-out alternate;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        @keyframes blobfloat {
-            0% { transform: translate(0px, 0px) scale(1); }
-            50% { transform: translate(40px, -60px) scale(1.2); }
-            100% { transform: translate(-30px, 30px) scale(0.9); }
-        }
-
-        /* Premium Infinite Marquee */
-        .marquee-container {
-            overflow: hidden;
-            white-space: nowrap;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--white);
+            color: var(--gray-900);
+            min-height: 100vh;
             display: flex;
-        }
-        
-        .marquee-content {
-            display: inline-flex;
-            animation: marquee 30s linear infinite;
-        }
-        
-        .marquee-container:hover .marquee-content {
-            animation-play-state: paused;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
         }
 
-        @keyframes marquee {
-            0% { transform: translateX(0%); }
-            100% { transform: translateX(-50%); }
-        }
-
-        /* Custom Split Before/After Slider Handling */
-        .comparison-slider {
-            position: absolute;
+        /* ─── NAV ─────────────────────────────────── */
+        header {
+            background: var(--white);
+            border-bottom: 1px solid var(--gray-200);
+            position: sticky;
             top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            z-index: 50;
+        }
+
+        nav {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--gray-900);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--red);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-icon svg { color: white; }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--gray-500);
+            font-size: 14px;
+            font-weight: 500;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: color 0.15s, background 0.15s;
+        }
+
+        .nav-links a:hover { color: var(--gray-900); background: var(--gray-100); }
+
+        .nav-cta {
+            background: var(--red) !important;
+            color: var(--white) !important;
+            border-radius: 6px !important;
+        }
+
+        .nav-cta:hover { background: var(--red-dark) !important; }
+
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            color: var(--gray-700);
+        }
+
+        /* ─── HERO ────────────────────────────────── */
+        .hero {
+            background: linear-gradient(180deg, #fff5f6 0%, #ffffff 100%);
+            text-align: center;
+            padding: 60px 20px 50px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--red-light);
+            color: var(--red);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 999px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(226,0,26,0.15);
+        }
+
+        .hero-badge span {
+            width: 6px;
+            height: 6px;
+            background: var(--red);
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .hero h1 {
+            font-size: clamp(28px, 5vw, 44px);
+            font-weight: 700;
+            color: var(--gray-900);
+            line-height: 1.15;
+            margin-bottom: 14px;
+            letter-spacing: -0.5px;
+        }
+
+        .hero p {
+            font-size: 16px;
+            color: var(--gray-500);
+            max-width: 480px;
+            margin: 0 auto 32px;
+            line-height: 1.6;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item { text-align: center; }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--gray-400);
+            margin-top: 2px;
+        }
+
+        /* ─── WORKSPACE ───────────────────────────── */
+        #workspace {
+            max-width: 760px;
+            margin: 40px auto;
+            padding: 0 20px;
+            scroll-margin-top: 80px;
+        }
+
+        .tool-card {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
             overflow: hidden;
         }
 
-        /* Intersection Observer Scroll Reveal Engine styling */
-        .reveal-element {
-            opacity: 0;
-            filter: blur(10px);
-            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        
-        .reveal-element.revealed {
-            opacity: 1;
-            filter: blur(0px);
-            transform: none !important;
+        .tool-card-header {
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid var(--gray-100);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
-        /* Mouse Tracklight Effect */
-        #cursor-glow {
-            position: fixed;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, rgba(0,0,0,0) 70%);
-            border-radius: 50%;
-            pointer-events: none;
-            transform: translate(-50%, -50%);
-            z-index: 9999;
-            mix-blend-mode: plus-lighter;
+        .tool-card-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .tool-card-title span {
+            font-size: 13px;
+            font-weight: 400;
+            color: var(--gray-400);
+            margin-left: 6px;
+        }
+
+        .privacy-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f0fdf4;
+            color: #15803d;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: 6px;
+            border: 1px solid #bbf7d0;
+        }
+
+        .tool-card-body { padding: 24px; }
+
+        /* ─── DROPZONE ────────────────────────────── */
+        #dropzone {
+            border: 2px dashed var(--gray-200);
+            border-radius: var(--radius);
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            background: var(--gray-50);
+        }
+
+        #dropzone:hover, #dropzone.drag-over {
+            border-color: var(--red);
+            background: var(--red-light);
+        }
+
+        .dropzone-icon {
+            width: 52px;
+            height: 52px;
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 14px;
+            color: var(--red);
+            box-shadow: var(--shadow);
+        }
+
+        .dropzone-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 4px;
+        }
+
+        .dropzone-title em {
+            font-style: normal;
+            color: var(--red);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .dropzone-sub {
+            font-size: 12px;
+            color: var(--gray-400);
+        }
+
+        #fileInput { display: none; }
+
+        /* ─── FILE LIST ───────────────────────────── */
+        #fileListSection { margin-top: 20px; }
+
+        .file-list-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .file-list-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        .file-count {
+            background: var(--red);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 1px 7px;
+            border-radius: 999px;
+            margin-left: 6px;
+        }
+
+        #clearAllBtn {
+            background: none;
+            border: 1px solid var(--gray-200);
+            color: var(--gray-500);
+            font-size: 12px;
+            font-weight: 500;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: inherit;
+        }
+
+        #clearAllBtn:hover { border-color: #fca5a5; color: #ef4444; background: #fff5f5; }
+
+        #fileList {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 360px;
+            overflow-y: auto;
+        }
+
+        #fileList li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-sm);
+            cursor: grab;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            user-select: none;
+        }
+
+        #fileList li:hover { border-color: #fca5a5; box-shadow: 0 2px 8px rgba(226,0,26,0.06); }
+        #fileList li.dragging { opacity: 0.45; border-color: var(--red); }
+        #fileList li.drag-target { border-color: var(--red); background: var(--red-light); }
+
+        .file-num {
+            min-width: 22px;
+            height: 22px;
+            background: var(--red-light);
+            color: var(--red);
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .file-drag-handle {
+            color: var(--gray-400);
+            flex-shrink: 0;
+        }
+
+        .file-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .file-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--gray-700);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-size {
+            font-size: 11px;
+            color: var(--gray-400);
+            margin-top: 1px;
+        }
+
+        .file-actions {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            flex-shrink: 0;
+        }
+
+        .file-actions button {
+            background: none;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-400);
+            font-size: 12px;
+            transition: all 0.15s;
+            font-family: inherit;
+        }
+
+        .file-actions button:hover { background: var(--gray-100); color: var(--gray-700); }
+        .file-actions button.remove:hover { background: #fff5f5; color: #ef4444; }
+        .file-actions button:disabled { opacity: 0.2; cursor: not-allowed; }
+
+        /* ─── PROGRESS ────────────────────────────── */
+        .progress-box {
+            margin-top: 14px;
+            background: var(--gray-50);
+            border: 1px solid var(--gray-100);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--gray-400);
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-bg {
+            height: 4px;
+            background: var(--gray-200);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        #timelineProgressBar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--red), #ff6b6b);
+            border-radius: 999px;
+            transition: width 0.4s ease;
+        }
+
+        /* ─── MERGE BUTTON ────────────────────────── */
+        .merge-row {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        #mergeBtn {
+            background: var(--red);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-weight: 600;
+            padding: 12px 28px;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.15s, transform 0.1s;
+            font-family: inherit;
+        }
+
+        #mergeBtn:hover { background: var(--red-dark); }
+        #mergeBtn:active { transform: scale(0.99); }
+        #mergeBtn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* ─── STATUS ──────────────────────────────── */
+        #statusMessage {
+            margin-top: 14px;
+            padding: 12px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 500;
             display: none;
         }
 
-        /* Custom Continuous Micro-Floating for premium graphics */
-        .floating-graphic {
-            animation: smoothFloat 6s infinite ease-in-out alternate;
-        }
-        @keyframes smoothFloat {
-            0% { transform: translateY(0px) rotate(0deg); }
-            100% { transform: translateY(-15px) rotate(2deg); }
+        #statusMessage.loading { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+        #statusMessage.success { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+        #statusMessage.error   { background: #fff5f5; color: #dc2626; border: 1px solid #fecaca; }
+
+        /* ─── FEATURES ────────────────────────────── */
+        .features {
+            background: var(--gray-50);
+            border-top: 1px solid var(--gray-200);
+            padding: 60px 20px;
         }
 
-        /* Underline growth from center effect */
-        .nav-link-effect {
-            position: relative;
+        .section-header {
+            text-align: center;
+            max-width: 520px;
+            margin: 0 auto 40px;
         }
-        .nav-link-effect::after {
-            content: '';
-            position: absolute;
+
+        .section-header h2 {
+            font-size: clamp(22px, 4vw, 30px);
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 10px;
+        }
+
+        .section-header p {
+            font-size: 14px;
+            color: var(--gray-500);
+            line-height: 1.6;
+        }
+
+        .feature-grid {
+            max-width: 900px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .feature-card {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            padding: 22px;
+            transition: box-shadow 0.2s;
+        }
+
+        .feature-card:hover { box-shadow: var(--shadow-md); }
+
+        .feature-icon {
+            width: 42px;
+            height: 42px;
+            background: var(--red-light);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+            font-size: 20px;
+        }
+
+        .feature-card h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 6px;
+        }
+
+        .feature-card p {
+            font-size: 13px;
+            color: var(--gray-500);
+            line-height: 1.55;
+        }
+
+        /* ─── HOW IT WORKS ────────────────────────── */
+        .how-it-works {
+            padding: 60px 20px;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .steps {
+            max-width: 700px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 8px;
+        }
+
+        .step {
+            text-align: center;
+            padding: 20px 12px;
+        }
+
+        .step-num {
+            width: 36px;
+            height: 36px;
+            background: var(--red);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            margin: 0 auto 12px;
+        }
+
+        .step h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 5px;
+        }
+
+        .step p {
+            font-size: 12px;
+            color: var(--gray-400);
+            line-height: 1.5;
+        }
+
+        /* ─── FAQ ─────────────────────────────────── */
+        .faq-section {
+            background: var(--gray-50);
+            border-top: 1px solid var(--gray-200);
+            padding: 60px 20px;
+        }
+
+        .faq-list {
+            max-width: 640px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .faq-item {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+        }
+
+        .faq-item.open { border-color: #fca5a5; }
+
+        .faq-btn {
             width: 100%;
-            transform: scaleX(0);
-            height: 2px;
-            bottom: -4px;
-            left: 0;
-            background: linear-gradient(90deg, #8b5cf6, #ec4899);
-            transform-origin: bottom center;
-            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            background: none;
+            border: none;
+            padding: 16px 18px;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-900);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.15s;
+            font-family: inherit;
         }
-        .nav-link-effect:hover::after {
-            transform: scaleX(1);
+
+        .faq-btn:hover { background: var(--gray-50); }
+
+        .faq-btn .icon {
+            font-size: 18px;
+            color: var(--red);
+            font-weight: 400;
+            flex-shrink: 0;
+            transition: transform 0.2s;
         }
+
+        .faq-item.open .icon { transform: rotate(45deg); }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .faq-answer p {
+            padding: 0 18px 16px;
+            font-size: 13px;
+            color: var(--gray-500);
+            line-height: 1.65;
+            border-top: 1px solid var(--gray-100);
+            padding-top: 12px;
+        }
+
+        /* ─── CTA ─────────────────────────────────── */
+        .cta-section {
+            padding: 60px 20px;
+            text-align: center;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .cta-section h2 {
+            font-size: clamp(20px, 4vw, 28px);
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 10px;
+        }
+
+        .cta-section p {
+            font-size: 14px;
+            color: var(--gray-500);
+            margin-bottom: 24px;
+        }
+
+        .cta-btn {
+            display: inline-block;
+            background: var(--red);
+            color: white;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 600;
+            padding: 13px 30px;
+            border-radius: var(--radius-sm);
+            transition: background 0.15s;
+        }
+
+        .cta-btn:hover { background: var(--red-dark); }
+
+        /* ─── FOOTER ──────────────────────────────── */
+        footer {
+            background: var(--white);
+            border-top: 1px solid var(--gray-200);
+            padding: 32px 20px;
+            margin-top: auto;
+        }
+
+        .footer-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 4px;
+            list-style: none;
+        }
+
+        .footer-links a {
+            text-decoration: none;
+            color: var(--gray-400);
+            font-size: 13px;
+            padding: 4px 10px;
+            border-radius: 5px;
+            transition: color 0.15s;
+        }
+
+        .footer-links a:hover { color: var(--gray-900); }
+
+        .footer-copy {
+            font-size: 12px;
+            color: var(--gray-400);
+        }
+
+        /* ─── BACK TO TOP ─────────────────────────── */
+        #backToTop {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 38px;
+            height: 38px;
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-500);
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s, transform 0.2s;
+            z-index: 40;
+        }
+
+        #backToTop.visible { opacity: 1; pointer-events: auto; }
+        #backToTop:hover { color: var(--red); border-color: #fca5a5; }
+
+        /* ─── MARQUEE ─────────────────────────────── */
+        .marquee-wrap {
+            border-top: 1px solid var(--gray-200);
+            border-bottom: 1px solid var(--gray-200);
+            padding: 12px 0;
+            overflow: hidden;
+            background: var(--gray-50);
+        }
+
+        .marquee-track {
+            display: flex;
+            gap: 48px;
+            white-space: nowrap;
+            animation: marquee 28s linear infinite;
+        }
+
+        .marquee-track:hover { animation-play-state: paused; }
+
+        .marquee-item {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--gray-400);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        @keyframes marquee {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* ─── MOBILE ──────────────────────────────── */
+        @media (max-width: 640px) {
+            .nav-links { display: none; }
+            .nav-links.open {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 61px;
+                left: 0;
+                right: 0;
+                background: var(--white);
+                border-bottom: 1px solid var(--gray-200);
+                padding: 8px 16px 16px;
+                gap: 2px;
+                z-index: 50;
+            }
+            .nav-links.open a { display: block; padding: 10px 12px; }
+            .hamburger { display: flex; }
+            header { position: relative; }
+
+            .stats { gap: 20px; }
+            .stat-value { font-size: 18px; }
+
+            .tool-card-header { flex-direction: column; align-items: flex-start; }
+
+            .file-list-header { flex-wrap: wrap; gap: 8px; }
+
+            .steps { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 400px) {
+            .steps { grid-template-columns: 1fr; }
+        }
+
+        /* ─── SCROLLBAR ───────────────────────────── */
+        #fileList::-webkit-scrollbar { width: 4px; }
+        #fileList::-webkit-scrollbar-track { background: var(--gray-100); border-radius: 4px; }
+        #fileList::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 4px; }
     </style>
 </head>
-<body class="text-slate-200 selection:bg-purple-500 selection:text-white">
+<body>
 
-    <!-- Preloader Experience Screen -->
-    <div id="preloader" class="fixed inset-0 bg-[#030014] z-[99999] flex flex-col items-center justify-center transition-opacity duration-700">
-        <div class="relative flex flex-col items-center">
-            <div class="w-16 h-16 rounded-full border-2 border-purple-500/20 border-t-purple-500 animate-spin mb-4"></div>
-            <div class="text-sm tracking-widest uppercase font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 animate-pulse">
-                V12 Engine 0.1 Initialization
-            </div>
-            <div class="w-48 h-1 bg-white/5 rounded-full mt-4 overflow-hidden">
-                <div class="w-full h-full bg-gradient-to-r from-purple-500 to-pink-500 origin-left scale-x-0 animate-[progress_1.5s_ease-in-out_all] forwards" style="animation-fill-mode: forwards;"></div>
-            </div>
-        </div>
-    </div>
-    <style>
-        @keyframes progress {
-            to { transform: scaleX(1); }
-        }
-    </style>
-
-    <!-- Interactive Cursor Ambient Glow Element -->
-    <div id="cursor-glow"></div>
-
-    <!-- Scroll Progress Top Status Indicator -->
-    <div id="scroll-progress" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 z-[60] w-0 transition-all duration-700"></div>
-
-    <!-- Global Background Elements Layer -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <div class="blob-ambient w-[500px] h-[500px] bg-purple-600/20 top-[-100px] left-[-100px]"></div>
-        <div class="blob-ambient w-[600px] h-[600px] bg-blue-600/15 top-[30%] right-[-100px] [animation-delay:2s]"></div>
-        <div class="blob-ambient w-[550px] h-[550px] bg-pink-600/10 bottom-[10%] left-[5%] [animation-delay:4s]"></div>
-        <div class="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.015)_1px,transparent_1px)] [background-size:24px_24px]"></div>
-    </div>
-
-    <!-- 1. Premium Navigation Pill Bar Design -->
-    <header class="fixed top-4 left-0 w-full z-50 px-4 md:px-8">
-        <nav class="max-w-7xl mx-auto glass-panel rounded-full px-6 py-3 flex items-center justify-between shadow-[0_10px_30px_rgba(0,0,0,0.5)] border-white/5 transition-all duration-300">
-            <!-- Brand Logo -->
-            <a href="#" class="flex items-center gap-2 group">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center shadow-lg group-hover:rotate-12 transition-transform duration-500">
-                    <i data-lucide="zap" class="w-5 h-5 text-white animate-pulse"></i>
+    <!-- HEADER -->
+    <header>
+        <nav>
+            <a href="#" class="logo">
+                <div class="logo-icon">
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+                    </svg>
                 </div>
-                <span class="text-xl font-extrabold tracking-tight text-white">V12 Engine<span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500"> 0.1</span></span>
+                MergePDF
             </a>
 
-            <!-- Central Desktop Navigation Layout Links -->
-            <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-400">
-                <a href="#compressor" class="text-slate-200 nav-link-effect hover:text-white transition-colors">Compressor</a>
-                <a href="#features" class="nav-link-effect hover:text-white transition-colors">Features</a>
-                <a href="#how-it-works" class="nav-link-effect hover:text-white transition-colors">How It Works</a>
-                <a href="#comparison" class="nav-link-effect hover:text-white transition-colors">Live Compare</a>
-                <a href="#faq" class="nav-link-effect hover:text-white transition-colors">FAQ</a>
-            </div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#workspace">Merge PDF</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#faq">FAQ</a></li>
+                <li><a href="#workspace" class="nav-cta">Start Free</a></li>
+            </ul>
 
-            <!-- CTA Actions Block -->
-            <div class="flex items-center gap-4">
-                <a href="#compressor" class="relative group overflow-hidden px-5 py-2.5 rounded-full text-sm font-bold text-white bg-gradient-to-r from-purple-600 to-pink-500 transition-all duration-300 shadow-[0_4px_20px_rgba(139,92,246,0.4)] hover:shadow-[0_4px_30px_rgba(236,72,153,0.6)] hover:scale-105 active:scale-95">
-                    <span class="relative z-10 flex items-center gap-2">
-                        Compress Now <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
-                    </span>
-                    <div class="absolute inset-0 bg-gradient-to-r from-pink-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                </a>
-            </div>
+            <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+                <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5"/>
+                </svg>
+            </button>
         </nav>
     </header>
 
-    <!-- 2. Interactive Premium Hero Section -->
-    <section class="relative min-h-screen pt-32 pb-20 flex items-center justify-center z-10 px-4">
-        <div class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            
-            <!-- Left Side Core SaaS Pitch Messaging -->
-            <div class="space-y-8 text-center lg:text-left">
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-xs font-bold text-purple-300 tracking-wide uppercase mx-auto lg:mx-0 reveal-element [transform:translateY(30px)]">
-                    <span class="w-2 h-2 rounded-full bg-purple-400 animate-ping"></span> Secure Image Compression
-                </div>
-                
-                <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight text-white reveal-element [transform:translateY(30px)] [transition-delay:0.1s]">
-                    Compress Images from <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400">MB to KB</span> Instantly.
-                </h1>
-                
-                <p class="text-lg text-slate-400 max-w-xl mx-auto lg:mx-0 reveal-element [transform:translateY(30px)] [transition-delay:0.2s]">
-                    Our advanced compression engine reduces file size while maintaining excellent image quality. No uploads required, complete privacy, and instant results.
-                </p>
-
-                <!-- Premium Metrics Counters Block -->
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-6 pt-4 max-w-md mx-auto lg:mx-0 reveal-element [transform:translateY(30px)] [transition-delay:0.3s]">
-                    <div class="border-l-2 border-purple-500/30 pl-4 text-left">
-                        <div class="text-2xl sm:text-3xl font-black text-white stat-counter" data-target="50">0</div>
-                        <div class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Images Compressed</div>
-                    </div>
-                    <div class="border-l-2 border-pink-500/30 pl-4 text-left">
-                        <div class="text-2xl sm:text-3xl font-black text-white stat-counter" data-target="99">0</div>
-                        <div class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Quality Preserved</div>
-                    </div>
-                    <div class="border-l-2 border-blue-500/30 pl-4 text-left col-span-2 sm:col-span-1">
-                        <div class="text-2xl sm:text-3xl font-black text-white">0%</div>
-                        <div class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Data Uploaded to Servers</div>
-                    </div>
-                </div>
-
-                <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 reveal-element [transform:translateY(30px)] [transition-delay:0.4s]">
-                    <a href="#compressor" class="px-8 py-4 rounded-xl bg-white text-slate-950 font-bold hover:bg-slate-100 transition-all shadow-xl hover:scale-105 active:scale-95">Start Compressing for Free</a>
-                    <a href="#features" class="px-8 py-4 rounded-xl glass-panel text-white font-semibold border-white/10 hover:bg-white/5 transition-all">Explore Features</a>
-                </div>
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-badge"><span></span> 100% Private · No Uploads · Free</div>
+        <h1>Merge PDF Files Online</h1>
+        <p>Combine multiple PDFs into one — instantly, for free, and completely private. Your files never leave your device.</p>
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="count-pdf">0+</div>
+                <div class="stat-label">Files Merged</div>
             </div>
-
-            <!-- Right Side Complex Live Dynamic Composition Block -->
-            <div id="hero-graphic" class="relative w-full aspect-square max-w-[500px] mx-auto flex items-center justify-center reveal-element [transform:scale(0.95)] [transition-delay:0.2s]">
-                <!-- Outer Ring Orbit Animations -->
-                <div class="absolute inset-0 rounded-full border border-purple-500/10 animate-[spin_40s_linear_infinite]"></div>
-                <div class="absolute inset-12 rounded-full border border-dashed border-pink-500/10 animate-[spin_20s_linear_infinite_reverse]"></div>
-                
-                <!-- Central Micro System Presentation Mockup Card -->
-                <div class="relative w-72 h-80 glass-panel rounded-2xl border-white/10 p-6 flex flex-col justify-between shadow-2xl floating-graphic z-10">
-                    <div class="flex items-center justify-between border-b border-white/5 pb-4">
-                        <span class="text-xs font-bold text-slate-400 tracking-wider uppercase">Engine Monitor</span>
-                        <span class="w-2 h-2 rounded-full bg-green-400 shadow-[0_0_10px_#4ade80]"></span>
-                    </div>
-                    
-                    <!-- Dynamic Live Graphic Vector Presentation -->
-                    <div class="my-auto space-y-4 relative py-6">
-                        <div class="w-full bg-white/5 rounded-xl p-3 flex items-center gap-3 border border-white/5">
-                            <div class="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400 font-bold text-xs">RAW</div>
-                            <div class="flex-1">
-                                <div class="w-16 h-2 bg-white/20 rounded mb-1"></div>
-                                <div class="w-24 h-1.5 bg-white/10 rounded"></div>
-                            </div>
-                            <span class="text-xs font-bold text-purple-400">4.2 MB</span>
-                        </div>
-                        
-                        <!-- Flow Dynamic Direction Icon Connect -->
-                        <div class="flex justify-center my-1">
-                            <div class="w-8 h-8 rounded-full bg-pink-500/20 border border-pink-500/40 flex items-center justify-center text-pink-400 animate-bounce">
-                                <i data-lucide="arrow-down" class="w-4 h-4"></i>
-                            </div>
-                        </div>
-
-                        <div class="w-full bg-white/5 rounded-xl p-3 flex items-center gap-3 border border-white/5">
-                            <div class="w-10 h-10 rounded-lg bg-pink-500/20 flex items-center justify-center text-pink-400 font-bold text-xs">OPT</div>
-                            <div class="flex-1">
-                                <div class="w-20 h-2 bg-white/20 rounded mb-1"></div>
-                                <div class="w-12 h-1.5 bg-white/10 rounded"></div>
-                            </div>
-                            <span class="text-xs font-bold text-pink-400">180 KB</span>
-                        </div>
-                    </div>
-
-                    <!-- Progress Status Tracking Ring -->
-                    <div class="flex items-center justify-between bg-purple-950/20 border border-purple-500/20 rounded-xl p-2.5">
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="zap" class="w-4 h-4 text-purple-400 animate-pulse"></i>
-                            <span class="text-[11px] font-bold text-slate-300">Reduction Scale Factor</span>
-                        </div>
-                        <span class="text-xs font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">-95.7%</span>
-                    </div>
-                </div>
-
-                <!-- Abstract Layer Tags and Cards Layout Inside Composition Background -->
-                <div class="absolute top-8 left-4 glass-panel border-white/5 px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg floating-graphic [animation-delay:1.5s] z-20 text-xs font-bold">
-                    <i data-lucide="image" class="w-4 h-4 text-blue-400"></i> PNG Lossless
-                </div>
-                <div class="absolute bottom-12 right-2 glass-panel border-white/5 px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg floating-graphic [animation-delay:0.7s] z-20 text-xs font-bold">
-                    <i data-lucide="shield-check" class="w-4 h-4 text-green-400"></i> 100% Local Sandbox
-                </div>
+            <div class="stat-item">
+                <div class="stat-value">99.9%</div>
+                <div class="stat-label">Success Rate</div>
             </div>
-
-        </div>
-    </section>
-
-    <!-- 11. Infinite Scrolling Trusted Logos Marquee -->
-    <section class="border-y border-white/5 py-10 bg-black/40 backdrop-blur-md relative z-10 overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 text-center mb-6">
-            <span class="text-xs font-bold uppercase tracking-widest text-slate-500">Trusted by Teams Worldwide</span>
-        </div>
-        <div class="marquee-container w-full">
-            <div class="marquee-content gap-16 text-lg font-bold text-slate-400 tracking-wider">
-                <span>📸 Photographers</span>
-                <span class="text-purple-500">•</span>
-                <span>🎨 UI/UX Designers</span>
-                <span class="text-pink-500">•</span>
-                <span>💻 Frontend Developers</span>
-                <span class="text-blue-500">•</span>
-                <span>🎓 Students</span>
-                <span class="text-green-500">•</span>
-                <span>🛒 E-Commerce Managers</span>
-                <span class="text-purple-500">•</span>
-                <span>💼 Business Teams</span>
-                <span class="text-pink-500">•</span>
-                <!-- Duplicate Content Loop to Support Fluid Scrolling Animation -->
-                <span>📸 Photographers</span>
-                <span class="text-purple-500">•</span>
-                <span>🎨 UI/UX Designers</span>
-                <span class="text-pink-500">•</span>
-                <span>💻 Frontend Developers</span>
-                <span class="text-blue-500">•</span>
-                <span>🎓 Students</span>
-                <span class="text-green-500">•</span>
-                <span>🛒 E-Commerce Managers</span>
-                <span class="text-purple-500">•</span>
-                <span>💼 Business Teams</span>
-                <span class="text-pink-500">•</span>
+            <div class="stat-item">
+                <div class="stat-value">0%</div>
+                <div class="stat-label">Data Uploaded</div>
             </div>
         </div>
     </section>
 
-    <!-- Main Live Core Functional App: MB to KB Compression Component -->
-    <section id="compressor" class="py-24 relative z-10 px-4">
-        <div class="max-w-4xl mx-auto">
-            <div class="text-center space-y-4 mb-12 reveal-element [transform:translateY(20px)]">
-                <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white">Smart Image Compression</h2>
-                <p class="text-slate-400 max-w-lg mx-auto">Upload an image, choose your target file size, and compress it instantly in your browser.</p>
+    <!-- MARQUEE -->
+    <div class="marquee-wrap">
+        <div class="marquee-track">
+            <span class="marquee-item">🏢 Enterprise Teams</span>
+            <span class="marquee-item">⚖️ Law Firms</span>
+            <span class="marquee-item">🎓 Universities</span>
+            <span class="marquee-item">💼 Finance & Banking</span>
+            <span class="marquee-item">🛠️ Engineering Teams</span>
+            <span class="marquee-item">🏥 Healthcare Providers</span>
+            <span class="marquee-item">📚 Educators</span>
+            <span class="marquee-item">🏢 Enterprise Teams</span>
+            <span class="marquee-item">⚖️ Law Firms</span>
+            <span class="marquee-item">🎓 Universities</span>
+            <span class="marquee-item">💼 Finance & Banking</span>
+            <span class="marquee-item">🛠️ Engineering Teams</span>
+            <span class="marquee-item">🏥 Healthcare Providers</span>
+            <span class="marquee-item">📚 Educators</span>
+        </div>
+    </div>
+
+    <!-- WORKSPACE -->
+    <section id="workspace">
+        <div class="tool-card">
+            <div class="tool-card-header">
+                <div class="tool-card-title">
+                    PDF Merger
+                    <span>Combine PDFs in seconds</span>
+                </div>
+                <div class="privacy-badge">
+                    <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+                    </svg>
+                    Processed locally in your browser
+                </div>
             </div>
 
-            <!-- Integrated Drag Drop and Parameter Panel Matrix -->
-            <div class="glass-panel rounded-3xl border-white/10 p-6 md:p-8 space-y-6 shadow-2xl relative reveal-element [transform:translateY(30px)]">
-                
-                <!-- Upload Dropzone Interface -->
-                <div id="dropzone" class="border-2 border-dashed border-white/10 hover:border-purple-500/50 bg-white/[0.01] hover:bg-purple-500/[0.02] rounded-2xl p-8 md:p-12 text-center transition-all duration-300 cursor-pointer group relative overflow-hidden">
-                    <input type="file" id="file-input" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/jpeg, image/png, image/webp">
-                    <div class="space-y-4 pointer-events-none relative z-10">
-                        <div class="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center mx-auto border border-white/10 group-hover:scale-110 group-hover:border-purple-500/30 transition-all duration-500">
-                            <i data-lucide="upload-cloud" class="w-6 h-6 text-slate-400 group-hover:text-purple-400 transition-colors"></i>
+            <div class="tool-card-body">
+                <!-- Dropzone -->
+                <div id="dropzone">
+                    <input type="file" id="fileInput" multiple accept=".pdf">
+                    <div class="dropzone-icon">
+                        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+                        </svg>
+                    </div>
+                    <div class="dropzone-title">Drop PDF files here, or <em>click to browse</em></div>
+                    <div class="dropzone-sub">Select multiple files · PDF only</div>
+                </div>
+
+                <!-- File List -->
+                <div id="fileListSection" style="display:none;">
+                    <div class="file-list-header" style="margin-top:20px;">
+                        <div class="file-list-label">
+                            Files to merge
+                            <span class="file-count" id="fileCount">0</span>
                         </div>
-                        <div>
-                            <p class="text-base font-bold text-white">Drag & drop your image here or click to browse</p>
-                            <p class="text-xs text-slate-500 mt-1">Supported formats: JPG, JPEG, PNG, WEBP</p>
+                        <button id="clearAllBtn">✕ Clear all</button>
+                    </div>
+
+                    <ul id="fileList"></ul>
+
+                    <!-- Progress -->
+                    <div class="progress-box">
+                        <div class="progress-label">
+                            <span>Status</span>
+                            <span id="timelinePercent">Ready</span>
                         </div>
-                        <button type="button" class="px-5 py-2 rounded-xl bg-white/5 group-hover:bg-purple-600 group-hover:text-white transition-all text-xs font-bold text-slate-300 border border-white/10">Browse Files</button>
+                        <div class="progress-bar-bg">
+                            <div id="timelineProgressBar"></div>
+                        </div>
+                    </div>
+
+                    <!-- Merge Button -->
+                    <div class="merge-row">
+                        <button id="mergeBtn">
+                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+                            </svg>
+                            Merge & Download PDF
+                        </button>
                     </div>
                 </div>
 
-                <!-- Preview Area State Manager (Hidden state when vacant) -->
-                <div id="preview-container" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6 bg-white/[0.01] border border-white/5 rounded-2xl p-4">
-                    <div class="space-y-2">
-                        <span class="text-xs font-bold text-slate-400 tracking-wider uppercase block">Original Size</span>
-                        <div class="relative aspect-video bg-black/40 rounded-xl overflow-hidden flex items-center justify-center border border-white/5">
-                            <img id="input-img" src="" alt="Source preview" class="max-w-full max-h-full object-contain">
-                        </div>
-                        <div class="flex justify-between text-xs font-medium text-slate-400 px-1">
-                            <span id="input-name" class="truncate max-w-[200px]">filename.jpg</span>
-                            <span id="input-size" class="font-bold text-purple-400">0.00 MB</span>
-                        </div>
-                    </div>
-
-                    <div class="space-y-2">
-                        <span class="text-xs font-bold text-slate-400 tracking-wider uppercase block">Compression Results</span>
-                        <div class="relative aspect-video bg-black/40 rounded-xl overflow-hidden flex items-center justify-center border border-white/5">
-                            <img id="output-img" src="" alt="Compressed preview" class="max-w-full max-h-full object-contain blur-sm">
-                            <!-- Live Progress Ring Overlay overlay -->
-                            <div id="processing-overlay" class="hidden absolute inset-0 bg-black/60 flex flex-col items-center justify-center space-y-2">
-                                <div class="w-10 h-10 border-2 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
-                                <span class="text-xs font-bold text-pink-400 uppercase tracking-widest animate-pulse">Working on your image</span>
-                            </div>
-                        </div>
-                        <div class="flex justify-between text-xs font-medium text-slate-400 px-1">
-                            <span>Target Size Met</span>
-                            <span id="output-size" class="font-bold text-pink-400">0.00 KB</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Fine Tuning Tuning Parameters Grid Matrix -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-white/5">
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center">
-                            <label class="text-sm font-bold text-slate-300 flex items-center gap-2">
-                                <i data-lucide="sliders" class="w-4 h-4 text-purple-400"></i> Quality Level
-                            </label>
-                            <span id="quality-val" class="text-xs font-extrabold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded">80%</span>
-                        </div>
-                        <input type="range" id="quality-slider" min="5" max="100" value="80" class="w-full accent-purple-500 cursor-pointer bg-white/10 h-1.5 rounded-full appearance-none">
-                    </div>
-
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center">
-                            <label class="text-sm font-bold text-slate-300 flex items-center gap-2">
-                                <i data-lucide="target" class="w-4 h-4 text-pink-400"></i> Target Size
-                            </label>
-                            <div class="flex items-center gap-1.5">
-                                <input type="number" id="target-kb-input" value="200" min="10" max="5000" class="w-20 bg-white/5 border border-white/10 rounded px-2 py-0.5 text-xs font-bold text-pink-400 text-center outline-none focus:border-pink-500">
-                                <span class="text-xs font-bold text-slate-500">KB</span>
-                            </div>
-                        </div>
-                        <input type="range" id="kb-slider" min="10" max="2000" value="200" class="w-full accent-pink-500 cursor-pointer bg-white/10 h-1.5 rounded-full appearance-none">
-                    </div>
-                </div>
-
-                <!-- Bottom Form Control Layout Actions Box -->
-                <div class="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div class="flex items-center gap-2 text-xs text-slate-400">
-                        <i data-lucide="lock" class="w-4 h-4 text-green-400"></i> No data is sent to any server. Everything runs securely in your browser.
-                    </div>
-                    <button id="download-btn" disabled class="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold opacity-40 cursor-not-allowed transition-all duration-300 shadow-lg flex items-center justify-center gap-2 group">
-                        <i data-lucide="download" class="w-4 h-4"></i> Download Compressed Image
-                    </button>
-                </div>
-
+                <!-- Status -->
+                <div id="statusMessage"></div>
             </div>
         </div>
     </section>
 
-
-
-
-    <!-- 3. Dynamic Interactive Alternating Content Information Blocks -->
-    <section class="py-24 relative z-10 px-4 max-w-7xl mx-auto space-y-32">
-        
-        <!-- Alternate Block Row 1: Text Left / Composition Right -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div class="space-y-6 reveal-element [transform:translateX(-30px)]">
-                <div class="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
-                    <i data-lucide="zap" class="w-6 h-6"></i>
-                </div>
-                <h3 class="text-3xl font-extrabold text-white tracking-tight">Quality-Focused Compression</h3>
-                <p class="text-slate-400 leading-relaxed">The compression process is designed to preserve important visual details while significantly reducing image size. By intelligently balancing quality and compression levels, images remain sharp, clean, and suitable for both professional and personal use.</p>
-                <ul class="space-y-3 text-sm text-slate-300 font-medium">
-                    <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-purple-400"></i> Smart quality optimization preserves important image details</li>
-                    <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-purple-400"></i> Optimized file sizes without compromising visual clarity</li>
-                </ul>
-            </div>
-            <div class="relative w-full aspect-video bg-white/[0.01] glass-panel border-white/5 rounded-2xl p-4 shadow-2xl floating-graphic reveal-element [transform:translateX(30px)]">
-                <div class="w-full h-full flex items-center justify-center overflow-hidden rounded-xl">
-    <img 
-        src="stergo-fantasy-2049567_1920.jpg" 
-        alt="Canvas Processing Pipeline" 
-        class="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity duration-300"
-    />
-</div>
-            </div>
+    <!-- FEATURES -->
+    <section class="features" id="features">
+        <div class="section-header">
+            <h2>Why use MergePDF?</h2>
+            <p>Fast, private, and completely free — everything you need to combine PDF files.</p>
         </div>
-
-        <!-- Alternate Block Row 2: Composition Left / Text Right -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div class="relative w-full aspect-video bg-white/[0.01] glass-panel border-white/5 rounded-2xl p-4 shadow-2xl floating-graphic [animation-delay:1s] order-2 lg:order-1 reveal-element [transform:translateX(-30px)]">
-                <div class="w-full h-full flex items-center justify-center overflow-hidden rounded-xl">
-    <img 
-        src="gpt-image-2_a_cinematic_photo_of_Create_a_modern_premium_SaaS-style_UI_section_for_an_image_-0 (1).jpg" 
-        alt="Canvas Processing Pipeline" 
-        class="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity duration-300"
-    />
-</div>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3>100% Private</h3>
+                <p>Your files are processed entirely in your browser. Nothing is ever uploaded to a server.</p>
             </div>
-            <div class="space-y-6 order-1 lg:order-2 reveal-element [transform:translateX(30px)]">
-                <div class="w-12 h-12 rounded-2xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400">
-                    <i data-lucide="shield-check" class="w-6 h-6"></i>
-                </div>
-                <h3 class="text-3xl font-extrabold text-white tracking-tight">Fast Browser-Based Processing</h3>
-                <p class="text-slate-400 leading-relaxed">
-                   Compress images quickly without waiting for uploads or server processing.Our advanced compression engine works entirely within your browser, allowing images to be processed in real time while maintaining excellent visual quality. By handling everything locally, the tool delivers faster results, reduced waiting times, and a smoother compression experience for images of all sizes.
-                </p>
-                <ul class="space-y-3 text-sm text-slate-300 font-medium">
-                    <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-pink-400"></i> Processes images directly in your browser for faster results</li>
-                    <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-pink-400"></i> No uploads or server delays, ensuring instant compression</li>
-                </ul>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Instant Processing</h3>
+                <p>Merge happens locally on your device — no waiting for uploads or downloads.</p>
             </div>
-        </div>
- 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div class="space-y-6 reveal-element [transform:translateX(-30px)]">
-                <div class="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
-                    <i data-lucide="zap" class="w-6 h-6"></i>
-                </div>
-                <h3 class="text-3xl font-extrabold text-white tracking-tight">Designed for Everyone</h3>
-                <p class="text-slate-400 leading-relaxed">Simple enough for beginners, powerful enough for professionals.Whether you're a student, designer, developer, marketer, or business owner, the platform provides an intuitive compression experience that helps you reduce file sizes quickly without requiring technical knowledge.</p>
-                <ul class="space-y-3 text-sm text-slate-300 font-medium">
-                    <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-purple-400"></i> Simple and intuitive interface designed for users of all skill levels</li>
-                    <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-purple-400"></i> Perfect for students, designers, developers, businesses, and content creators</li>
-                </ul>
+            <div class="feature-card">
+                <div class="feature-icon">↕️</div>
+                <h3>Drag to Reorder</h3>
+                <p>Arrange your PDFs in any order before merging with simple drag and drop.</p>
             </div>
-            <div class="relative w-full aspect-video bg-white/[0.01] glass-panel border-white/5 rounded-2xl p-4 shadow-2xl floating-graphic reveal-element [transform:translateX(30px)]">
-                <div class="w-full h-full flex items-center justify-center overflow-hidden rounded-xl">
-    <img 
-        src="gpt-image-2_a_cinematic_photo_of_Create_a_premium_modern_SaaS_landing_page_hero_section_in_a-0 (1).jpg" 
-        alt="Canvas Processing Pipeline" 
-        class="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity duration-300"
-    />
-</div>
+            <div class="feature-card">
+                <div class="feature-icon">📁</div>
+                <h3>No File Limits</h3>
+                <p>Merge as many PDFs as your device can handle — no subscriptions or upload caps.</p>
             </div>
-        </div>
-
-        
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div class="relative w-full aspect-video bg-white/[0.01] glass-panel border-white/5 rounded-2xl p-4 shadow-2xl floating-graphic [animation-delay:1s] order-2 lg:order-1 reveal-element [transform:translateX(-30px)]">
-                <div class="w-full h-full flex items-center justify-center overflow-hidden rounded-xl">
-    <img 
-        src="gpt-image-2_a_cinematic_photo_of_Create_a_modern_premium_SaaS-style_UI_section_for_an_image_-0 (10).jpg" 
-        alt="Canvas Processing Pipeline" 
-        class="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity duration-300"
-    />
-</div>
+            <div class="feature-card">
+                <div class="feature-icon">💻</div>
+                <h3>No Installation</h3>
+                <p>Works in any modern browser on any device. No software or app to install.</p>
             </div>
-            <div class="space-y-6 order-1 lg:order-2 reveal-element [transform:translateX(30px)]">
-                <div class="w-12 h-12 rounded-2xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400">
-                    <i data-lucide="shield-check" class="w-6 h-6"></i>
-                </div>
-                <h3 class="text-3xl font-extrabold text-white tracking-tight">Universal Format Support</h3>
-                <p class="text-slate-400 leading-relaxed">
-                   Works with the image formats you use every day.Upload and compress JPG, JPEG, PNG, and WEBP images with ease. The platform is built to handle a wide range of image types, providing a consistent and reliable compression experience regardless of the format.
-                </p>
-                <ul class="space-y-3 text-sm text-slate-300 font-medium">
-                    <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-pink-400"></i> Works with the most widely used image formats</li>
-                    <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-pink-400"></i> Reliable compression across all supported file types</li>
-                </ul>
-            </div>
-        </div>
-
-        
-    </section>
-
-    <!-- 6. Structured Workflow Sequence Segment -->
-    <section id="how-it-works" class="py-24 bg-black/30 relative z-10 px-4 border-y border-white/5">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center space-y-4 mb-16 reveal-element [transform:translateY(20px)]">
-                <h2 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">How It Works</h2>
-                <p class="text-slate-400 max-w-md mx-auto">Four simple steps to compress images quickly and securely.</p>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 relative">
-                <!-- Card Item 1 -->
-                <div class="glass-panel-interactive rounded-2xl p-6 relative flex flex-col space-y-4 reveal-element [transform:translateY(30px)]">
-                    <div class="text-xs font-black text-purple-400/40 font-mono tracking-widest uppercase">Stage 01</div>
-                    <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400">
-                        <i data-lucide="file-up" class="w-5 h-5"></i>
-                    </div>
-                    <h4 class="text-lg font-bold text-white">Upload Image</h4>
-                    <p class="text-slate-400 text-sm">Select an image from your device or drag and drop it into the upload area. We support JPG, JPEG, PNG, and WEBP files.</p>
-                </div>
-                <!-- Card Item 2 -->
-                <div class="glass-panel-interactive rounded-2xl p-6 relative flex flex-col space-y-4 reveal-element [transform:translateY(30px)] [transition-delay:0.1s]">
-                    <div class="text-xs font-black text-pink-400/40 font-mono tracking-widest uppercase">Stage 02</div>
-                    <div class="w-10 h-10 rounded-xl bg-pink-500/10 flex items-center justify-center text-pink-400">
-                        <i data-lucide="binary" class="w-5 h-5"></i>
-                    </div>
-                    <h4 class="text-lg font-bold text-white">Set Your Target Size</h4>
-                    <p class="text-slate-400 text-sm">Enter the file size you want in KB. The compression engine will automatically prepare the best settings to help reach your target.</p>
-                </div>
-                <!-- Card Item 3 -->
-                <div class="glass-panel-interactive rounded-2xl p-6 relative flex flex-col space-y-4 reveal-element [transform:translateY(30px)] [transition-delay:0.2s]">
-                    <div class="text-xs font-black text-blue-400/40 font-mono tracking-widest uppercase">Stage 03</div>
-                    <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400">
-                        <i data-lucide="cpu" class="w-5 h-5"></i>
-                    </div>
-                    <h4 class="text-lg font-bold text-white">Compress Your Image</h4>
-                    <p class="text-slate-400 text-sm">The compression engine automatically balances file size and image quality to achieve the best possible result.</p>
-                </div>
-                <!-- Card Item 4 -->
-                <div class="glass-panel-interactive rounded-2xl p-6 relative flex flex-col space-y-4 reveal-element [transform:translateY(30px)] [transition-delay:0.3s]">
-                    <div class="text-xs font-black text-green-400/40 font-mono tracking-widest uppercase">Stage 04</div>
-                    <div class="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center text-green-400">
-                        <i data-lucide="file-check" class="w-5 h-5"></i>
-                    </div>
-                    <h4 class="text-lg font-bold text-white">Download Your Image</h4>
-                    <p class="text-slate-400 text-sm">Once compression is complete, download your optimized image instantly and use it wherever you need.</p>
-                </div>
+            <div class="feature-card">
+                <div class="feature-icon">🚫</div>
+                <h3>No Watermarks</h3>
+                <p>Your merged PDF is clean — no branding, watermarks, or hidden changes added.</p>
             </div>
         </div>
     </section>
 
-
-
-    <!-- 8. Premium Interactive Before/After Comparison Slider Block -->
-    <section id="comparison" class="py-24 relative z-10 px-4 max-w-5xl mx-auto">
-        <div class="text-center space-y-4 mb-12 reveal-element [transform:translateY(20px)]">
-            <h2 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">Interactive Quality Comparison</h2>
-            <p class="text-slate-400 max-w-md mx-auto">Drag the slider to compare the original image with the compressed version in real time.</p>
+    <!-- HOW IT WORKS -->
+    <section class="how-it-works" id="process-timeline">
+        <div class="section-header">
+            <h2>How it works</h2>
+            <p>Merge your PDFs in four simple steps.</p>
         </div>
-
-        <!-- Before/After Interactive Control Layout Wrap -->
-        <div id="slider-wrap" class="relative w-full aspect-video rounded-3xl overflow-hidden glass-panel border-white/10 select-none cursor-ew-resize shadow-2xl group reveal-element [transform:scale(0.98)]">
-            
-            <!-- Before Asset Block Layer -->
-            <div class="absolute inset-0 bg-[#0f0c22]">
-                <img src="julius_silver-polynesia-3021072_1920.jpg" alt="Source" class="w-full h-full object-cover">
-                <div class="absolute top-4 left-4 glass-panel bg-black/60 border-white/10 px-4 py-1.5 rounded-full text-xs font-bold text-white tracking-widest uppercase">
-                    Raw Vector Space [4.8 MB]
-                </div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <h4>Add files</h4>
+                <p>Drag & drop or click to select your PDF files.</p>
             </div>
-
-            <!-- After Asset Split Clip Panel Layer -->
-            <div id="compressed-clip-panel" class="absolute inset-0 pointer-events-none transition-all duration-75" style="clip-path: inset(0 0 0 50%);">
-                <img src="julius_silver-polynesia-3021072_1920.jpg" alt="Compressed" class="w-full h-full object-cover filter brightness-90">
-                <div class="absolute top-4 right-4 glass-panel bg-pink-600/80 border-white/10 px-4 py-1.5 rounded-full text-xs font-bold text-white tracking-widest uppercase">
-                    V12 Engine 0.1 Target Variant [140 KB]
-                </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <h4>Arrange order</h4>
+                <p>Drag files into the sequence you want.</p>
             </div>
-
-            <!-- Interactive Handle Bar Overlay Line -->
-            <div id="slider-handle" class="absolute top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 via-pink-500 to-blue-500 left-1/2 pointer-events-none shadow-[0_0_10px_rgba(236,72,153,0.5)]">
-                <div class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-white text-slate-950 flex items-center justify-center shadow-2xl border-4 border-[#030014]">
-                    <i data-lucide="chevrons-left-right" class="w-4 h-4"></i>
-                </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <h4>Merge</h4>
+                <p>Click the button — processed instantly in your browser.</p>
             </div>
-
-        </div>
-    </section>
-
-
-
-
-
-    <!-- 7. Premium Structured Grids Feature Block Layout -->
-    <section id="features" class="py-24 max-w-7xl mx-auto px-4 relative z-10">
-        <div class="text-center space-y-4 mb-16 reveal-element [transform:translateY(20px)]">
-            <h2 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">Powerful Features</h2>
-            <p class="text-slate-400 max-w-md mx-auto">Everything you need to compress images quickly, accurately, and securely.</p>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- Feature Item 1 -->
-            <div class="glass-panel-interactive rounded-2xl p-6 space-y-4 reveal-element [transform:translateY(30px)]">
-                <div class="w-11 h-11 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400"><i data-lucide="target" class="w-5 h-5"></i>
-                </div>
-                <h4 class="text-xl font-bold text-white">Exact KB Size</h4>
-                <p class="text-slate-400 text-sm leading-relaxed">Set your desired file size in KB and let the compression engine work towards achieving your target with the best possible balance of size and quality.</p>
-            </div>
-            <!-- Feature Item 2 -->
-            <div class="glass-panel-interactive rounded-2xl p-6 space-y-4 reveal-element [transform:translateY(30px)] [transition-delay:0.1s]">
-                <div class="w-11 h-11 rounded-xl bg-pink-500/10 flex items-center justify-center text-pink-400"><i data-lucide="cpu" class="w-5 h-5"></i>
-                </div>
-                <h4 class="text-xl font-bold text-white">Smart Compression</h4>
-                <p class="text-slate-400 text-sm leading-relaxed">Advanced optimization automatically adjusts compression settings to reduce file size while preserving important visual details and image clarity.</p>
-            </div>
-             <div class="glass-panel-interactive rounded-2xl p-6 space-y-4 reveal-element [transform:translateY(30px)] [transition-delay:0.1s]">
-                <div class="w-11 h-11 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400"><i data-lucide="shield-check" class="w-5 h-5"></i>
-                </div>
-                <h4 class="text-xl font-bold text-white">Browser-Based Processing</h4>
-                <p class="text-slate-400 text-sm leading-relaxed">All image processing takes place directly in your browser, delivering fast results while keeping your files completely private.</p>
-            </div>
-             <div class="glass-panel-interactive rounded-2xl p-6 space-y-4 reveal-element [transform:translateY(30px)] [transition-delay:0.1s]">
-                <div class="w-11 h-11 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400"><i data-lucide="eye" class="w-5 h-5"></i>
-                </div>
-                <h4 class="text-xl font-bold text-white">Live Size Preview</h4>
-                <p class="text-slate-400 text-sm leading-relaxed">View estimated file sizes, quality levels, and compression progress in real time as the engine processes your image.</p>
-            </div>
-             <div class="glass-panel-interactive rounded-2xl p-6 space-y-4 reveal-element [transform:translateY(30px)] [transition-delay:0.1s]">
-                <div class="w-11 h-11 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400"><i data-lucide="binary" class="w-5 h-5"></i>
-                </div>
-                <h4 class="text-xl font-bold text-white">High Accuracy</h4>
-                <p class="text-slate-400 text-sm leading-relaxed">Designed to consistently produce reliable results and help you meet file size requirements with greater precision.</p>
-            </div>
-             <div class="glass-panel-interactive rounded-2xl p-6 space-y-4 reveal-element [transform:translateY(30px)] [transition-delay:0.1s]">
-                <div class="w-11 h-11 rounded-xl bg-pink-500/10 flex items-center justify-center text-pink-400"><i data-lucide="zap" class="w-5 h-5"></i>
-                </div>
-                <h4 class="text-xl font-bold text-white">Fast Performance</h4>
-                <p class="text-slate-400 text-sm leading-relaxed">Optimized for speed, allowing images to be compressed in seconds without unnecessary delays or waiting times.</p>
-            </div>
-             <div class="glass-panel-interactive rounded-2xl p-6 space-y-4 reveal-element [transform:translateY(30px)] [transition-delay:0.1s]">
-                <div class="w-11 h-11 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400"><i data-lucide="image" class="w-5 h-5"></i>
-                </div>
-                <h4 class="text-xl font-bold text-white">PNG Transparency Support</h4>
-                <p class="text-slate-400 text-sm leading-relaxed">Compress PNG images while preserving transparent backgrounds and maintaining overall image quality.</p>
-            </div>
-            <!-- Feature Item 3 -->
-            <div class="glass-panel-interactive rounded-2xl p-6 space-y-4 reveal-element [transform:translateY(30px)] [transition-delay:0.2s]">
-                <div class="w-11 h-11 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400"><i data-lucide="box" class="w-5 h-5"></i>
-                </div>
-                <h4 class="text-xl font-bold text-white">Complete Privacy</h4>
-                <p class="text-slate-400 text-sm leading-relaxed">Your files are never uploaded, stored, or shared. Everything is processed locally on your device for maximum privacy.</p>
+            <div class="step">
+                <div class="step-num">4</div>
+                <h4>Download</h4>
+                <p>Save the merged PDF directly to your device.</p>
             </div>
         </div>
     </section>
 
-    <!-- 13. Dynamic Accordion FAQ Section Segment -->
-    <section id="faq" class="py-24 max-w-4xl mx-auto px-4 relative z-10">
-        <div class="text-center space-y-4 mb-16 reveal-element [transform:translateY(20px)]">
-            <h2 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">Frequently Asked Questions</h2>
-            <p class="text-slate-400 max-w-sm mx-auto">Core algorithmic parameters explained cleanly for integration protocols.</p>
+    <!-- FAQ -->
+    <section class="faq-section" id="faq">
+        <div class="section-header">
+            <h2>Frequently asked questions</h2>
+            <p>Everything you need to know about merging PDFs.</p>
         </div>
-
-        <div class="space-y-4">
-            <!-- Accordion Item 1 -->
-            <div class="glass-panel rounded-2xl border-white/5 overflow-hidden transition-all duration-300 reveal-element [transform:translateY(20px)]">
-                <button type="button" class="w-full px-6 py-5 text-left flex items-center justify-between font-bold text-white hover:bg-white/[0.02] transition-colors faq-trigger">
-                    <span>How fast is the compression process?</span>
-                    <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+        <div class="faq-list">
+            <div class="faq-item">
+                <button class="faq-btn" onclick="toggleFaq(this)">
+                    Is there a file size limit?
+                    <span class="icon">+</span>
                 </button>
-                <div class="max-h-0 overflow-hidden transition-all duration-500 ease-in-out faq-content">
-                    <div class="px-6 pb-5 pt-2 text-sm text-slate-400 leading-relaxed border-t border-white/5 bg-black/20">
-                       Most images are compressed within a few seconds. Processing speed may vary depending on image size, format, and your device's performance.
-                    </div>
+                <div class="faq-answer">
+                    <p>There are no artificial size limits. The maximum depends on your device's available memory. Since files are processed locally, performance varies by hardware.</p>
                 </div>
             </div>
-
-            <!-- Accordion Item 2 -->
-            <div class="glass-panel rounded-2xl border-white/5 overflow-hidden transition-all duration-300 reveal-element [transform:translateY(20px)]">
-                <button type="button" class="w-full px-6 py-5 text-left flex items-center justify-between font-bold text-white hover:bg-white/[0.02] transition-colors faq-trigger">
-                    <span>Is my data kept private and secure?</span>
-                    <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+            <div class="faq-item">
+                <button class="faq-btn" onclick="toggleFaq(this)">
+                    Are my files uploaded to a server?
+                    <span class="icon">+</span>
                 </button>
-                <div class="max-h-0 overflow-hidden transition-all duration-500 ease-in-out faq-content">
-                    <div class="px-6 pb-5 pt-2 text-sm text-slate-400 leading-relaxed border-t border-white/5 bg-black/20">
-                       Absolutely. Your files remain on your device throughout the entire process. No data is uploaded, stored, or shared with any external server.
-                    </div>
+                <div class="faq-answer">
+                    <p>No. Your PDF files are processed entirely within your browser. Nothing is uploaded, transmitted, or stored on any external server.</p>
                 </div>
             </div>
-               <!-- Accordion Item 2 -->
-            <div class="glass-panel rounded-2xl border-white/5 overflow-hidden transition-all duration-300 reveal-element [transform:translateY(20px)]">
-                <button type="button" class="w-full px-6 py-5 text-left flex items-center justify-between font-bold text-white hover:bg-white/[0.02] transition-colors faq-trigger">
-                    <span>Which file formats are supported?</span>
-                    <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+            <div class="faq-item">
+                <button class="faq-btn" onclick="toggleFaq(this)">
+                    How is my data kept private?
+                    <span class="icon">+</span>
                 </button>
-                <div class="max-h-0 overflow-hidden transition-all duration-500 ease-in-out faq-content">
-                    <div class="px-6 pb-5 pt-2 text-sm text-slate-400 leading-relaxed border-t border-white/5 bg-black/20">
-                       The tool supports JPG, JPEG, PNG, and WEBP image formats, allowing you to compress the most commonly used image types.
-                    </div>
+                <div class="faq-answer">
+                    <p>All processing happens locally on your device using your browser's built-in capabilities. Your files never leave your device at any point in the process.</p>
                 </div>
             </div>
-               <!-- Accordion Item 2 -->
-            <div class="glass-panel rounded-2xl border-white/5 overflow-hidden transition-all duration-300 reveal-element [transform:translateY(20px)]">
-                <button type="button" class="w-full px-6 py-5 text-left flex items-center justify-between font-bold text-white hover:bg-white/[0.02] transition-colors faq-trigger">
-                    <span>Are my images processed locally?</span>
-                    <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+            <div class="faq-item">
+                <button class="faq-btn" onclick="toggleFaq(this)">
+                    Can I merge multiple PDFs at once?
+                    <span class="icon">+</span>
                 </button>
-                <div class="max-h-0 overflow-hidden transition-all duration-500 ease-in-out faq-content">
-                    <div class="px-6 pb-5 pt-2 text-sm text-slate-400 leading-relaxed border-t border-white/5 bg-black/20">
-                       Yes. All processing takes place directly in your browser. Your images are never uploaded to a server, ensuring complete privacy and security.
-                    </div>
+                <div class="faq-answer">
+                    <p>Yes. You can select and merge as many PDF files as you need in a single operation. Just arrange them in your preferred order before clicking Merge.</p>
                 </div>
             </div>
-               <!-- Accordion Item 2 -->
-            <div class="glass-panel rounded-2xl border-white/5 overflow-hidden transition-all duration-300 reveal-element [transform:translateY(20px)]">
-                <button type="button" class="w-full px-6 py-5 text-left flex items-center justify-between font-bold text-white hover:bg-white/[0.02] transition-colors faq-trigger">
-                    <span>How many images can I compress per day?</span>
-                    <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+            <div class="faq-item">
+                <button class="faq-btn" onclick="toggleFaq(this)">
+                    Will any watermarks be added?
+                    <span class="icon">+</span>
                 </button>
-                <div class="max-h-0 overflow-hidden transition-all duration-500 ease-in-out faq-content">
-                    <div class="px-6 pb-5 pt-2 text-sm text-slate-400 leading-relaxed border-t border-white/5 bg-black/20">
-                        You can compress unlimited images for free without paying any fees.
-                    </div>
+                <div class="faq-answer">
+                    <p>No. Your merged PDF is generated exactly from the files you provide — no watermarks, branding, or hidden modifications.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 14. CTA Banner Section -->
-    <section class="py-24 max-w-7xl mx-auto px-4 relative z-10 text-center">
-        <div class="glass-panel rounded-3xl border-purple-500/20 bg-gradient-to-tr from-purple-950/20 via-black/40 to-pink-950/10 p-12 relative overflow-hidden shadow-2xl space-y-6 reveal-element [transform:translateY(30px)]">
-            <div class="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-pink-500/5 opacity-50"></div>
-            <h3 class="text-3xl sm:text-4xl font-extrabold text-white relative z-10">Compress Your Images in Seconds</h3>
-            <p class="text-slate-400 max-w-lg mx-auto relative z-10 text-base">Reduce image size instantly while maintaining high visual quality.</p>
-            <div class="relative z-10 pt-4">
-                <a href="#compressor" class="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-500 rounded-xl font-bold text-white inline-flex items-center gap-2 hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] hover:scale-105 transition-all duration-300">
-                    Compress Now <i data-lucide="zap" class="w-4 h-4"></i>
-                </a>
-            </div>
-        </div>
+    <!-- CTA -->
+    <section class="cta-section">
+        <h2>Ready to merge your PDFs?</h2>
+        <p>Free, private, and no sign-up required.</p>
+        <a href="#workspace" class="cta-btn">Merge PDFs Now →</a>
     </section>
 
-    <!-- 15. Premium Redesigned Massive Footer Section Layout Area -->
-    <footer class="bg-black/80 border-t border-white/5 pt-20 pb-10 relative z-10 px-4">
-        <div class="absolute bottom-[-10%] right-[-5%] w-[30vw] h-[30vw] bg-indigo-600/5 rounded-full blur-[100px] pointer-events-none z-0 transition-all duration-700 group-hover/footer:bg-indigo-600/10 group-hover/footer:scale-110"></div>
-        <div class="absolute top-[-5%] left-[-5%] w-[25vw] h-[25vw] bg-pink-600/5 rounded-full blur-[80px] pointer-events-none z-0 transition-all duration-700 group-hover/footer:bg-pink-600/10 group-hover/footer:scale-110"></div>
-
-        <div class="max-w-7xl mx-auto px-6 sm:px-8 pt-16 pb-8 relative z-10">
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-10 pb-12 border-b border-white/5">
-                
-                <div class="md:col-span-3 space-y-4">
-                    <a href="#" class="flex items-center gap-2.5 group/logo w-fit transition-all duration-300 hover:translate-x-0.5">
-                        <div class="w-8 h-8 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center text-white font-bold shadow-md shadow-indigo-500/10 group-hover/logo:rotate-12 group-hover/logo:scale-110 group-hover/logo:shadow-indigo-500/30 transition-all duration-300">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                        </div>
-                        <span class="font-display text-lg font-bold text-white tracking-tight transition-colors group-hover/logo:text-indigo-400">V12 Engine <span class="text-indigo-400 font-mono text-xs group-hover/logo:text-pink-400 transition-colors">0.1</span></span>
-                    </a>
-                    <p class="text-sm text-slate-400 leading-relaxed max-w-sm">
-                       Fast and secure image compression running directly in your browser.
-                    </p>
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-inner">
+            <a href="#" class="logo">
+                <div class="logo-icon">
+                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+                    </svg>
                 </div>
-
-                <div class="md:col-span-9 grid grid-cols-1 sm:grid-cols-3 gap-8">
-                    <div class="space-y-3 group/cat">
-                        <h4 class="text-xs font-semibold tracking-wider text-slate-300 uppercase transition-colors group-hover/cat:text-indigo-400 cursor-default">Features</h4>
-                        <ul class="space-y-2">
-                            <li><a href="f1.html" class="text-sm text-slate-400 hover:text-white hover:font-medium flex items-center gap-1 transition-all duration-200 hover:translate-x-1.5">Image Compression</a></li>
-                            <li><a href="f2.html" class="text-sm text-slate-400 hover:text-white hover:font-medium flex items-center gap-1 transition-all duration-200 hover:translate-x-1.5">Large File Support</a></li>
-                            <li><a href="f3.html" class="text-sm text-slate-400 hover:text-white hover:font-medium flex items-center gap-1 transition-all duration-200 hover:translate-x-1.5">High Quality Output</a></li>
-                            <li><a href="f4.html" class="text-sm text-slate-400 hover:text-white hover:font-medium flex items-center gap-1 transition-all duration-200 hover:translate-x-1.5">Fast Processing</a></li>
-                        </ul>
-                    </div>
-
-                    <div class="space-y-3 group/cat">
-                        <h4 class="text-xs font-semibold tracking-wider text-slate-300 uppercase transition-colors group-hover/cat:text-indigo-400 cursor-default">Privacy</h4>
-                        <ul class="space-y-2">
-                            <li><a href="f5.html" class="text-sm text-slate-400 hover:text-white hover:font-medium flex items-center gap-1 transition-all duration-200 hover:translate-x-1.5">Local Processing</a></li>
-                            <li><a href="f6.html" class="text-sm text-slate-400 hover:text-white hover:font-medium flex items-center gap-1 transition-all duration-200 hover:translate-x-1.5">Your Images Stay Private</a></li>
-                            <li><a href="f7.html" class="text-sm text-slate-400 hover:text-white hover:font-medium flex items-center gap-1 transition-all duration-200 hover:translate-x-1.5">No Data Storage</a></li>
-                            <li><a href="f8.html" class="text-sm text-slate-400 hover:text-white hover:font-medium flex items-center gap-1 transition-all duration-200 hover:translate-x-1.5">No File Uploads</a></li>
-                        </ul>
-                    </div>
-
-                    <div class="space-y-3 group/cat">
-                        <h4 class="text-xs font-semibold tracking-wider text-slate-300 uppercase transition-colors group-hover/cat:text-pink-400 cursor-default">Resources</h4>
-                        <ul class="space-y-2">
-                            <li><a href="f9.html" class="text-sm text-slate-400 hover:text-white hover:font-medium flex items-center gap-1 transition-all duration-200 hover:translate-x-1.5">FAQ</a></li>
-                            <li><a href="f10.html" class="text-sm text-slate-400 hover:text-white hover:font-medium flex items-center gap-1 transition-all duration-200 hover:translate-x-1.5">Privacy Policy</a></li>
-                            <li><a href="f11.html" class="text-sm text-slate-400 hover:text-white hover:font-medium flex items-center gap-1 transition-all duration-200 hover:translate-x-1.5">Terms of Use</a></li>
-                            <li><a href="f12.html" class="text-sm text-slate-400 hover:text-white hover:font-medium flex items-center gap-1 transition-all duration-200 hover:translate-x-1.5">Contact</a></li>
-                        </ul>
-                    </div>
-                </div>
-
-            </div>
-
-        <!-- Lower Bounds Bar -->
-        <div class="relative flex flex-col sm:flex-row items-center justify-center pt-8 text-xs text-slate-500 w-full min-h-[44px]">
-                <p class="text-center transition-colors duration-300 hover:text-slate-400 cursor-default">
-                    © <span id="footerYear">2026</span> V12 Engine. Secure local browser utilities.
-                </p>
-        </div>
+                MergePDF
+            </a>
+            <ul class="footer-links">
+                <li><a href="f1.html">PDF Merging</a></li>
+                <li><a href="f2.html">File Reordering</a></li>
+                <li><a href="f9.html">FAQ</a></li>
+                <li><a href="f10.html">Privacy Policy</a></li>
+                <li><a href="f11.html">Terms of Use</a></li>
+                <li><a href="f12.html">Contact</a></li>
+            </ul>
+            <p class="footer-copy">© <span id="footerYear"></span> MergePDF. All rights reserved.</p>
         </div>
     </footer>
 
-    <!-- Comprehensive JavaScript Logic Architecture Engine Core -->
+    <!-- BACK TO TOP -->
+    <button id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/>
+        </svg>
+    </button>
+
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            // Re-initialize Lucide Icons Context Mapping
-            lucide.createIcons();
+        // ── INIT ──
+        document.getElementById('footerYear').textContent = new Date().getFullYear();
 
-            // 17. Close Preloader Experience Screen view Smoothly
-            setTimeout(() => {
-                const loader = document.getElementById('preloader');
-                if (loader) {
-                    loader.classList.add('opacity-0');
-                    setTimeout(() => loader.remove(), 700);
-                }
-            }, 1200);
+        // ── MOBILE NAV ──
+        document.getElementById('hamburgerBtn').addEventListener('click', () => {
+            document.getElementById('navLinks').classList.toggle('open');
+        });
 
-            // Mouse Ambient Glow Coordinate Listener Tracker
-            const cursorGlow = document.getElementById('cursor-glow');
-            if (window.matchMedia('(pointer: fine)').matches && cursorGlow) {
-                cursorGlow.style.display = 'block';
-                document.addEventListener('mousemove', (e) => {
-                    cursorGlow.style.left = e.clientX + 'px';
-                    cursorGlow.style.top = e.clientY + 'px';
-                });
+        // ── BACK TO TOP ──
+        window.addEventListener('scroll', () => {
+            const btn = document.getElementById('backToTop');
+            if (window.scrollY > 400) btn.classList.add('visible');
+            else btn.classList.remove('visible');
+        });
+
+        // ── COUNTER ──
+        function animateCount(id, target, suffix, duration) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            let start = null;
+            function step(ts) {
+                if (!start) start = ts;
+                const p = Math.min((ts - start) / duration, 1);
+                const val = Math.floor(p * target);
+                el.textContent = target >= 1000000 ? (val / 1000000).toFixed(1) + 'M' + suffix : val + suffix;
+                if (p < 1) requestAnimationFrame(step);
             }
+            requestAnimationFrame(step);
+        }
 
-            // Top Progress Bar Scrolling Tracker Matrix
-            window.addEventListener('scroll', () => {
-                const winScroll = document.documentElement.scrollTop || document.body.scrollTop;
-                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-                const scrolled = (winScroll / height) * 100;
-                document.getElementById('scroll-progress').style.width = scrolled + '%';
+        window.addEventListener('load', () => {
+            animateCount('count-pdf', 4800000, '+', 1200);
+        });
+
+        // ── FAQ ──
+        function toggleFaq(btn) {
+            const item = btn.parentElement;
+            const answer = btn.nextElementSibling;
+            const isOpen = item.classList.contains('open');
+
+            document.querySelectorAll('.faq-item.open').forEach(openItem => {
+                openItem.classList.remove('open');
+                openItem.querySelector('.faq-answer').style.maxHeight = '0';
             });
 
-            // 3. Scroll Reveal Animations Engine using IntersectionObserver
-            const revealOptions = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" };
-            const revealObserver = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('revealed');
-                        // If target contains stat counters, activate counting mechanism loops
-                        if (entry.target.classList.contains('stat-counter-wrap') || entry.target.querySelector('.stat-counter')) {
-                            triggerStatsCounters(entry.target);
-                        }
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, revealOptions);
+            if (!isOpen) {
+                item.classList.add('open');
+                answer.style.maxHeight = answer.scrollHeight + 'px';
+            }
+        }
 
-            document.querySelectorAll('.reveal-element').forEach(el => revealObserver.observe(el));
+        // ── PDF MERGE ENGINE ──
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('fileInput');
+        const fileListSection = document.getElementById('fileListSection');
+        const fileList = document.getElementById('fileList');
+        const fileCount = document.getElementById('fileCount');
+        const clearAllBtn = document.getElementById('clearAllBtn');
+        const mergeBtn = document.getElementById('mergeBtn');
+        const statusMsg = document.getElementById('statusMessage');
+        const progressBar = document.getElementById('timelineProgressBar');
+        const progressLabel = document.getElementById('timelinePercent');
 
-            // Stat Counter Incrementation Logic Block Execution
-            function triggerStatsCounters(container) {
-                container.querySelectorAll('.stat-counter').forEach(counter => {
-                    const target = parseInt(counter.getAttribute('data-target'));
-                    let current = 0;
-                    const increment = target / 40;
-                    const timer = setInterval(() => {
-                        current += increment;
-                        if (current >= target) {
-                            counter.innerText = target + "M+";
-                            if (target === 99) counter.innerText = "99%";
-                            clearInterval(timer);
-                        } else {
-                            counter.innerText = Math.floor(current) + (target === 99 ? "%" : "M+");
-                        }
-                    }, 25);
-                });
+        let queue = [];
+
+        dropzone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', e => { addFiles(e.target.files); fileInput.value = ''; });
+
+        dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+        dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+        dropzone.addEventListener('drop', e => {
+            e.preventDefault();
+            dropzone.classList.remove('drag-over');
+            addFiles(e.dataTransfer.files);
+        });
+
+        function addFiles(files) {
+            let rejected = 0;
+            for (const f of files) {
+                if (f.type === 'application/pdf') queue.push(f);
+                else rejected++;
+            }
+            if (rejected) showStatus(`${rejected} file(s) skipped — only PDF files are accepted.`, 'error');
+            renderList();
+        }
+
+        function renderList() {
+            fileList.innerHTML = '';
+            if (queue.length === 0) {
+                fileListSection.style.display = 'none';
+                progressBar.style.width = '0%';
+                progressLabel.textContent = 'Ready';
+                return;
             }
 
-            // 8. Before/After Interactive Comparison Slider Math Controls
-            const sliderWrap = document.getElementById('slider-wrap');
-            const clipPanel = document.getElementById('compressed-clip-panel');
-            const handle = document.getElementById('slider-handle');
+            fileListSection.style.display = 'block';
+            fileCount.textContent = queue.length;
+            progressLabel.textContent = `${queue.length} file${queue.length > 1 ? 's' : ''} ready`;
+            progressBar.style.width = '20%';
 
-            if (sliderWrap && clipPanel && handle) {
-                const moveSlider = (clientX) => {
-                    const rect = sliderWrap.getBoundingClientRect();
-                    const x = clientX - rect.left;
-                    let percentage = (x / rect.width) * 100;
-                    if (percentage < 0) percentage = 0;
-                    if (percentage > 100) percentage = 100;
+            queue.forEach((file, i) => {
+                const li = document.createElement('li');
+                li.draggable = true;
+                li.dataset.index = i;
 
-                    clipPanel.style.clipPath = `inset(0 0 0 ${percentage}%)`;
-                    handle.style.left = `${percentage}%`;
-                };
+                li.innerHTML = `
+                    <span class="file-num">${i + 1}</span>
+                    <svg class="file-drag-handle" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5"/>
+                    </svg>
+                    <div class="file-info">
+                        <div class="file-name" title="${file.name}">${file.name}</div>
+                        <div class="file-size">${(file.size / (1024 * 1024)).toFixed(2)} MB</div>
+                    </div>
+                    <div class="file-actions">
+                        <button onclick="move(${i}, -1)" ${i === 0 ? 'disabled' : ''} title="Move up">▲</button>
+                        <button onclick="move(${i}, 1)" ${i === queue.length - 1 ? 'disabled' : ''} title="Move down">▼</button>
+                        <button class="remove" onclick="remove(${i})" title="Remove">✕</button>
+                    </div>
+                `;
 
-                sliderWrap.addEventListener('mousemove', (e) => {
-                    if (e.buttons === 1 || e.type === 'mousemove') { // Drag or just mouse over moving tracking
-                        moveSlider(e.clientX);
+                // Drag & Drop reorder
+                li.addEventListener('dragstart', e => {
+                    e.dataTransfer.setData('text/plain', i);
+                    setTimeout(() => li.classList.add('dragging'), 0);
+                });
+                li.addEventListener('dragend', () => li.classList.remove('dragging'));
+                li.addEventListener('dragover', e => { e.preventDefault(); li.classList.add('drag-target'); });
+                li.addEventListener('dragleave', () => li.classList.remove('drag-target'));
+                li.addEventListener('drop', e => {
+                    e.preventDefault();
+                    li.classList.remove('drag-target');
+                    const from = parseInt(e.dataTransfer.getData('text/plain'));
+                    const to = i;
+                    if (from !== to) {
+                        const moved = queue.splice(from, 1)[0];
+                        queue.splice(to, 0, moved);
+                        renderList();
                     }
                 });
 
-                sliderWrap.addEventListener('touchmove', (e) => {
-                    if (e.touches[0]) {
-                        moveSlider(e.touches[0].clientX);
-                    }
-                });
-            }
-
-            // 13. FAQ Accordion Height Toggle Logic Architecture
-            document.querySelectorAll('.faq-trigger').forEach(trigger => {
-                trigger.addEventListener('click', () => {
-                    const container = trigger.closest('.glass-panel');
-                    const content = container.querySelector('.faq-content');
-                    const icon = trigger.querySelector('[data-lucide="chevron-down"]');
-                    
-                    if (content.style.maxHeight && content.style.maxHeight !== '0px') {
-                        content.style.maxHeight = '0px';
-                        if (icon) icon.style.transform = 'rotate(0deg)';
-                    } else {
-                        // Close all others first optionally
-                        document.querySelectorAll('.faq-content').forEach(c => c.style.maxHeight = '0px');
-                        document.querySelectorAll('.faq-trigger i').forEach(i => i.style.transform = 'rotate(0deg)');
-                        
-                        content.style.maxHeight = content.scrollHeight + 'px';
-                        if (icon) icon.style.transform = 'rotate(180deg)';
-                    }
-                });
+                fileList.appendChild(li);
             });
+        }
 
-            // Core Application Matrix Processing Logic Simulator Block (Client-Side HTML5 Canvas Optimization Engine)
-            const fileInput = document.getElementById('file-input');
-            const dropzone = document.getElementById('dropzone');
-            const previewContainer = document.getElementById('preview-container');
-            const inputImg = document.getElementById('input-img');
-            const outputImg = document.getElementById('output-img');
-            const inputName = document.getElementById('input-name');
-            const inputSizeElement = document.getElementById('input-size');
-            const outputSizeElement = document.getElementById('output-size');
-            const qualitySlider = document.getElementById('quality-slider');
-            const qualityVal = document.getElementById('quality-val');
-            const kbSlider = document.getElementById('kb-slider');
-            const targetKbInput = document.getElementById('target-kb-input');
-            const downloadBtn = document.getElementById('download-btn');
-            const processingOverlay = document.getElementById('processing-overlay');
+        window.remove = function(i) { queue.splice(i, 1); renderList(); hideStatus(); };
+        window.move = function(i, dir) {
+            const j = i + dir;
+            if (j < 0 || j >= queue.length) return;
+            [queue[i], queue[j]] = [queue[j], queue[i]];
+            renderList();
+        };
 
-            let activeBlobFile = null;
-            let compressedBlob = null;
+        clearAllBtn.addEventListener('click', () => { queue = []; renderList(); hideStatus(); });
 
-            if (fileInput && dropzone) {
-                // Synchronize numeric target text fields with continuous element sliders
-                kbSlider.addEventListener('input', (e) => { targetKbInput.value = e.target.value; triggerLiveCompressionSimulation(); });
-                targetKbInput.addEventListener('input', (e) => { kbSlider.value = e.target.value; triggerLiveCompressionSimulation(); });
-                qualitySlider.addEventListener('input', (e) => { qualityVal.innerText = e.target.value + '%'; triggerLiveCompressionSimulation(); });
-
-                // Drag/Drop Listeners
-                ['dragenter', 'dragover'].forEach(name => dropzone.addEventListener(name, (e) => { e.preventDefault(); dropzone.classList.add('border-purple-500', 'bg-purple-500/[0.04]'); }, false));
-                ['dragleave', 'drop'].forEach(name => dropzone.addEventListener(name, (e) => { e.preventDefault(); dropzone.classList.remove('border-purple-500', 'bg-purple-500/[0.04]'); }, false));
-
-                dropzone.addEventListener('drop', (e) => {
-                    const dt = e.dataTransfer;
-                    const files = dt.files;
-                    if (files.length) handleSelectedFile(files[0]);
-                });
-
-                fileInput.addEventListener('change', (e) => {
-                    if (e.target.files.length) handleSelectedFile(e.target.files[0]);
-                });
+        mergeBtn.addEventListener('click', async () => {
+            if (queue.length < 2) {
+                showStatus('Please add at least 2 PDF files to merge.', 'error');
+                return;
             }
 
-            function handleSelectedFile(file) {
-                if (!file.type.startsWith('image/')) return;
-                activeBlobFile = file;
-                compressedBlob = null;
-                _cachedCanvas = null;   // invalidate canvas cache for new image
-                _cachedMime   = null;
+            showStatus('Merging your PDFs...', 'loading');
+            progressBar.style.width = '50%';
+            progressLabel.textContent = 'Merging files...';
+            mergeBtn.disabled = true;
 
-                inputName.innerText = file.name;
-                inputSizeElement.innerText = (file.size / (1024 * 1024)).toFixed(2) + " MB";
+            try {
+                const merged = await PDFLib.PDFDocument.create();
 
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    inputImg.src = e.target.result;
-                    previewContainer.classList.remove('hidden');
-                    triggerLiveCompressionSimulation();
-                };
-                reader.readAsDataURL(file);
-            }
-
-            // Promisified canvas.toBlob() helper
-            // ── Cached canvas — only redrawn on new upload, not on every slider move ──
-            let _cachedCanvas = null;
-            let _cachedMime   = null;
-            let _debounceTimer = null;
-            let _runId = 0;
-
-            // Promisified canvas.toBlob() — single source of truth, no estimation
-            function canvasToBlob(canvas, mimeType, quality) {
-                return new Promise((resolve) => {
-                    canvas.toBlob((blob) => resolve(blob), mimeType, quality);
-                });
-            }
-
-            // Debounce: wait 120 ms after last slider event before running
-            function triggerLiveCompressionSimulation() {
-                clearTimeout(_debounceTimer);
-                _debounceTimer = setTimeout(runCompression, 120);
-            }
-
-            async function runCompression() {
-                if (!activeBlobFile) return;
-
-                const thisRun = ++_runId;   // stale-run guard — cancels superseded calls
-
-                processingOverlay.classList.remove('hidden');
-                outputImg.classList.add('blur-sm');
-                compressedBlob = null;
-
-                // Build canvas once per upload; reuse on slider changes
-                if (!_cachedCanvas) {
-                    const imgElement = new Image();
-                    imgElement.src = inputImg.src;
-                    await new Promise(r => { imgElement.onload = r; });
-
-                    _cachedCanvas = document.createElement('canvas');
-                    _cachedCanvas.width  = imgElement.naturalWidth;
-                    _cachedCanvas.height = imgElement.naturalHeight;
-                    _cachedCanvas.getContext('2d').drawImage(imgElement, 0, 0);
-
-                    const srcType = activeBlobFile.type;
-                    _cachedMime   = (srcType === 'image/webp') ? 'image/webp' : 'image/jpeg';
+                for (const file of queue) {
+                    const buf = await file.arrayBuffer();
+                    const doc = await PDFLib.PDFDocument.load(buf);
+                    const pages = await merged.copyPages(doc, doc.getPageIndices());
+                    pages.forEach(p => merged.addPage(p));
                 }
 
-                if (thisRun !== _runId) return;
+                progressBar.style.width = '90%';
+                progressLabel.textContent = 'Saving...';
 
-                const targetKB    = Math.max(1, parseInt(targetKbInput.value) || 100);
-                const targetBytes = targetKB * 1024;
-                const canvas      = _cachedCanvas;
-                const mime        = _cachedMime;
+                const bytes = await merged.save();
+                const blob = new Blob([bytes], { type: 'application/pdf' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = `merged_${Date.now()}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
 
-                // STEP 1: probe at quality=1.0 to know the natural max size (fast, 1 call)
-                const maxBlob = await canvasToBlob(canvas, mime, 1.0);
-                if (thisRun !== _runId) return;
-
-                if (maxBlob.size <= targetBytes) {
-                    // Already under target — show real size, nothing to compress
-                    compressedBlob = maxBlob;
-                } else {
-                    // STEP 2: binary search, max 10 iterations, early-exit within 2 KB
-                    const TOLERANCE = 2 * 1024;
-                    let lo = 0.01, hi = 1.0;
-                    let bestBlob = null;
-                    let bestDiff = Infinity;
-
-                    for (let i = 0; i < 10; i++) {
-                        if (thisRun !== _runId) return;
-
-                        const mid  = (lo + hi) / 2;
-                        const blob = await canvasToBlob(canvas, mime, mid);
-                        const diff = Math.abs(blob.size - targetBytes);
-
-                        if (diff < bestDiff) { bestDiff = diff; bestBlob = blob; }
-
-                        if (diff <= TOLERANCE) break;   // close enough — stop early
-
-                        if (blob.size > targetBytes) hi = mid;
-                        else                         lo = mid;
-                    }
-
-                    compressedBlob = bestBlob;
-                }
-
-                if (thisRun !== _runId) return;
-
-                // STEP 3: update UI — Blob is the ONLY source of truth
-                const blobUrl = URL.createObjectURL(compressedBlob);
-                outputImg.src = blobUrl;
-                outputImg.classList.remove('blur-sm');
-                processingOverlay.classList.add('hidden');
-
-                // Displayed size = compressedBlob.size / 1024 — never estimated or mocked
-                outputSizeElement.innerText = (compressedBlob.size / 1024).toFixed(1) + " KB";
-
-                downloadBtn.removeAttribute('disabled');
-                downloadBtn.classList.remove('opacity-40', 'cursor-not-allowed');
-            }
-
-            // Download Asset Execution Trigger Binding
-            if (downloadBtn) {
-                downloadBtn.addEventListener('click', () => {
-                    if (!compressedBlob) return;
-                    const url = URL.createObjectURL(compressedBlob);
-                    const link = document.createElement('a');
-                    link.download = `optimized_${inputName.innerText || 'asset.jpg'}`;
-                    link.href = url;
-                    link.click();
-                    setTimeout(() => URL.revokeObjectURL(url), 10000);
-                });
+                progressBar.style.width = '100%';
+                progressLabel.textContent = 'Done!';
+                showStatus('✓ PDF merged successfully — your download should begin automatically.', 'success');
+            } catch (err) {
+                console.error(err);
+                progressBar.style.width = '0%';
+                progressLabel.textContent = 'Failed';
+                showStatus('Something went wrong. Make sure your PDFs are not password-protected and try again.', 'error');
+            } finally {
+                mergeBtn.disabled = false;
             }
         });
+
+        function showStatus(msg, type) {
+            statusMsg.textContent = msg;
+            statusMsg.className = type;
+            statusMsg.style.display = 'block';
+        }
+
+        function hideStatus() {
+            statusMsg.style.display = 'none';
+        }
     </script>
 </body>
 </html>
