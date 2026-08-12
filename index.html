@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -206,6 +206,26 @@
         }
 
         .quality-label svg { color: var(--red); }
+
+        .quality-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .quality-slider {
+            width: 140px;
+            accent-color: var(--red);
+            cursor: pointer;
+        }
+
+        .quality-value {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--red);
+            min-width: 36px;
+            text-align: right;
+        }
 
         .format-toggle {
             display: flex;
@@ -761,18 +781,17 @@
     <!-- Queue -->
     <div id="queue-section">
 
-        <!-- Format Controls (shown only when files are added) -->
+        <!-- Quality + Format Controls (shown only when files are added) -->
         <div class="quality-control" id="quality-control" style="margin-top:20px;">
             <div class="quality-label">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
                 </svg>
-                Maximum Quality
+                Output Quality
             </div>
-            <div style="display:flex;align-items:center;gap:6px;">
-                <span style="font-size:11px;font-weight:700;color:#22c55e;background:#f0fdf4;border:1.5px solid #86efac;padding:3px 10px;border-radius:99px;">
-                    ✓ Lossless Max
-                </span>
+            <div class="quality-right">
+                <input type="range" id="quality-slider" class="quality-slider" min="10" max="100" value="92" step="1">
+                <span class="quality-value" id="quality-value">92%</span>
             </div>
             <div>
                 <span style="font-size:12px; font-weight:600; color:var(--gray-500); margin-right:8px;">Format:</span>
@@ -856,8 +875,8 @@
                         <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
                     </svg>
                 </div>
-                <h4>Choose Format</h4>
-                <p>Pick JPG or JPEG as your output format — images always convert at maximum quality.</p>
+                <h4>Set Quality</h4>
+                <p>Choose your output quality (1–100%) and pick JPG or JPEG as the format.</p>
             </div>
             <div class="step-card">
                 <div class="step-num">Step 03</div>
@@ -897,8 +916,8 @@
                         <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
                     </svg>
                 </div>
-                <h4>Maximum Quality</h4>
-                <p>Every image is converted at the highest possible JPEG quality — no compromise, no blurriness.</p>
+                <h4>Adjustable Quality</h4>
+                <p>Fine-tune output from 10% to 100% — balance file size vs. visual quality.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">
@@ -966,10 +985,10 @@
 
             <div class="faq-item">
                 <button class="faq-trigger" type="button">
-                    What quality are the converted images?
+                    What quality setting should I use?
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
-                <div class="faq-content"><p>All images are converted at the maximum possible JPEG quality (100%). This gives you the sharpest, most detail-preserving result the JPEG format allows — ideal for photography, print, and professional use.</p></div>
+                <div class="faq-content"><p>For most uses, 80–92% strikes the best balance between visual quality and file size. Use 92–100% for print or professional work where quality is critical, and 60–75% for thumbnails or web previews where file size matters more.</p></div>
             </div>
 
             <div class="faq-item">
@@ -1060,8 +1079,8 @@ document.getElementById('footer-year').textContent = new Date().getFullYear();
 // ── STATE ──
 let fileQueue    = [];
 let idCounter    = 0;
-let outputFormat  = 'jpg';  // 'jpg' or 'jpeg' — only affects the file EXTENSION, not the blob
-const outputQuality = 1.0; // Always maximum quality — no slider
+let outputFormat = 'jpg';   // 'jpg' or 'jpeg' — only affects the file EXTENSION, not the blob
+let outputQuality = 0.92;
 
 // ── REFS ──
 const dropzone       = document.getElementById('dropzone');
@@ -1078,6 +1097,20 @@ const downloadZipBtn = document.getElementById('download-zip-btn');
 // ── HELPER: build the correct output filename using CURRENT outputFormat ──
 function outName(item) {
     return item.baseName + '.' + outputFormat;
+}
+
+// ── SLIDER (lives inside queue-section, bind lazily after first render) ──
+let sliderBound = false;
+function bindSlider() {
+    if (sliderBound) return;
+    const slider = document.getElementById('quality-slider');
+    const valEl  = document.getElementById('quality-value');
+    if (!slider) return;
+    slider.addEventListener('input', () => {
+        outputQuality = slider.value / 100;
+        valEl.textContent = slider.value + '%';
+    });
+    sliderBound = true;
 }
 
 // ── FORMAT TOGGLE — called by onclick on buttons ──
@@ -1131,6 +1164,7 @@ function addFiles(files) {
         });
     });
     renderQueue();
+    bindSlider();
     autoConvert();
     setTimeout(() => {
         const el = document.getElementById('quality-control');
@@ -1272,7 +1306,8 @@ downloadAllBtn.addEventListener('click', () => {
 // ── CLEAR ──
 clearBtn.addEventListener('click', () => {
     fileQueue.forEach(i => URL.revokeObjectURL(i.objectUrl));
-    fileQueue = [];
+    fileQueue    = [];
+    sliderBound  = false;
     renderQueue();
     const el = document.getElementById('tool');
     window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 70, behavior: 'smooth' });
