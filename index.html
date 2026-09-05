@@ -273,53 +273,66 @@
         #converting-sub   { font-size: 12px; color: var(--gray-400); }
 
         /* RESULTS SECTION */
-        #results-section { display: none; margin-top: 28px; }
+        #results-section { display: none; margin-top: 28px; opacity: 0; transition: opacity 0.35s ease; }
         #results-section.visible { display: block; }
+        #results-section.visible.shown { opacity: 1; }
 
         /* FORMAT + CONTROLS BAR */
         .controls-bar {
             background: var(--gray-50);
             border: 1px solid var(--gray-200);
             border-radius: 14px;
-            padding: 12px 14px;
+            padding: 16px 20px;
             display: flex;
-            flex-direction: column;
-            gap: 10px;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+            justify-content: space-between;
             margin-bottom: 16px;
         }
 
-        .controls-row-top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-            flex-wrap: nowrap;
-        }
-
+        /* On desktop, row wrappers are transparent — children flow into controls-bar flex */
+        .controls-row-top,
         .controls-row-bottom {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
+            display: contents;
         }
 
         .fmt-group {
             display: flex;
-            gap: 4px;
-            flex-shrink: 0;
+            gap: 6px;
         }
 
         .fmt-btn {
             font-size: 11px;
             font-weight: 700;
-            padding: 5px 9px;
+            padding: 5px 11px;
             border-radius: 7px;
             border: 1.5px solid var(--gray-200);
             background: #fff;
             color: var(--gray-500);
             cursor: pointer;
             transition: all .15s;
-            white-space: nowrap;
+        }
+
+        /* MOBILE ONLY: two-row layout */
+        @media (max-width: 540px) {
+            .controls-bar {
+                flex-direction: column;
+                gap: 10px;
+                padding: 12px 14px;
+            }
+            .controls-row-top,
+            .controls-row-bottom {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+                width: 100%;
+            }
+            .controls-row-top { flex-wrap: nowrap; }
+            .fmt-group { gap: 4px; flex-shrink: 0; }
+            .fmt-btn { padding: 5px 9px; white-space: nowrap; }
+            .btn-select { flex-shrink: 0; white-space: nowrap; }
         }
 
         .fmt-btn:hover { border-color: var(--red-mid); color: var(--red); }
@@ -1166,14 +1179,23 @@ async function encodeFormat(fmt, token) {
 }
 
 // Called after conversion: encode current format immediately, cache rest in background
-async function rebuildImages() {
+async function rebuildImages(fromHandleFiles = false) {
     const token = ++rebuildToken;
 
-    // Encode the active format first — show results ASAP
+    // Encode the active format first
     await encodeFormat(currentFmt, token);
     if (token !== rebuildToken) return;
 
     convertedImages = formatCache[currentFmt];
+
+    // If called from handleFiles, hide the loading bar first, then show results with smooth fade
+    if (fromHandleFiles) {
+        convertingBar.classList.remove('visible');
+        // Small delay so the bar hides cleanly before results appear
+        await new Promise(r => setTimeout(r, 120));
+        if (token !== rebuildToken) return;
+    }
+
     renderGrid();
 
     // Then silently pre-encode remaining formats in background
@@ -1295,6 +1317,8 @@ function renderGrid() {
 
     pageCount.textContent = convertedImages.length;
     resultsSection.classList.add('visible');
+    // Trigger fade-in on next paint
+    requestAnimationFrame(() => requestAnimationFrame(() => resultsSection.classList.add('shown')));
 
     setTimeout(() => {
         const navH = document.querySelector('header')?.offsetHeight ?? 60;
@@ -1358,6 +1382,7 @@ window.clearAll = function() {
     const bar = document.getElementById('selection-bar');
     btn.classList.remove('active');
     bar.style.display = 'none';
+    resultsSection.classList.remove('shown');
 };
 
 // Conversion
@@ -1408,14 +1433,14 @@ async function handleFiles(fileList) {
             }
         }
 
-        await rebuildImages();
+        await rebuildImages(true);
 
     } catch (err) {
         console.error(err);
+        convertingBar.classList.remove('visible');
         convertLabel.textContent = 'Error converting PDF. Please try another file.';
         convertSub.textContent = '';
     } finally {
-        convertingBar.classList.remove('visible');
         isConverting = false;
     }
 }
