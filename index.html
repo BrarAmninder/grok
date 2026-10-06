@@ -3,1058 +3,1351 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>GhostLink — One-Time Encrypted Messages</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>GhostLink — Encrypted one-time messages</title>
 <style>
+  :root {
+    --bg: #0D1117;
+    --bg-2: #161B22;
+    --bg-3: #1C2128;
+    --bg-4: #21262D;
+    --border: rgba(48, 54, 61, 0.8);
+    --border-bright: rgba(88, 96, 105, 0.6);
+    --text: #E6EDF3;
+    --text-dim: #8B949E;
+    --text-muted: #484F58;
+    --accent: #6E76E5;
+    --accent-glow: rgba(110, 118, 229, 0.15);
+    --accent-2: #7983E8;
+    --green: #3FB950;
+    --green-bg: rgba(63, 185, 80, 0.1);
+    --red: #F85149;
+    --red-bg: rgba(248, 81, 73, 0.1);
+    --amber: #D29922;
+    --amber-bg: rgba(210, 153, 34, 0.1);
+    --radius: 8px;
+    --radius-lg: 12px;
+    --mono: ui-monospace, 'Cascadia Code', 'Fira Code', 'SF Mono', Menlo, Consolas, monospace;
+    --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --void: #080C10;
-    --deep: #0F1520;
-    --surface: #1A2130;
-    --rim: #263040;
-    --cyan: #00E5CC;
-    --cyan-dim: rgba(0,229,204,0.12);
-    --cyan-glow: rgba(0,229,204,0.25);
-    --ghost: #C8D6E5;
-    --muted: #5A7080;
-    --danger: #FF3B5C;
-    --danger-dim: rgba(255,59,92,0.12);
-    --warn: #FFB020;
-  }
-
-  html, body {
-    min-height: 100%;
-    background: var(--void);
-    color: var(--ghost);
-    font-family: 'Space Grotesk', system-ui, sans-serif;
-    font-size: 15px;
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  /* ── Scanline texture ── */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0,0,0,0.07) 2px,
-      rgba(0,0,0,0.07) 4px
-    );
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* ── Layout ── */
-  .page {
-    position: relative;
-    z-index: 1;
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
     min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0 1.5rem env(safe-area-inset-bottom, 0px);
+    padding: 0 1rem;
     padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 16px);
   }
 
-  header {
+  /* ── Header ── */
+  .header {
     width: 100%;
-    max-width: 680px;
-    padding: 2.5rem 0 3rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-  }
-
-  .wordmark {
-    font-size: 1.35rem;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    color: #fff;
+    max-width: 660px;
+    padding: 2rem 0 0;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 12px;
   }
-
-  .wordmark svg {
-    width: 20px;
-    height: 20px;
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--bg-3);
+    border: 1px solid var(--border-bright);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
   }
-
-  .tagline {
-    font-size: 0.78rem;
-    color: var(--muted);
-    letter-spacing: 0.01em;
+  .logo-icon svg { width: 17px; height: 17px; }
+  .logo-name {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+  .logo-name span { color: var(--accent); }
+  .header-spacer { flex: 1; }
+  .header-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--green);
+    background: var(--green-bg);
+    border: 1px solid rgba(63,185,80,0.2);
+    border-radius: 20px;
+    padding: 3px 10px;
+    letter-spacing: 0.03em;
   }
 
-  main {
+  /* ── Main card ── */
+  .main {
     width: 100%;
-    max-width: 680px;
+    max-width: 660px;
+    margin-top: 3rem;
     flex: 1;
   }
 
-  /* ── Panels ── */
-  .panel {
-    display: none;
-    flex-direction: column;
-    gap: 1.25rem;
-  }
-  .panel.active { display: flex; }
+  /* ── View switcher (compose vs reveal) ── */
+  .view { display: none; }
+  .view.active { display: block; }
 
-  /* ── Section header ── */
+  /* ── Compose view ── */
   .section-label {
-    font-size: 0.72rem;
+    font-family: var(--mono);
+    font-size: 10.5px;
     font-weight: 500;
-    color: var(--muted);
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
   }
 
-  /* ── Card ── */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--rim);
-    border-radius: 10px;
-    overflow: hidden;
+  .compose-heading {
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.25;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .compose-sub {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    max-width: 46ch;
   }
 
-  /* ── Textarea ── */
-  .compose-area {
+  .message-area-wrapper {
+    position: relative;
+    margin-bottom: 1rem;
+  }
+  textarea {
     width: 100%;
-    min-height: 220px;
-    background: transparent;
-    border: none;
-    outline: none;
-    resize: none;
-    padding: 1.25rem 1.35rem;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.9rem;
+    min-height: 180px;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13.5px;
     line-height: 1.7;
-    color: var(--ghost);
-    caret-color: var(--cyan);
+    padding: 16px 18px;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+    caret-color: var(--accent);
   }
-
-  .compose-area::placeholder { color: var(--muted); }
-
-  .compose-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.6rem 1rem 0.6rem 1.35rem;
-    border-top: 1px solid var(--rim);
-    background: var(--deep);
-  }
+  textarea::placeholder { color: var(--text-muted); }
+  textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
 
   .char-count {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.72rem;
-    color: var(--muted);
+    position: absolute;
+    bottom: 12px;
+    right: 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    pointer-events: none;
+    transition: color 0.15s;
   }
+  .char-count.warn { color: var(--amber); }
+  .char-count.over { color: var(--red); }
 
-  .char-count.near { color: var(--warn); }
-  .char-count.over { color: var(--danger); }
-
-  /* ── How it works strip ── */
-  .how-strip {
+  /* Options row */
+  .options-row {
     display: flex;
-    gap: 0;
-    background: var(--surface);
-    border: 1px solid var(--rim);
-    border-radius: 10px;
-    overflow: hidden;
+    gap: 8px;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
   }
-
-  .how-step {
-    flex: 1;
-    padding: 1rem 1rem 1.1rem;
-    border-right: 1px solid var(--rim);
+  .option-pill {
     display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-  }
-  .how-step:last-child { border-right: none; }
-
-  .step-num {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--cyan);
-    margin-bottom: 0.1rem;
-  }
-
-  .step-title {
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: #fff;
-    line-height: 1.3;
-  }
-
-  .step-desc {
-    font-size: 0.72rem;
-    color: var(--muted);
-    line-height: 1.45;
-  }
-
-  /* ── Buttons ── */
-  .btn {
-    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.7rem 1.4rem;
-    border: none;
-    border-radius: 7px;
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 0.9rem;
-    font-weight: 500;
+    gap: 6px;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12.5px;
+    color: var(--text-dim);
     cursor: pointer;
-    transition: opacity 0.15s, transform 0.1s;
-    white-space: nowrap;
-    flex-shrink: 0;
+    transition: border-color 0.12s, color 0.12s, background 0.12s;
+    user-select: none;
   }
-  .btn:active { transform: scale(0.97); }
-  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .option-pill input { display: none; }
+  .option-pill:has(input:checked) {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-glow);
+  }
+  .option-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+    opacity: 0.7;
+  }
 
   .btn-primary {
-    background: var(--cyan);
-    color: var(--void);
-  }
-  .btn-primary:hover:not(:disabled) { opacity: 0.88; }
-
-  .btn-ghost {
-    background: var(--rim);
-    color: var(--ghost);
-  }
-  .btn-ghost:hover:not(:disabled) { background: #334055; }
-
-  .btn-danger {
-    background: var(--danger);
-    color: #fff;
-  }
-  .btn-danger:hover:not(:disabled) { opacity: 0.88; }
-
-  /* ── Link result card ── */
-  .link-card {
-    background: var(--surface);
-    border: 1px solid var(--rim);
-    border-radius: 10px;
-    overflow: hidden;
-    display: none;
-    flex-direction: column;
-  }
-  .link-card.visible { display: flex; }
-
-  .link-card-header {
-    padding: 0.9rem 1.2rem;
-    background: var(--cyan-dim);
-    border-bottom: 1px solid rgba(0,229,204,0.2);
     display: flex;
     align-items: center;
-    gap: 0.6rem;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 13px 20px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-family: var(--sans);
+    font-size: 14.5px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    transition: background 0.12s, transform 0.08s, box-shadow 0.12s;
+    outline: none;
   }
+  .btn-primary:hover { background: var(--accent-2); box-shadow: 0 0 24px var(--accent-glow); }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+  .btn-primary svg { flex-shrink: 0; }
 
-  .link-card-header .status-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--cyan);
-    box-shadow: 0 0 8px var(--cyan);
-    animation: pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-
-  .link-card-header span {
-    font-size: 0.8rem;
+  .btn-ghost {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 10px 16px;
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: var(--sans);
+    font-size: 13px;
     font-weight: 500;
-    color: var(--cyan);
+    cursor: pointer;
+    transition: border-color 0.12s, color 0.12s, background 0.12s;
+    outline: none;
+    text-decoration: none;
   }
+  .btn-ghost:hover { border-color: var(--border-bright); color: var(--text); background: var(--bg-3); }
 
-  .link-display {
-    padding: 1rem 1.2rem;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
-    color: var(--ghost);
-    word-break: break-all;
-    line-height: 1.6;
-    border-bottom: 1px solid var(--rim);
-    background: var(--deep);
-    user-select: all;
-    cursor: text;
+  /* ── Result card ── */
+  .result-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-top: 1.25rem;
   }
-
-  .link-actions {
+  .result-header {
     display: flex;
-    gap: 0.75rem;
-    padding: 0.9rem 1.2rem;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
   }
-
-  /* ── Warning box ── */
-  .warning-box {
-    background: var(--danger-dim);
-    border: 1px solid rgba(255,59,92,0.25);
+  .result-icon {
+    width: 32px; height: 32px;
+    background: var(--green-bg);
+    border: 1px solid rgba(63,185,80,0.25);
     border-radius: 8px;
-    padding: 0.9rem 1.1rem;
     display: flex;
-    gap: 0.75rem;
-    align-items: flex-start;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .result-title { font-size: 15px; font-weight: 600; }
+  .result-desc { font-size: 12.5px; color: var(--text-dim); margin-top: 1px; }
+
+  .link-box {
+    background: var(--bg-3);
+    border: 1px solid var(--border-bright);
+    border-radius: var(--radius);
+    padding: 11px 14px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .link-text {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--text-dim);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.4;
+  }
+  .link-text strong { color: var(--text); }
+
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--bg-4);
+    border: 1px solid var(--border-bright);
+    border-radius: 6px;
+    padding: 6px 11px;
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-dim);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.1s, color 0.1s, border-color 0.1s;
+    outline: none;
+    white-space: nowrap;
+  }
+  .copy-btn:hover { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
+  .copy-btn.copied { background: var(--green-bg); border-color: rgba(63,185,80,0.35); color: var(--green); }
+
+  .info-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .info-chip {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11.5px;
+    color: var(--text-muted);
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-family: var(--mono);
+  }
+  .info-chip .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
+
+  .new-msg-btn {
+    margin-top: 14px;
+    width: 100%;
   }
 
-  .warning-box svg { flex-shrink: 0; margin-top: 1px; }
-
-  .warning-box p {
-    font-size: 0.8rem;
-    color: #ff8fa0;
-    line-height: 1.55;
-  }
-
-  .warning-box strong { color: var(--danger); font-weight: 500; }
-
-  /* ── Receiver panel ── */
-  .receive-hero {
-    background: var(--surface);
-    border: 1px solid var(--rim);
-    border-radius: 10px;
-    padding: 2rem 1.5rem 1.8rem;
+  /* ── Reveal view ── */
+  .reveal-outer {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 0.75rem;
   }
-
-  .receive-icon {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: var(--cyan-dim);
-    border: 1px solid rgba(0,229,204,0.3);
+  .reveal-icon-wrap {
+    width: 64px; height: 64px;
+    background: var(--bg-2);
+    border: 1px solid var(--border-bright);
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 0.25rem;
+    margin-bottom: 1.25rem;
   }
+  .reveal-icon-wrap.ready { border-color: rgba(110,118,229,0.4); background: var(--accent-glow); }
+  .reveal-icon-wrap.burned { border-color: rgba(248,81,73,0.3); background: var(--red-bg); }
+  .reveal-icon-wrap.expired { border-color: rgba(210,153,34,0.3); background: var(--amber-bg); }
 
-  .receive-hero h2 {
-    font-size: 1.25rem;
-    font-weight: 600;
+  .reveal-title { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 8px; }
+  .reveal-body { font-size: 14px; color: var(--text-dim); line-height: 1.65; max-width: 38ch; margin: 0 auto 1.75rem; }
+
+  .reveal-btn {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 13px 28px;
+    background: var(--accent);
     color: #fff;
-    letter-spacing: -0.02em;
+    border: none;
+    border-radius: var(--radius);
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.12s, transform 0.08s, box-shadow 0.12s;
+    letter-spacing: -0.01em;
+    outline: none;
+    margin-bottom: 12px;
   }
+  .reveal-btn:hover { background: var(--accent-2); box-shadow: 0 0 28px var(--accent-glow); }
+  .reveal-btn:active { transform: scale(0.98); }
 
-  .receive-hero p {
-    font-size: 0.85rem;
-    color: var(--muted);
-    max-width: 400px;
-    line-height: 1.6;
+  .reveal-warning {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 2rem;
+    font-family: var(--mono);
   }
+  .reveal-warning svg { flex-shrink: 0; }
 
-  /* ── Revealed message ── */
-  .reveal-card {
-    background: var(--surface);
-    border: 1px solid var(--rim);
-    border-radius: 10px;
+  /* ── Message display ── */
+  .message-display {
+    width: 100%;
+    text-align: left;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
     overflow: hidden;
-    display: none;
-    flex-direction: column;
+    margin-bottom: 1.5rem;
+    animation: revealIn 0.3s ease;
   }
-  .reveal-card.visible { display: flex; }
-
-  .reveal-header {
-    padding: 0.8rem 1.2rem;
-    background: var(--deep);
-    border-bottom: 1px solid var(--rim);
+  @keyframes revealIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .msg-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-3);
   }
-
-  .reveal-header span {
-    font-size: 0.75rem;
-    color: var(--muted);
-    font-family: 'JetBrains Mono', monospace;
+  .msg-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
   }
-
-  .destroyed-badge {
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 0.07em;
-    color: var(--danger);
-    background: var(--danger-dim);
-    border: 1px solid rgba(255,59,92,0.3);
-    border-radius: 4px;
-    padding: 0.15rem 0.5rem;
-    text-transform: uppercase;
+  .msg-live-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--amber);
+    animation: blink 1.4s ease infinite;
   }
-
-  .message-content {
-    padding: 1.5rem 1.35rem;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.88rem;
+  @keyframes blink {
+    0%,100% { opacity: 1; } 50% { opacity: 0.25; }
+  }
+  .msg-body {
+    padding: 20px;
+    font-family: var(--mono);
+    font-size: 13.5px;
     line-height: 1.75;
-    color: var(--ghost);
+    color: var(--text);
     white-space: pre-wrap;
     word-break: break-word;
-    min-height: 100px;
+  }
+  .msg-footer {
+    padding: 10px 14px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-3);
+  }
+  .burned-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--red);
+    background: var(--red-bg);
+    border: 1px solid rgba(248,81,73,0.2);
+    border-radius: 20px;
+    padding: 3px 10px;
   }
 
-  /* ── Already read panel ── */
-  .burned-panel {
+  /* ── Burned state ── */
+  .burned-state, .invalid-state {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 1rem;
-    padding: 3rem 1rem;
+    padding-bottom: 2rem;
   }
 
-  .burned-icon {
-    font-size: 3rem;
-    filter: grayscale(0.3);
+  /* ── How it works ── */
+  .how-section {
+    width: 100%;
+    max-width: 660px;
+    margin-top: 3.5rem;
+    padding-bottom: 3rem;
   }
-
-  .burned-panel h2 {
-    font-size: 1.15rem;
-    font-weight: 600;
-    color: var(--danger);
-    letter-spacing: -0.01em;
+  .how-section-title {
+    font-size: 12px;
+    font-family: var(--mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
   }
-
-  .burned-panel p {
-    font-size: 0.85rem;
-    color: var(--muted);
-    max-width: 360px;
-    line-height: 1.6;
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
   }
-
-  .mono-detail {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.72rem;
-    color: #334055;
-    margin-top: 0.5rem;
-  }
-
-  /* ── Error ── */
-  .error-panel {
+  .step-cell {
+    background: var(--bg-2);
+    padding: 18px 16px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 0.75rem;
-    padding: 2.5rem 1rem;
+    gap: 7px;
   }
-
-  .error-panel h2 {
-    font-size: 1.1rem;
+  .step-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
     font-weight: 600;
-    color: var(--warn);
+    letter-spacing: 0.08em;
   }
-
-  .error-panel p {
-    font-size: 0.85rem;
-    color: var(--muted);
-    max-width: 360px;
-    line-height: 1.6;
+  .step-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.35;
+  }
+  .step-detail {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.55;
   }
 
   /* ── Footer ── */
-  footer {
+  .footer {
     width: 100%;
-    max-width: 680px;
-    padding: 2.5rem 0 2rem;
-    border-top: 1px solid var(--rim);
-    margin-top: 3rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .footer-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem 1.5rem;
-  }
-
-  .footer-item {
-    font-size: 0.75rem;
-    color: var(--muted);
+    max-width: 660px;
+    padding: 1.5rem 0 2rem;
+    border-top: 1px solid var(--border);
     display: flex;
     align-items: center;
-    gap: 0.35rem;
+    justify-content: space-between;
+    flex-wrap: gap;
+    gap: 8px;
   }
+  .footer-left { font-size: 12px; color: var(--text-muted); font-family: var(--mono); }
+  .footer-right { font-size: 12px; color: var(--text-muted); display: flex; gap: 1.25rem; }
+  .footer-right a { color: var(--text-muted); text-decoration: none; transition: color 0.12s; }
+  .footer-right a:hover { color: var(--text-dim); }
 
-  .footer-item svg { opacity: 0.6; }
-
-  /* ── Burn animation ── */
-  @keyframes burnOut {
-    0% { opacity: 1; filter: blur(0px); }
-    40% { opacity: 0.9; filter: blur(0px) brightness(1.5); color: #ff6b2b; }
-    100% { opacity: 0; filter: blur(8px) brightness(2); }
-  }
-
-  .burning { animation: burnOut 1.2s ease-in forwards; }
-
-  /* ── Toast ── */
-  .toast {
-    position: fixed;
-    bottom: 2rem;
-    left: 50%;
-    transform: translateX(-50%) translateY(10px);
-    background: var(--surface);
-    border: 1px solid var(--rim);
-    border-radius: 7px;
-    padding: 0.65rem 1.2rem;
-    font-size: 0.82rem;
-    color: var(--ghost);
-    opacity: 0;
-    transition: opacity 0.2s, transform 0.2s;
-    pointer-events: none;
-    z-index: 999;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
-  }
-
-  .toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-
-  .toast.success { border-color: rgba(0,229,204,0.4); color: var(--cyan); }
-
-  /* ── Loading spinner ── */
-  .spinner {
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(0,229,204,0.3);
-    border-top-color: var(--cyan);
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    display: none;
-  }
-  .spinner.active { display: block; }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* ── Privacy note strip ── */
-  .privacy-strip {
-    background: rgba(0,229,204,0.04);
-    border: 1px solid rgba(0,229,204,0.12);
-    border-radius: 8px;
-    padding: 0.8rem 1.1rem;
+  /* ── Tooltip-style notice ── */
+  .notice {
     display: flex;
     align-items: flex-start;
-    gap: 0.75rem;
-  }
-
-  .privacy-strip svg { flex-shrink: 0; margin-top: 2px; }
-
-  .privacy-strip p {
-    font-size: 0.78rem;
-    color: rgba(0,229,204,0.75);
+    gap: 10px;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin-top: 1rem;
+    font-size: 12.5px;
+    color: var(--text-dim);
     line-height: 1.55;
   }
+  .notice svg { flex-shrink: 0; margin-top: 1px; }
+  .notice.amber { border-color: rgba(210,153,34,0.3); background: var(--amber-bg); }
+  .notice.amber svg, .notice.amber { color: var(--amber); }
 
-  /* ── Responsive ── */
-  @media (max-width: 520px) {
-    .how-strip { flex-direction: column; }
-    .how-step { border-right: none; border-bottom: 1px solid var(--rim); }
-    .how-step:last-child { border-bottom: none; }
-    .link-actions { flex-direction: column; }
-    header { padding-top: 1.75rem; padding-bottom: 2rem; }
+  /* ── Spinner ── */
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Error message ── */
+  .inline-error {
+    font-size: 12.5px;
+    color: var(--red);
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 20px;
+  }
+
+  /* ── Progress bar ── */
+  .progress-bar {
+    width: 100%;
+    height: 2px;
+    background: var(--bg-3);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 10px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+  }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .compose-heading { font-size: 21px; }
+    .header { padding-top: 1.25rem; }
+    .main { margin-top: 2rem; }
+    .options-row { gap: 6px; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .status-dot { animation: none; }
-    .burning { animation: none; opacity: 0; }
-    .toast { transition: opacity 0.1s; }
-    .spinner { animation: none; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
   }
 </style>
+
+<style id="ghostlink-mobile-polish">
+/* GhostLink responsive visual polish — preserves existing JS hooks */
+:root{
+  --gl-bg:#070b14;
+  --gl-panel:rgba(17,24,39,.78);
+  --gl-panel-2:rgba(12,18,31,.92);
+  --gl-border:rgba(148,163,184,.16);
+  --gl-text:#f8fafc;
+  --gl-muted:#94a3b8;
+  --gl-accent:#8b5cf6;
+  --gl-accent-2:#6366f1;
+  --gl-success:#34d399;
+  --gl-radius:20px;
+}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  min-height:100vh;
+  overflow-x:hidden;
+  background:
+    radial-gradient(900px 500px at 50% -120px,rgba(99,102,241,.16),transparent 65%),
+    radial-gradient(700px 420px at 100% 35%,rgba(139,92,246,.09),transparent 65%),
+    var(--gl-bg);
+}
+*,*::before,*::after{box-sizing:border-box}
+button,input,textarea,select{font:inherit}
+button{touch-action:manipulation}
+a{-webkit-tap-highlight-color:transparent}
+
+.glass,
+.card,
+.panel,
+section[class*="rounded"],
+div[class*="rounded-xl"],
+div[class*="rounded-2xl"]{
+  border-color:var(--gl-border);
+}
+
+button{
+  transition:transform .18s ease,box-shadow .18s ease,background-color .18s ease,border-color .18s ease,opacity .18s ease;
+}
+button:hover{transform:translateY(-1px)}
+button:active{transform:translateY(0) scale(.985)}
+
+textarea,input,select{
+  max-width:100%;
+  border-radius:14px;
+}
+textarea{
+  resize:vertical;
+  min-height:150px;
+}
+input:focus,textarea:focus,select:focus{
+  outline:none;
+  border-color:rgba(139,92,246,.7)!important;
+  box-shadow:0 0 0 4px rgba(139,92,246,.12);
+}
+
+@media (max-width:760px){
+  body{font-size:15px}
+  main,.container,.max-w-5xl,.max-w-4xl,.max-w-3xl{
+    width:100%!important;
+    max-width:none!important;
+    padding-left:16px!important;
+    padding-right:16px!important;
+  }
+
+  header{
+    padding-left:16px!important;
+    padding-right:16px!important;
+  }
+
+  h1{
+    font-size:clamp(2rem,10vw,3rem)!important;
+    line-height:1.04!important;
+    letter-spacing:-.045em!important;
+  }
+  h2{font-size:1.45rem!important;line-height:1.15!important}
+  p{line-height:1.6}
+
+  /* Make common grid/flex layouts collapse cleanly */
+  .grid{grid-template-columns:1fr!important}
+  .md\:grid-cols-2,.lg\:grid-cols-2,.lg\:grid-cols-3,
+  .md\:flex-row,.lg\:flex-row{grid-template-columns:1fr!important}
+  .flex-row{flex-wrap:wrap}
+  .gap-8{gap:1.25rem!important}
+  .gap-6{gap:1rem!important}
+  .gap-4{gap:.8rem!important}
+
+  /* Cards */
+  .rounded-2xl,.rounded-xl{border-radius:18px!important}
+  .p-8{padding:20px!important}
+  .p-7{padding:18px!important}
+  .p-6{padding:17px!important}
+  .p-5{padding:15px!important}
+
+  /* Large controls become thumb friendly */
+  button,.btn{
+    min-height:44px;
+  }
+
+  /* Long generated links should never break the layout */
+  code,pre,[id*="link"],[class*="link"]{
+    overflow-wrap:anywhere;
+    word-break:break-word;
+  }
+
+  /* Compose/reveal areas */
+  textarea{min-height:170px}
+}
+
+@media (max-width:480px){
+  main,.container,.max-w-5xl,.max-w-4xl,.max-w-3xl{
+    padding-left:12px!important;
+    padding-right:12px!important;
+  }
+  header{
+    padding-left:12px!important;
+    padding-right:12px!important;
+  }
+
+  h1{font-size:2.15rem!important}
+  .text-5xl{font-size:2.2rem!important}
+  .text-4xl{font-size:1.9rem!important}
+  .text-3xl{font-size:1.6rem!important}
+
+  .px-8{padding-left:16px!important;padding-right:16px!important}
+  .px-6{padding-left:14px!important;padding-right:14px!important}
+  .py-5{padding-top:14px!important;padding-bottom:14px!important}
+
+  /* Prevent button rows from overflowing */
+  .flex.gap-3,.flex.gap-4{
+    width:100%;
+  }
+  .flex.gap-3 > button,.flex.gap-4 > button{
+    flex:1 1 140px;
+  }
+
+  /* Make copy/share/download controls comfortable */
+  [id*="copy"],[id*="Copy"],
+  [id*="download"],[id*="Download"]{
+    min-height:46px;
+  }
+}
+
+/* Safe-area support for modern phones */
+@supports (padding: max(0px)){
+  body{
+    padding-bottom:max(0px,env(safe-area-inset-bottom));
+  }
+}
+
+/* Reduce motion for users who request it */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.001ms!important;
+    scroll-behavior:auto!important;
+  }
+}
+</style>
+
 </head>
 <body>
 
-<div class="page">
-  <header>
-    <div class="wordmark">
-      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M10 2L3 6V10C3 14.1 6.1 17.9 10 19C13.9 17.9 17 14.1 17 10V6L10 2Z" stroke="#00E5CC" stroke-width="1.5" stroke-linejoin="round"/>
-        <path d="M7.5 10L9.5 12L13 8" stroke="#00E5CC" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<!-- Header -->
+<header class="header">
+  <div class="logo" onclick="goHome()">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:#6E76E5">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <path d="m9 12 2 2 4-4"/>
       </svg>
-      GhostLink
     </div>
-    <div class="tagline">End-to-end encrypted · One read only · Zero servers</div>
-  </header>
+    <span class="logo-name">Ghost<span>Link</span></span>
+  </div>
+  <div class="header-spacer"></div>
+  <div class="header-badge">end-to-end encrypted</div>
+</header>
 
-  <main>
+<!-- Main -->
+<main class="main">
 
-    <!-- ══ COMPOSE PANEL ══ -->
-    <div id="panel-compose" class="panel active">
+  <!-- Compose View -->
+  <div class="view active" id="view-compose">
+    <p class="section-label">New message</p>
+    <h1 class="compose-heading">Write. Encrypt. Share once.</h1>
+    <p class="compose-sub">Your message is encrypted in your browser before a link is generated. Nothing is uploaded. The recipient sees it once — the link then becomes permanently invalid.</p>
 
-      <div class="privacy-strip">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <circle cx="7" cy="7" r="6" stroke="#00E5CC" stroke-width="1.2"/>
-          <path d="M7 6V10M7 4.5V4" stroke="#00E5CC" stroke-width="1.3" stroke-linecap="round"/>
-        </svg>
-        <p>Your message is encrypted locally using AES-256-GCM before any link is generated. The plaintext never leaves your device. No server receives, stores, or sees any part of your message — ever.</p>
-      </div>
-
-      <div>
-        <div class="section-label" style="margin-bottom:0.6rem;">Your message</div>
-        <div class="card">
-          <textarea
-            id="compose-textarea"
-            class="compose-area"
-            placeholder="Type your private message here…"
-            maxlength="5000"
-            spellcheck="true"
-            aria-label="Message to encrypt"
-          ></textarea>
-          <div class="compose-footer">
-            <span id="char-count" class="char-count">0 / 5000</span>
-            <button id="btn-create" class="btn btn-primary" disabled>
-              <span class="spinner" id="create-spinner"></span>
-              <span id="btn-create-text">Create secure link</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div id="link-result" class="link-card">
-        <div class="link-card-header">
-          <div class="status-dot"></div>
-          <span>Ready to send — opens exactly once</span>
-        </div>
-        <div class="link-display" id="link-output" aria-label="Shareable encrypted link"></div>
-        <div class="link-actions">
-          <button id="btn-copy" class="btn btn-primary">Copy link</button>
-          <button id="btn-reset" class="btn btn-ghost">New message</button>
-        </div>
-      </div>
-
-      <div id="link-warning" class="warning-box" style="display:none">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M8 1L15 14H1L8 1Z" stroke="#FF3B5C" stroke-width="1.3" stroke-linejoin="round"/>
-          <path d="M8 6V9" stroke="#FF3B5C" stroke-width="1.3" stroke-linecap="round"/>
-          <circle cx="8" cy="11.5" r="0.75" fill="#FF3B5C"/>
-        </svg>
-        <p>
-          <strong>Save this link before closing the tab.</strong> It is not stored anywhere and cannot be regenerated. Once the recipient reads it, the link is permanently destroyed.
-        </p>
-      </div>
-
-      <div class="how-strip">
-        <div class="how-step">
-          <div class="step-num">01</div>
-          <div class="step-title">Write</div>
-          <div class="step-desc">Type your message. Nothing is sent yet.</div>
-        </div>
-        <div class="how-step">
-          <div class="step-num">02</div>
-          <div class="step-title">Encrypt</div>
-          <div class="step-desc">AES-256-GCM encrypts it in your browser. The key lives only in the link.</div>
-        </div>
-        <div class="how-step">
-          <div class="step-num">03</div>
-          <div class="step-title">Share</div>
-          <div class="step-desc">Send the link. The recipient opens it once and sees the plaintext.</div>
-        </div>
-        <div class="how-step">
-          <div class="step-num">04</div>
-          <div class="step-title">Destroy</div>
-          <div class="step-desc">The moment it's read, the link stops working. Permanently.</div>
-        </div>
-      </div>
-
+    <div class="message-area-wrapper">
+      <textarea id="msg-input" placeholder="Type your private message here…" maxlength="50000" autocomplete="off" spellcheck="true" aria-label="Message to encrypt"></textarea>
+      <div class="char-count" id="char-count">0 / 50,000</div>
     </div>
 
-    <!-- ══ RECEIVE PANEL — pre-reveal ══ -->
-    <div id="panel-receive" class="panel">
+    <div id="compose-error" class="inline-error" aria-live="polite"></div>
 
-      <div class="receive-hero">
-        <div class="receive-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <rect x="3" y="11" width="18" height="11" rx="2" stroke="#00E5CC" stroke-width="1.5"/>
-            <path d="M7 11V7C7 4.24 9.24 2 12 2C14.76 2 17 4.24 17 7V11" stroke="#00E5CC" stroke-width="1.5" stroke-linecap="round"/>
-            <circle cx="12" cy="16.5" r="1.5" fill="#00E5CC"/>
-          </svg>
+    <div style="margin-top: 0.75rem; margin-bottom: 1.25rem;">
+      <p class="section-label" style="margin-bottom: 8px;">After opening</p>
+      <div class="options-row" role="radiogroup" aria-label="Expiry options">
+        <label class="option-pill">
+          <input type="radio" name="expiry" value="read-once" checked>
+          <span class="option-dot"></span>
+          <span>Read once</span>
+        </label>
+        <label class="option-pill">
+          <input type="radio" name="expiry" value="24h">
+          <span class="option-dot"></span>
+          <span>Read once + 24h window</span>
+        </label>
+        <label class="option-pill">
+          <input type="radio" name="expiry" value="1h">
+          <span class="option-dot"></span>
+          <span>Read once + 1h window</span>
+        </label>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="create-btn" onclick="createLink()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Encrypt and create link
+    </button>
+
+    <div id="result-card" class="result-card" style="display:none" aria-live="polite">
+      <div class="result-header">
+        <div class="result-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3FB950" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
         </div>
-        <h2>You have a private message</h2>
-        <p>This message can only be read once. After you reveal it, the link is permanently destroyed and cannot be opened again — by anyone.</p>
-        <button id="btn-reveal" class="btn btn-primary" style="margin-top:0.5rem">
-          <span class="spinner" id="reveal-spinner"></span>
-          <span id="btn-reveal-text">Reveal message</span>
+        <div>
+          <div class="result-title">Link created</div>
+          <div class="result-desc">Send this link to your recipient</div>
+        </div>
+      </div>
+
+      <div class="link-box">
+        <div class="link-text" id="result-link-display" aria-label="Generated link"></div>
+        <button class="copy-btn" id="copy-btn" onclick="copyLink()" aria-label="Copy link">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+          Copy link
         </button>
       </div>
 
-      <div id="reveal-card" class="reveal-card">
-        <div class="reveal-header">
-          <span id="reveal-timestamp"></span>
-          <span class="destroyed-badge">Destroyed after this read</span>
+      <div class="info-row">
+        <div class="info-chip"><span class="dot"></span> encrypted locally</div>
+        <div class="info-chip" id="expiry-chip">burns after reading</div>
+        <div class="info-chip">0 bytes uploaded</div>
+      </div>
+
+      <div class="notice amber" style="margin-top: 14px;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+        <span>Save this link now — you cannot access it again from this page. Once the recipient opens it, the link is gone permanently.</span>
+      </div>
+
+      <button class="btn-ghost new-msg-btn" onclick="resetCompose()" style="margin-top: 14px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        Write another message
+      </button>
+    </div>
+  </div>
+
+  <!-- Reveal View -->
+  <div class="view" id="view-reveal">
+    <!-- State: ready to reveal -->
+    <div id="state-ready" class="reveal-outer">
+      <div class="reveal-icon-wrap ready">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6E76E5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+      </div>
+      <h1 class="reveal-title">Encrypted message waiting</h1>
+      <p class="reveal-body">Someone sent you a private message. It can only be read once — opening it will permanently destroy this link.</p>
+      <button class="reveal-btn" onclick="revealMessage()" id="reveal-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+        Reveal message
+      </button>
+      <div class="reveal-warning">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+        This is irreversible. The link will stop working after you read it.
+      </div>
+    </div>
+
+    <!-- State: decrypted message shown -->
+    <div id="state-decrypted" class="reveal-outer" style="display:none">
+      <div class="message-display" role="region" aria-label="Decrypted message">
+        <div class="msg-header">
+          <div class="msg-header-left">
+            <span class="msg-live-dot" aria-hidden="true"></span>
+            decrypted in your browser — never sent to any server
+          </div>
+          <button class="copy-btn" id="copy-msg-btn" onclick="copyMessageText()" aria-label="Copy message text">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            Copy
+          </button>
         </div>
-        <div class="message-content" id="message-content"></div>
+        <div class="msg-body" id="decrypted-text" aria-live="polite"></div>
+        <div class="msg-footer">
+          <div class="burned-badge">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+            Link burned — permanently destroyed
+          </div>
+          <div style="font-family:var(--mono); font-size:11px; color:var(--text-muted);" id="decrypted-time">now</div>
+        </div>
       </div>
 
-      <div id="reveal-warning" class="warning-box" style="display:none">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M8 1L15 14H1L8 1Z" stroke="#FF3B5C" stroke-width="1.3" stroke-linejoin="round"/>
-          <path d="M8 6V9" stroke="#FF3B5C" stroke-width="1.3" stroke-linecap="round"/>
-          <circle cx="8" cy="11.5" r="0.75" fill="#FF3B5C"/>
-        </svg>
-        <p>
-          <strong>This message has now been destroyed.</strong> Refreshing or revisiting this link will not reveal the message again. The URL above is now permanently void.
-        </p>
+      <div class="notice" style="max-width: 480px; text-align: left; margin-bottom: 1.5rem;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+        <span>This page will not show the message again. Copy or save what you need now. Refreshing or re-opening the link will show an invalid state.</span>
       </div>
 
+      <button class="btn-ghost" onclick="goHome()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Send a message yourself
+      </button>
     </div>
 
-    <!-- ══ BURNED PANEL ══ -->
-    <div id="panel-burned" class="panel">
-      <div class="burned-panel">
-        <div class="burned-icon">🔥</div>
-        <h2>This message has been destroyed</h2>
-        <p>This link has already been opened. The encrypted payload was removed from memory the moment it was read.</p>
-        <p>No copy of this message exists anywhere on this server, device, or the internet.</p>
-        <div class="mono-detail">GHOSTLINK — LINK VOID — PAYLOAD PURGED</div>
-        <button class="btn btn-ghost" style="margin-top:1rem" onclick="window.location.href=window.location.pathname">Compose a new message</button>
+    <!-- State: already burned -->
+    <div id="state-burned" class="reveal-outer" style="display:none">
+      <div class="reveal-icon-wrap burned">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F85149" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
       </div>
+      <h1 class="reveal-title">Link already used</h1>
+      <p class="reveal-body">This message has already been revealed and permanently deleted. One-time links cannot be read twice.</p>
+      <button class="btn-ghost" onclick="goHome()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Send a new message
+      </button>
     </div>
 
-    <!-- ══ ERROR PANEL ══ -->
-    <div id="panel-error" class="panel">
-      <div class="error-panel">
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-          <circle cx="16" cy="16" r="14" stroke="#FFB020" stroke-width="1.5"/>
-          <path d="M16 10V18" stroke="#FFB020" stroke-width="1.5" stroke-linecap="round"/>
-          <circle cx="16" cy="22" r="1.5" fill="#FFB020"/>
-        </svg>
-        <h2>Invalid or corrupted link</h2>
-        <p id="error-detail">This link could not be decrypted. It may be incomplete, altered, or already used.</p>
-        <button class="btn btn-ghost" style="margin-top:0.75rem" onclick="window.location.href=window.location.pathname">Go back</button>
+    <!-- State: invalid / malformed -->
+    <div id="state-invalid" class="reveal-outer" style="display:none">
+      <div class="reveal-icon-wrap" style="border-color:rgba(88,96,105,0.4)">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8B949E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m14.5 9-5 5"/><path d="m9.5 9 5 5"/></svg>
       </div>
+      <h1 class="reveal-title">Invalid link</h1>
+      <p class="reveal-body" id="invalid-reason">This link is not valid. It may have been truncated, modified, or already used.</p>
+      <button class="btn-ghost" onclick="goHome()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Go home
+      </button>
     </div>
 
-  </main>
-
-  <footer>
-    <div class="footer-grid">
-      <div class="footer-item">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <circle cx="6" cy="6" r="5" stroke="#5A7080" stroke-width="1"/>
-          <path d="M4 6L5.5 7.5L8 4.5" stroke="#5A7080" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        AES-256-GCM encryption
+    <!-- State: expired -->
+    <div id="state-expired" class="reveal-outer" style="display:none">
+      <div class="reveal-icon-wrap expired">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#D29922" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       </div>
-      <div class="footer-item">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <circle cx="6" cy="6" r="5" stroke="#5A7080" stroke-width="1"/>
-          <path d="M4 6L5.5 7.5L8 4.5" stroke="#5A7080" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Key never leaves your browser
-      </div>
-      <div class="footer-item">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <circle cx="6" cy="6" r="5" stroke="#5A7080" stroke-width="1"/>
-          <path d="M4 6L5.5 7.5L8 4.5" stroke="#5A7080" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        No server, no database
-      </div>
-      <div class="footer-item">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <circle cx="6" cy="6" r="5" stroke="#5A7080" stroke-width="1"/>
-          <path d="M4 6L5.5 7.5L8 4.5" stroke="#5A7080" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        One read, then destroyed
-      </div>
-      <div class="footer-item">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <circle cx="6" cy="6" r="5" stroke="#5A7080" stroke-width="1"/>
-          <path d="M4 6L5.5 7.5L8 4.5" stroke="#5A7080" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Web Crypto API · CSPRNG
-      </div>
-      <div class="footer-item">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <circle cx="6" cy="6" r="5" stroke="#5A7080" stroke-width="1"/>
-          <path d="M4 6L5.5 7.5L8 4.5" stroke="#5A7080" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Zero analytics or tracking
-      </div>
+      <h1 class="reveal-title">Link expired</h1>
+      <p class="reveal-body">This link had a time window that has now passed. The message is gone.</p>
+      <button class="btn-ghost" onclick="goHome()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Go home
+      </button>
     </div>
-    <p style="font-size:0.72rem; color:#334055; margin-top:0.75rem;">
-      Honest limitation: the link's encrypted payload is embedded in the URL. "One-read" enforcement relies on sessionStorage in the recipient's browser — a technically sophisticated recipient could save the URL before opening it. The message plaintext cannot be sent to a server without your knowledge when using this page.
-    </p>
-  </footer>
-</div>
+  </div>
 
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
+</main>
+
+<!-- How it works section (only on compose page) -->
+<section class="how-section" id="how-section" aria-label="How it works">
+  <p class="how-section-title">How it works</p>
+  <div class="steps-grid">
+    <div class="step-cell">
+      <div class="step-num">01</div>
+      <div class="step-label">Type your message</div>
+      <div class="step-detail">Written only in your browser. Nothing leaves your device yet.</div>
+    </div>
+    <div class="step-cell">
+      <div class="step-num">02</div>
+      <div class="step-label">Encrypted locally</div>
+      <div class="step-detail">AES-256-GCM encryption runs entirely in your browser using the Web Crypto API.</div>
+    </div>
+    <div class="step-cell">
+      <div class="step-num">03</div>
+      <div class="step-label">Key in the URL</div>
+      <div class="step-detail">The cipher key is embedded in the link's fragment (<code style="font-family:var(--mono);font-size:11px;color:var(--accent)">#…</code>), which browsers never send to servers.</div>
+    </div>
+    <div class="step-cell">
+      <div class="step-num">04</div>
+      <div class="step-label">Burns on read</div>
+      <div class="step-detail">Once revealed, a flag is set in the browser. Refreshing or re-opening shows a burned state.</div>
+    </div>
+  </div>
+
+  <div class="notice" style="margin-top: 1rem;">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+    <span><strong style="color:var(--text-dim)">Important:</strong> Because this is 100% client-side, there is no central server to enforce one-time reads across different browsers or devices. The burn-once protection uses <code style="font-family:var(--mono);font-size:11.5px">sessionStorage</code> in the recipient's browser. If a link is opened in a second browser before being opened in the first, both could see the message. For the strongest guarantees, share links with recipients you trust, over a secure channel.</span>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-left">ghostlink · zero-server · zero-tracking</div>
+  <div class="footer-right">
+    <a href="#" onclick="goHome(); return false;">New message</a>
+    <a href="#" onclick="showAbout(); return false;">About</a>
+  </div>
+</footer>
 
 <script>
-/* ═══════════════════════════════════════════
-   GHOSTLINK — 100% client-side encrypted messages
+/* ════════════════════════════════════════════════════
+   GhostLink — 100% client-side encrypted messaging
    Architecture:
-   • AES-256-GCM via Web Crypto API (CSPRNG key + IV)
-   • Key + IV + ciphertext → base64url → URL fragment (#)
-   • Fragment never sent to any server (HTTP spec)
-   • "One-read" enforced via sessionStorage read-flag
-   • Plaintext never leaves device during composition
-═══════════════════════════════════════════ */
+   - AES-256-GCM via Web Crypto API (SubtleCrypto)
+   - Key + ciphertext encoded as URL fragment (#)
+     → browsers never transmit fragments to servers
+   - Burn-once enforcement via sessionStorage flag
+   - No localStorage for message storage
+   - No server, no API, no cookies, no tracking
+   ════════════════════════════════════════════════════ */
 
-'use strict';
+const VERSION = 'gl1';
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-function $(id) { return document.getElementById(id); }
-
-function b64url(buf) {
-  return btoa(String.fromCharCode(...new Uint8Array(buf)))
-    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+/* ── Utility: encode/decode bytes ── */
+function bytesToBase64url(bytes) {
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
-function b64decode(str) {
-  const s = str.replace(/-/g, '+').replace(/_/g, '/');
-  const pad = (4 - s.length % 4) % 4;
-  const b = atob(s + '='.repeat(pad));
-  return Uint8Array.from(b, c => c.charCodeAt(0));
+function base64urlToBytes(str) {
+  const pad = str.length % 4;
+  const padded = pad ? str + '='.repeat(4 - pad) : str;
+  const b64 = padded.replace(/-/g, '+').replace(/_/g, '/');
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
 }
 
-function showToast(msg, type = '') {
-  const t = $('toast');
-  t.textContent = msg;
-  t.className = 'toast' + (type ? ' ' + type : '');
-  void t.offsetWidth;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2800);
+/* ── Core crypto ── */
+async function generateKey() {
+  return crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
 }
 
-function showPanel(id) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  $(id).classList.add('active');
+async function exportKey(key) {
+  const raw = await crypto.subtle.exportKey('raw', key);
+  return bytesToBase64url(new Uint8Array(raw));
 }
 
-function setLoading(btnId, spinnerId, textId, loading, text) {
-  const btn = $(btnId);
-  const spinner = $(spinnerId);
-  const label = $(textId);
-  btn.disabled = loading;
-  spinner.classList.toggle('active', loading);
-  label.textContent = text;
+async function importKey(keyB64) {
+  const raw = base64urlToBytes(keyB64);
+  return crypto.subtle.importKey('raw', raw, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
 }
 
-// ── Crypto ───────────────────────────────────────────────────────────────────
-
-const ALGO = { name: 'AES-GCM', length: 256 };
-
-async function encryptMessage(plaintext) {
-  const enc = new TextEncoder();
-  const raw = enc.encode(plaintext);
-
-  const keyMat = await crypto.subtle.generateKey(ALGO, true, ['encrypt', 'decrypt']);
-  const keyBuf = await crypto.subtle.exportKey('raw', keyMat);
+async function encryptMessage(text, key) {
   const iv = crypto.getRandomValues(new Uint8Array(12));
-
-  const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, keyMat, raw);
-
-  // Pack: 32-byte key | 12-byte iv | ciphertext
-  const packed = new Uint8Array(32 + 12 + cipher.byteLength);
-  packed.set(new Uint8Array(keyBuf), 0);
-  packed.set(iv, 32);
-  packed.set(new Uint8Array(cipher), 44);
-
-  return b64url(packed.buffer);
+  const encoded = new TextEncoder().encode(text);
+  const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, encoded);
+  return {
+    iv: bytesToBase64url(iv),
+    ct: bytesToBase64url(new Uint8Array(ciphertext))
+  };
 }
 
-async function decryptPayload(token) {
-  const raw = b64decode(token);
-  if (raw.length < 45) throw new Error('Payload too short');
-
-  const keyBuf = raw.slice(0, 32);
-  const iv     = raw.slice(32, 44);
-  const cipher = raw.slice(44);
-
-  const keyMat = await crypto.subtle.importKey('raw', keyBuf, ALGO, false, ['decrypt']);
-  const plain  = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, keyMat, cipher);
-
-  return new TextDecoder().decode(plain);
+async function decryptMessage(ivB64, ctB64, key) {
+  const iv = base64urlToBytes(ivB64);
+  const ct = base64urlToBytes(ctB64);
+  const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct);
+  return new TextDecoder().decode(plaintext);
 }
 
-// ── Compose flow ─────────────────────────────────────────────────────────────
+/* ── Fragment format:
+   #VERSION.EXPIRY_MODE.CREATION_UNIX.KEY_B64.IV_B64.CT_B64
+   All segments base64url-safe, no special chars except dots
+   ── */
+function buildFragment(keyB64, ivB64, ctB64, expiryMode) {
+  const now = Math.floor(Date.now() / 1000);
+  return `${VERSION}.${expiryMode}.${now}.${keyB64}.${ivB64}.${ctB64}`;
+}
 
-const textarea    = $('compose-textarea');
-const charCounter = $('char-count');
-const btnCreate   = $('btn-create');
-const linkResult  = $('link-result');
-const linkOutput  = $('link-output');
-const linkWarning = $('link-warning');
+function parseFragment(frag) {
+  if (!frag || frag.startsWith('#')) frag = frag ? frag.slice(1) : '';
+  const parts = frag.split('.');
+  if (parts.length < 6) return null;
+  const [version, expiryMode, createdAt, keyB64, ivB64, ...ctParts] = parts;
+  const ctB64 = ctParts.join('.');
+  if (version !== VERSION) return null;
+  if (!['read-once', '24h', '1h'].includes(expiryMode)) return null;
+  if (!/^\d+$/.test(createdAt)) return null;
+  if (!keyB64 || !ivB64 || !ctB64) return null;
+  return {
+    version,
+    expiryMode,
+    createdAt: Number(createdAt),
+    keyB64,
+    ivB64,
+    ctB64
+  };
+}
 
-textarea.addEventListener('input', () => {
-  const n = textarea.value.length;
-  charCounter.textContent = `${n} / 5000`;
-  charCounter.className = 'char-count' + (n > 4500 ? (n > 5000 ? ' over' : ' near') : '');
-  btnCreate.disabled = n === 0;
-  // Reset link if user edits after generating
-  if (linkResult.classList.contains('visible')) {
-    linkResult.classList.remove('visible');
-    linkWarning.style.display = 'none';
-  }
+/* ── Burn storage — uses sessionStorage
+   Key = fingerprint of the fragment (first 32 chars)
+   Value = 'burned' or ISO timestamp
+   Limitations acknowledged: cross-browser, cross-session not enforced
+   ── */
+function getBurnKey(fragmentRaw) {
+  return 'gl_burned_' + fragmentRaw.substring(0, 48);
+}
+
+function isBurned(fragmentRaw) {
+  try {
+    return sessionStorage.getItem(getBurnKey(fragmentRaw)) !== null;
+  } catch { return false; }
+}
+
+function markBurned(fragmentRaw) {
+  try {
+    sessionStorage.setItem(getBurnKey(fragmentRaw), new Date().toISOString());
+  } catch {}
+}
+
+/* ── Expiry check ── */
+function isExpired(parsed) {
+  const now = Math.floor(Date.now() / 1000);
+  const age = now - parsed.createdAt;
+  if (parsed.expiryMode === '1h' && age > 3600) return true;
+  if (parsed.expiryMode === '24h' && age > 86400) return true;
+  return false;
+}
+
+/* ── DOM refs ── */
+const msgInput = document.getElementById('msg-input');
+const charCount = document.getElementById('char-count');
+const createBtn = document.getElementById('create-btn');
+const resultCard = document.getElementById('result-card');
+const resultLinkDisplay = document.getElementById('result-link-display');
+const copyBtn = document.getElementById('copy-btn');
+const composeError = document.getElementById('compose-error');
+
+let generatedLink = '';
+
+/* ── Char counter ── */
+msgInput.addEventListener('input', () => {
+  const len = msgInput.value.length;
+  const formatted = len.toLocaleString() + ' / 50,000';
+  charCount.textContent = formatted;
+  charCount.className = 'char-count' + (len > 48000 ? ' over' : len > 40000 ? ' warn' : '');
+  if (composeError.textContent) composeError.textContent = '';
 });
 
-$('btn-create').addEventListener('click', async () => {
-  const msg = textarea.value.trim();
-  if (!msg) return;
+/* ── Create link ── */
+async function createLink() {
+  const text = msgInput.value.trim();
 
-  setLoading('btn-create', 'create-spinner', 'btn-create-text', true, 'Encrypting…');
-
-  try {
-    const token = await encryptMessage(msg);
-    // Fragment (#) is never sent to the server
-    const url = `${location.origin}${location.pathname}#${token}`;
-
-    linkOutput.textContent = url;
-    linkResult.classList.add('visible');
-    linkWarning.style.display = 'flex';
-
-    // Disable compose area to prevent confusion
-    textarea.disabled = true;
-    btnCreate.disabled = true;
-
-  } catch (e) {
-    showToast('Encryption failed. Check browser compatibility.', '');
-    console.error(e);
-  } finally {
-    setLoading('btn-create', 'create-spinner', 'btn-create-text', false, 'Create secure link');
-    if (textarea.disabled) $('btn-create-text').textContent = 'Link created';
+  if (!text) {
+    composeError.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg> Enter a message first.`;
+    msgInput.focus();
+    return;
   }
-});
 
-$('btn-copy').addEventListener('click', async () => {
-  const url = linkOutput.textContent;
+  const expiryMode = document.querySelector('input[name="expiry"]:checked').value;
+
+  createBtn.disabled = true;
+  createBtn.innerHTML = `<div class="spinner" aria-label="Encrypting…"></div> Encrypting…`;
+
   try {
-    await navigator.clipboard.writeText(url);
-    showToast('✓ Link copied', 'success');
+    const key = await generateKey();
+    const keyB64 = await exportKey(key);
+    const { iv, ct } = await encryptMessage(text, key);
+
+    const fragment = buildFragment(keyB64, iv, ct, expiryMode);
+
+    // Build the link from the actual page URL.
+    // Using URL.hash avoids broken links when the page already has a
+    // query string/hash and keeps the encrypted payload entirely in
+    // the URL fragment.
+    const linkUrl = new URL(window.location.href);
+    linkUrl.search = '';
+    linkUrl.hash = fragment;
+    const url = linkUrl.href;
+
+    generatedLink = url;
+
+    const displayUrl = url.length > 72 ? url.substring(0, 35) + '…' + url.slice(-20) : url;
+    resultLinkDisplay.innerHTML = `<strong>${window.location.hostname + window.location.pathname}</strong><span style="color:var(--text-muted)">#…${ct.substring(0, 12)}…</span>`;
+    resultLinkDisplay.title = url;
+
+    const expiryChip = document.getElementById('expiry-chip');
+    expiryChip.textContent =
+      expiryMode === '1h' ? 'burns after reading · 1h max' :
+      expiryMode === '24h' ? 'burns after reading · 24h max' :
+      'burns after reading';
+
+    resultCard.style.display = 'block';
+    resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    createBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Encrypt and create link`;
+    createBtn.disabled = false;
+
+  } catch (err) {
+    composeError.textContent = 'Encryption failed: ' + (err.message || 'Unknown error. Your browser may not support Web Crypto API.');
+    createBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Encrypt and create link`;
+    createBtn.disabled = false;
+  }
+}
+
+/* ── Copy link ── */
+async function copyLink() {
+  if (!generatedLink) return;
+
+  try {
+    await navigator.clipboard.writeText(generatedLink);
+    const btn = document.getElementById('copy-btn');
+    btn.classList.add('copied');
+    btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> Copied`;
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg> Copy link`;
+    }, 2500);
   } catch {
-    // Fallback
-    const r = document.createRange();
-    r.selectNode(linkOutput);
-    window.getSelection().removeAllRanges();
-    window.getSelection().addRange(r);
-    document.execCommand('copy');
-    window.getSelection().removeAllRanges();
-    showToast('✓ Link copied', 'success');
+    window.prompt('Copy this link:', generatedLink);
   }
-});
-
-$('btn-reset').addEventListener('click', () => {
-  textarea.value = '';
-  textarea.disabled = false;
-  charCounter.textContent = '0 / 5000';
-  charCounter.className = 'char-count';
-  btnCreate.disabled = true;
-  $('btn-create-text').textContent = 'Create secure link';
-  linkResult.classList.remove('visible');
-  linkWarning.style.display = 'none';
-  // Clear the fragment so the page doesn't try to receive
-  history.replaceState(null, '', location.pathname);
-});
-
-// ── Receive flow ──────────────────────────────────────────────────────────────
-
-function storageKey(token) {
-  // Store a burn flag keyed to a hash of the token (don't store the token itself)
-  return 'ghostlink_burned_' + token.slice(0, 32);
 }
 
-async function handleFragment() {
-  const fragment = location.hash.slice(1);
-  if (!fragment) return; // Show compose
-
-  const key = storageKey(fragment);
-
-  // Has this session already burned it?
-  const alreadyRead = sessionStorage.getItem(key);
-  if (alreadyRead) {
-    showPanel('panel-burned');
-    // Strip fragment so URL is clean
-    history.replaceState(null, '', location.pathname);
-    return;
-  }
-
-  // Show receive panel
-  showPanel('panel-receive');
-
-  $('btn-reveal').addEventListener('click', async () => {
-    setLoading('btn-reveal', 'reveal-spinner', 'btn-reveal-text', true, 'Decrypting…');
-
-    try {
-      const plaintext = await decryptPayload(fragment);
-
-      // ── Mark burned BEFORE showing content ──
-      sessionStorage.setItem(key, '1');
-
-      // Strip the fragment from the URL immediately — can't re-use it
-      history.replaceState(null, '', location.pathname);
-
-      // Show the message
-      $('message-content').textContent = plaintext;
-      $('reveal-timestamp').textContent = 'Decrypted ' + new Date().toLocaleTimeString();
-      $('reveal-card').classList.add('visible');
-      $('reveal-warning').style.display = 'flex';
-      $('btn-reveal').disabled = true;
-      $('btn-reveal-text').textContent = 'Message revealed';
-
-      // Burn the receive hero
-      const hero = document.querySelector('.receive-hero');
-      hero.classList.add('burning');
-      setTimeout(() => { hero.style.display = 'none'; }, 1200);
-
-    } catch (e) {
-      $('error-detail').textContent = e.message.includes('decrypt')
-        ? 'Decryption failed. The link may be corrupted or the payload altered.'
-        : 'Unrecognised link format.';
-      showPanel('panel-error');
-    } finally {
-      setLoading('btn-reveal', 'reveal-spinner', 'btn-reveal-text', false, 'Reveal message');
-    }
-  }, { once: true }); // Only ever fire once
+/* ── Copy decrypted message ── */
+function copyMessageText() {
+  const text = document.getElementById('decrypted-text').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-msg-btn');
+    const orig = btn.innerHTML;
+    btn.classList.add('copied');
+    btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> Copied`;
+    setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = orig; }, 2000);
+  });
 }
 
-// ── Guard against hash navigation attempts post-reveal ────────────────────────
+/* ── Reset compose form ── */
+function resetCompose() {
+  msgInput.value = '';
+  charCount.textContent = '0 / 50,000';
+  charCount.className = 'char-count';
+  composeError.textContent = '';
+  resultCard.style.display = 'none';
+  generatedLink = '';
+  document.querySelector('input[name="expiry"][value="read-once"]').checked = true;
+  msgInput.focus();
+}
 
-window.addEventListener('hashchange', () => {
-  const fragment = location.hash.slice(1);
-  if (!fragment) {
-    showPanel('panel-compose');
+/* ── Reveal message ── */
+async function revealMessage() {
+  const fragRaw = window.location.hash.substring(1);
+  const parsed = parseFragment(fragRaw);
+  if (!parsed) { showState('invalid'); return; }
+
+  const btn = document.getElementById('reveal-btn');
+  btn.disabled = true;
+  btn.innerHTML = `<div class="spinner" aria-label="Decrypting…"></div> Decrypting…`;
+
+  try {
+    // Only burn the link after the encrypted payload has been
+    // successfully decrypted. A malformed/corrupted link must not
+    // become permanently burned just because it was opened.
+    const key = await importKey(parsed.keyB64);
+    const plaintext = await decryptMessage(parsed.ivB64, parsed.ctB64, key);
+
+    markBurned(fragRaw);
+
+    document.getElementById('decrypted-text').textContent = plaintext;
+    document.getElementById('decrypted-time').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    document.getElementById('state-ready').style.display = 'none';
+    document.getElementById('state-decrypted').style.display = 'flex';
+    document.getElementById('how-section').style.display = 'none';
+
+    window.history.replaceState(null, '', window.location.pathname);
+
+  } catch (err) {
+    document.getElementById('invalid-reason').textContent =
+      'Decryption failed. The link may have been modified or corrupted.';
+    showState('invalid');
+  }
+}
+
+/* ── Show a named state in reveal view ── */
+function showState(name) {
+  ['ready','decrypted','burned','invalid','expired'].forEach(s => {
+    const el = document.getElementById('state-' + s);
+    if (el) el.style.display = s === name ? 'flex' : 'none';
+  });
+}
+
+/* ── Go home ── */
+function goHome() {
+  window.history.replaceState(null, '', window.location.pathname);
+  document.getElementById('view-compose').classList.add('active');
+  document.getElementById('view-reveal').classList.remove('active');
+  document.getElementById('how-section').style.display = 'block';
+  resetCompose();
+}
+
+/* ── About ── */
+function showAbout() {
+  alert(
+    'GhostLink — One-time encrypted messages\n\n' +
+    '100% client-side. Your message never leaves your browser in plaintext.\n\n' +
+    'Encryption: AES-256-GCM (Web Crypto API)\n' +
+    'Key delivery: URL fragment (never sent to any server)\n' +
+    'Burn enforcement: sessionStorage flag\n' +
+    'Storage: None\n' +
+    'Tracking: None\n' +
+    'Servers involved: None\n\n' +
+    'The URL fragment (#…) is defined by RFC 7230 to never be transmitted by browsers to servers, making it a safe carrier for cryptographic key material.'
+  );
+}
+
+/* ════════════════════════════════════════════════════
+   Initialisation — determine which view to show
+   ════════════════════════════════════════════════════ */
+(function init() {
+  const frag = window.location.hash;
+
+  if (!frag || frag === '#') {
+    document.getElementById('view-compose').classList.add('active');
     return;
   }
-  const key = storageKey(fragment);
-  if (sessionStorage.getItem(key)) {
-    showPanel('panel-burned');
-    history.replaceState(null, '', location.pathname);
-  }
-});
 
-// ── Boot ──────────────────────────────────────────────────────────────────────
+  const fragRaw = frag.substring(1);
+  const parsed = parseFragment(fragRaw);
 
-(async function init() {
-  // Verify Web Crypto is available
-  if (!window.crypto?.subtle) {
-    $('error-detail').textContent = 'Your browser does not support the Web Cryptography API. Please use a modern browser (Chrome, Firefox, Safari, Edge).';
-    showPanel('panel-error');
+  document.getElementById('view-compose').classList.remove('active');
+  document.getElementById('view-reveal').classList.add('active');
+  document.getElementById('how-section').style.display = 'none';
+
+  if (!parsed) {
+    showState('invalid');
     return;
   }
 
-  await handleFragment();
+  if (isExpired(parsed)) {
+    showState('expired');
+    return;
+  }
+
+  if (isBurned(fragRaw)) {
+    showState('burned');
+    return;
+  }
+
+  showState('ready');
 })();
 </script>
 </body>
