@@ -32,9 +32,13 @@
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* Anti-screenshot & selection prevention */
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
   body {
-    background: var(--bg);
+    background:
+      radial-gradient(900px 500px at 50% -120px, rgba(110, 118, 229, 0.12), transparent 65%),
+      radial-gradient(700px 420px at 100% 35%, rgba(121, 131, 232, 0.08), transparent 65%),
+      var(--bg);
     color: var(--text);
     font-family: var(--sans);
     min-height: 100vh;
@@ -45,50 +49,11 @@
     padding: 0 1rem;
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 16px);
-    
-    /* Disable text selection */
-    -webkit-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
   }
 
-  /* Allow typing in inputs still */
-  textarea, input {
-    -webkit-user-select: text;
-    -ms-user-select: text;
-    user-select: text;
-  }
-
-  /* Disable printing entirely */
-  @media print {
-    body { display: none !important; }
-  }
-
-  /* Privacy overlay for focus-loss / screenshotting attempts */
-  .blurred-guard {
-    filter: blur(15px) !important;
-    pointer-events: none !important;
-    opacity: 0.1 !important;
-  }
-  
-  .guard-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(13, 17, 23, 0.98);
-    color: var(--red);
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    font-weight: 600;
-    text-align: center;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .guard-overlay.active {
-    display: flex;
-  }
+  button, input, textarea, select { font: inherit; }
+  button { touch-action: manipulation; }
+  a { -webkit-tap-highlight-color: transparent; }
 
   /* ── Header ── */
   .header {
@@ -143,10 +108,9 @@
     max-width: 660px;
     margin-top: 3rem;
     flex: 1;
-    transition: filter 0.2s ease, opacity 0.2s ease;
   }
 
-  /* ── View switcher (compose vs reveal) ── */
+  /* ── View switcher ── */
   .view { display: none; }
   .view.active { display: block; }
 
@@ -194,7 +158,7 @@
     padding: 16px 18px;
     resize: vertical;
     outline: none;
-    transition: border-color 0.15s;
+    transition: border-color 0.15s, box-shadow 0.15s;
     -webkit-appearance: none;
     caret-color: var(--accent);
   }
@@ -228,7 +192,7 @@
     background: var(--bg-2);
     border: 1px solid var(--border);
     border-radius: 20px;
-    padding: 5px 12px;
+    padding: 6px 14px;
     font-size: 12.5px;
     color: var(--text-dim);
     cursor: pointer;
@@ -236,7 +200,7 @@
     user-select: none;
   }
   .option-pill input { display: none; }
-  .option-pill:has(input:checked) {
+  .option-pill.active, .option-pill:has(input:checked) {
     border-color: var(--accent);
     color: var(--accent);
     background: var(--accent-glow);
@@ -267,10 +231,11 @@
     cursor: pointer;
     transition: background 0.12s, transform 0.08s, box-shadow 0.12s;
     outline: none;
+    min-height: 46px;
   }
   .btn-primary:hover { background: var(--accent-2); box-shadow: 0 0 24px var(--accent-glow); }
-  .btn-primary:active { transform: scale(0.98); }
-  .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+  .btn-primary:active { transform: scale(0.985); }
+  .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
   .btn-primary svg { flex-shrink: 0; }
 
   .btn-ghost {
@@ -290,6 +255,7 @@
     transition: border-color 0.12s, color 0.12s, background 0.12s;
     outline: none;
     text-decoration: none;
+    min-height: 44px;
   }
   .btn-ghost:hover { border-color: var(--border-bright); color: var(--text); background: var(--bg-3); }
 
@@ -329,6 +295,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    overflow: hidden;
   }
   .link-text {
     font-family: var(--mono);
@@ -339,6 +306,7 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     line-height: 1.4;
+    overflow-wrap: anywhere;
   }
   .link-text strong { color: var(--text); }
 
@@ -359,6 +327,7 @@
     transition: background 0.1s, color 0.1s, border-color 0.1s;
     outline: none;
     white-space: nowrap;
+    min-height: 36px;
   }
   .copy-btn:hover { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
   .copy-btn.copied { background: var(--green-bg); border-color: rgba(63,185,80,0.35); color: var(--green); }
@@ -414,6 +383,7 @@
   .reveal-btn {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 9px;
     padding: 13px 28px;
     background: var(--accent);
@@ -428,9 +398,10 @@
     letter-spacing: -0.01em;
     outline: none;
     margin-bottom: 12px;
+    min-height: 46px;
   }
   .reveal-btn:hover { background: var(--accent-2); box-shadow: 0 0 28px var(--accent-glow); }
-  .reveal-btn:active { transform: scale(0.98); }
+  .reveal-btn:active { transform: scale(0.985); }
 
   .reveal-warning {
     font-size: 12px;
@@ -481,7 +452,7 @@
     animation: blink 1.4s ease infinite;
   }
   @keyframes blink {
-    0%,100% { opacity: 1; } 50% { opacity: 0.25; }
+    0%, 100% { opacity: 1; } 50% { opacity: 0.25; }
   }
   .msg-body {
     padding: 20px;
@@ -491,6 +462,8 @@
     color: var(--text);
     white-space: pre-wrap;
     word-break: break-word;
+    user-select: text;
+    -webkit-user-select: text;
   }
   .msg-footer {
     padding: 10px 14px;
@@ -511,15 +484,6 @@
     border: 1px solid rgba(248,81,73,0.2);
     border-radius: 20px;
     padding: 3px 10px;
-  }
-
-  /* ── Burned state ── */
-  .burned-state, .invalid-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding-bottom: 2rem;
   }
 
   /* ── How it works ── */
@@ -581,7 +545,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: gap;
+    flex-wrap: wrap;
     gap: 8px;
   }
   .footer-left { font-size: 12px; color: var(--text-muted); font-family: var(--mono); }
@@ -589,7 +553,7 @@
   .footer-right a { color: var(--text-muted); text-decoration: none; transition: color 0.12s; }
   .footer-right a:hover { color: var(--text-dim); }
 
-  /* ── Tooltip-style notice ── */
+  /* ── Notice ── */
   .notice {
     display: flex;
     align-items: flex-start;
@@ -618,7 +582,7 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ── Error message ── */
+  /* ── Inline Error ── */
   .inline-error {
     font-size: 12.5px;
     color: var(--red);
@@ -629,12 +593,30 @@
     min-height: 20px;
   }
 
-  /* Responsive */
-  @media (max-width: 480px) {
-    .compose-heading { font-size: 21px; }
+  /* ── Screen Shield ── */
+  .gl-screen-shield {
+    position: fixed; inset: 0; z-index: 2147483647;
+    display: none; align-items: center; justify-content: center; text-align: center;
+    padding: 24px; background: #070b14; color: #fff;
+  }
+  .gl-screen-shield.show { display: flex; }
+  .gl-screen-shield div { max-width: 360px; }
+  .gl-screen-shield strong { display: block; font-size: 20px; margin-bottom: 8px; }
+  .gl-screen-shield span { color: #94a3b8; line-height: 1.5; }
+
+  @media print {
+    body > * { display: none !important; }
+    body::before { content: "This message cannot be printed."; display: block !important; padding: 40px; font: 700 20px system-ui; }
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 640px) {
+    body { font-size: 15px; }
+    .compose-heading { font-size: 22px; }
     .header { padding-top: 1.25rem; }
     .main { margin-top: 2rem; }
     .options-row { gap: 6px; }
+    .footer { flex-direction: column; align-items: flex-start; gap: 12px; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -643,15 +625,6 @@
 </style>
 </head>
 <body>
-
-<!-- Anti-Screenshot Privacy Guard Overlay -->
-<div id="privacy-guard" class="guard-overlay">
-  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
-    <line x1="2" y1="2" x2="22" y2="22"/>
-  </svg>
-  <span>Content hidden to prevent capture</span>
-</div>
 
 <!-- Header -->
 <header class="header">
@@ -669,7 +642,7 @@
 </header>
 
 <!-- Main -->
-<main class="main" id="main-content">
+<main class="main">
 
   <!-- Compose View -->
   <div class="view active" id="view-compose">
@@ -687,18 +660,18 @@
     <div style="margin-top: 0.75rem; margin-bottom: 1.25rem;">
       <p class="section-label" style="margin-bottom: 8px;">After opening</p>
       <div class="options-row" role="radiogroup" aria-label="Expiry options">
-        <label class="option-pill">
-          <input type="radio" name="expiry" value="read-once" checked>
+        <label class="option-pill active">
+          <input type="radio" name="expiry" value="read-once" checked onclick="updatePillState(this)">
           <span class="option-dot"></span>
           <span>Read once</span>
         </label>
         <label class="option-pill">
-          <input type="radio" name="expiry" value="24h">
+          <input type="radio" name="expiry" value="24h" onclick="updatePillState(this)">
           <span class="option-dot"></span>
           <span>Read once + 24h window</span>
         </label>
         <label class="option-pill">
-          <input type="radio" name="expiry" value="1h">
+          <input type="radio" name="expiry" value="1h" onclick="updatePillState(this)">
           <span class="option-dot"></span>
           <span>Read once + 1h window</span>
         </label>
@@ -740,7 +713,7 @@
         <span>Save this link now — you cannot access it again from this page. Once the recipient opens it, the link is gone permanently.</span>
       </div>
 
-      <button class="btn-ghost new-msg-btn" onclick="resetCompose()" style="margin-top: 14px;">
+      <button class="btn-ghost new-msg-btn" onclick="resetCompose()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
         Write another message
       </button>
@@ -774,7 +747,6 @@
             <span class="msg-live-dot" aria-hidden="true"></span>
             decrypted in your browser — never sent to any server
           </div>
-          <!-- Copy button removed for screenshot/privacy protection -->
         </div>
         <div class="msg-body" id="decrypted-text" aria-live="polite"></div>
         <div class="msg-footer">
@@ -788,7 +760,7 @@
 
       <div class="notice" style="max-width: 480px; text-align: left; margin-bottom: 1.5rem;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
-        <span>This page will not show the message again. Refreshing or re-opening the link will show a burned state. Screenshots and copying are actively blocked.</span>
+        <span>This page will not show the message again. Copy or save what you need now. Refreshing or re-opening the link will show an invalid state.</span>
       </div>
 
       <button class="btn-ghost" onclick="goHome()">
@@ -861,13 +833,13 @@
     <div class="step-cell">
       <div class="step-num">04</div>
       <div class="step-label">Burns on read</div>
-      <div class="step-detail">Once revealed, a persistent flag is set in the browser. Refreshing or re-opening shows a burned state.</div>
+      <div class="step-detail">Once revealed, a flag is set in the browser. Refreshing or re-opening shows a burned state.</div>
     </div>
   </div>
 
   <div class="notice" style="margin-top: 1rem;">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
-    <span><strong style="color:var(--text-dim)">Important:</strong> Because this is 100% client-side, there is no central server to enforce one-time reads across entirely different browsers or devices simultaneously. The burn-once protection uses <code style="font-family:var(--mono);font-size:11.5px">localStorage</code> in the recipient's browser. It successfully blocks re-opening and refreshing on the same machine.</span>
+    <span><strong style="color:var(--text-dim)">Important:</strong> This browser permanently remembers that a link was consumed, including after refresh. Global one-time enforcement across different browsers or devices requires a server-side one-time token.</span>
   </div>
 </section>
 
@@ -879,62 +851,44 @@
   </div>
 </footer>
 
+<div class="gl-screen-shield" id="gl-screen-shield" aria-hidden="true">
+  <div><strong>Message hidden</strong><span>The private message is hidden while this page is not active.</span></div>
+</div>
+
 <script>
 /* ════════════════════════════════════════════════════
    GhostLink — 100% client-side encrypted messaging
-   Architecture Updates:
-   - Upgraded to localStorage to enforce true burning across tabs/refreshes.
-   - Anti-screenshot measures: Window blur triggers privacy overlay.
+   Architecture:
+   - AES-256-GCM via Web Crypto API (SubtleCrypto)
+   - Key + ciphertext encoded as URL fragment (#)
+     → browsers never transmit fragments to servers
+   - Burn-once enforcement via localStorage flag
+   - No localStorage for plaintext message storage
+   - No server, no API, no cookies, no tracking
    ════════════════════════════════════════════════════ */
 
 const VERSION = 'gl1';
 
-/* ── Anti-Screenshot Security Logic ── */
-const guardOverlay = document.getElementById('privacy-guard');
-const mainContent = document.getElementById('main-content');
-
-function enableSecurityGuard() {
-  guardOverlay.classList.add('active');
-  mainContent.classList.add('blurred-guard');
-}
-
-function disableSecurityGuard() {
-  guardOverlay.classList.remove('active');
-  mainContent.classList.remove('blurred-guard');
-}
-
-// Intercept window losing focus (Often triggers when Snipping Tool opens)
-window.addEventListener('blur', enableSecurityGuard);
-window.addEventListener('focus', disableSecurityGuard);
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) enableSecurityGuard();
-  else disableSecurityGuard();
-});
-
-// Intercept 'PrintScreen' key press
-window.addEventListener('keyup', (e) => {
-  if (e.key === 'PrintScreen') {
-    enableSecurityGuard();
-    try { navigator.clipboard.writeText(''); } catch(err){} // Try to clear clipboard
-    setTimeout(disableSecurityGuard, 2000); // Remove guard after 2 seconds
-  }
-});
-
-
-/* ── Utility: encode/decode bytes ── */
+/* ── Utility: encode/decode bytes with chunking for large payloads ── */
 function bytesToBase64url(bytes) {
   let binary = '';
-  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+  const chunkSize = 0x8000; // 32k chunks to avoid call stack limits
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+  }
   return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
 function base64urlToBytes(str) {
-  const pad = str.length % 4;
-  const padded = pad ? str + '='.repeat(4 - pad) : str;
-  const b64 = padded.replace(/-/g, '+').replace(/_/g, '/');
+  let b64 = str.replace(/-/g, '+').replace(/_/g, '/');
+  while (b64.length % 4) {
+    b64 += '=';
+  }
   const binary = atob(b64);
   const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
   return bytes;
 }
 
@@ -972,6 +926,7 @@ async function decryptMessage(ivB64, ctB64, key) {
 
 /* ── Fragment format:
    #VERSION.EXPIRY_MODE.CREATION_UNIX.KEY_B64.IV_B64.CT_B64
+   All segments base64url-safe, no special chars except dots
    ── */
 function buildFragment(keyB64, ivB64, ctB64, expiryMode) {
   const now = Math.floor(Date.now() / 1000);
@@ -979,7 +934,9 @@ function buildFragment(keyB64, ivB64, ctB64, expiryMode) {
 }
 
 function parseFragment(frag) {
-  if (!frag || frag.startsWith('#')) frag = frag ? frag.slice(1) : '';
+  if (!frag) return null;
+  if (frag.startsWith('#')) frag = frag.slice(1);
+  frag = frag.trim();
   const parts = frag.split('.');
   if (parts.length < 6) return null;
   const [version, expiryMode, createdAt, keyB64, ivB64, ...ctParts] = parts;
@@ -998,24 +955,23 @@ function parseFragment(frag) {
   };
 }
 
-/* ── Burn storage — upgraded to localStorage
-   Key = fingerprint of the fragment (first 48 chars)
-   Value = ISO timestamp
-   ── */
+/* ── Burn storage ───────────────────────────────────── */
 function getBurnKey(fragmentRaw) {
-  return 'gl_burned_' + fragmentRaw.substring(0, 48);
+  return 'gl_burned_' + fragmentRaw;
 }
 
 function isBurned(fragmentRaw) {
   try {
-    // LocalStorage ensures the burn persists across refreshed tabs and new tab sessions
-    return localStorage.getItem(getBurnKey(fragmentRaw)) !== null;
-  } catch { return false; }
+    return localStorage.getItem(getBurnKey(fragmentRaw)) === '1';
+  } catch {
+    return false;
+  }
 }
 
 function markBurned(fragmentRaw) {
   try {
-    localStorage.setItem(getBurnKey(fragmentRaw), new Date().toISOString());
+    localStorage.setItem(getBurnKey(fragmentRaw), '1');
+    window.history.replaceState(null, '', window.location.pathname + window.location.search);
   } catch {}
 }
 
@@ -1038,14 +994,24 @@ const composeError = document.getElementById('compose-error');
 
 let generatedLink = '';
 
+/* ── Option Pill state helper ── */
+function updatePillState(radioInput) {
+  document.querySelectorAll('.option-pill').forEach(pill => pill.classList.remove('active'));
+  if (radioInput && radioInput.closest('.option-pill')) {
+    radioInput.closest('.option-pill').classList.add('active');
+  }
+}
+
 /* ── Char counter ── */
-msgInput.addEventListener('input', () => {
+function updateCharCount() {
   const len = msgInput.value.length;
   const formatted = len.toLocaleString() + ' / 50,000';
   charCount.textContent = formatted;
   charCount.className = 'char-count' + (len > 48000 ? ' over' : len > 40000 ? ' warn' : '');
   if (composeError.textContent) composeError.textContent = '';
-});
+}
+msgInput.addEventListener('input', updateCharCount);
+msgInput.addEventListener('change', updateCharCount);
 
 /* ── Create link ── */
 async function createLink() {
@@ -1057,7 +1023,8 @@ async function createLink() {
     return;
   }
 
-  const expiryMode = document.querySelector('input[name="expiry"]:checked').value;
+  const selectedRadio = document.querySelector('input[name="expiry"]:checked');
+  const expiryMode = selectedRadio ? selectedRadio.value : 'read-once';
 
   createBtn.disabled = true;
   createBtn.innerHTML = `<div class="spinner" aria-label="Encrypting…"></div> Encrypting…`;
@@ -1102,9 +1069,9 @@ async function createLink() {
 async function copyLink() {
   if (!generatedLink) return;
 
+  const btn = document.getElementById('copy-btn');
   try {
     await navigator.clipboard.writeText(generatedLink);
-    const btn = document.getElementById('copy-btn');
     btn.classList.add('copied');
     btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> Copied`;
     setTimeout(() => {
@@ -1119,12 +1086,15 @@ async function copyLink() {
 /* ── Reset compose form ── */
 function resetCompose() {
   msgInput.value = '';
-  charCount.textContent = '0 / 50,000';
-  charCount.className = 'char-count';
+  updateCharCount();
   composeError.textContent = '';
   resultCard.style.display = 'none';
   generatedLink = '';
-  document.querySelector('input[name="expiry"][value="read-once"]').checked = true;
+  const defaultRadio = document.querySelector('input[name="expiry"][value="read-once"]');
+  if (defaultRadio) {
+    defaultRadio.checked = true;
+    updatePillState(defaultRadio);
+  }
   msgInput.focus();
 }
 
@@ -1134,6 +1104,11 @@ async function revealMessage() {
   const parsed = parseFragment(fragRaw);
   if (!parsed) { showState('invalid'); return; }
 
+  if (isBurned(fragRaw)) {
+    showState('burned');
+    return;
+  }
+
   const btn = document.getElementById('reveal-btn');
   btn.disabled = true;
   btn.innerHTML = `<div class="spinner" aria-label="Decrypting…"></div> Decrypting…`;
@@ -1142,7 +1117,6 @@ async function revealMessage() {
     const key = await importKey(parsed.keyB64);
     const plaintext = await decryptMessage(parsed.ivB64, parsed.ctB64, key);
 
-    // Apply the robust local storage burn marker
     markBurned(fragRaw);
 
     document.getElementById('decrypted-text').textContent = plaintext;
@@ -1152,10 +1126,9 @@ async function revealMessage() {
     document.getElementById('state-decrypted').style.display = 'flex';
     document.getElementById('how-section').style.display = 'none';
 
-    // Scrub the hash from URL immediately so typical refresh goes home
-    window.history.replaceState(null, '', window.location.pathname);
-
   } catch (err) {
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg> Reveal message`;
     document.getElementById('invalid-reason').textContent =
       'Decryption failed. The link may have been modified or corrupted.';
     showState('invalid');
@@ -1186,17 +1159,26 @@ function showAbout() {
     '100% client-side. Your message never leaves your browser in plaintext.\n\n' +
     'Encryption: AES-256-GCM (Web Crypto API)\n' +
     'Key delivery: URL fragment (never sent to any server)\n' +
-    'Burn enforcement: localStorage flag\n' +
-    'Storage: None (Remote)\n' +
+    'Burn enforcement: persistent browser flag\n' +
+    'Storage: None\n' +
     'Tracking: None\n' +
     'Servers involved: None\n\n' +
     'The URL fragment (#…) is defined by RFC 7230 to never be transmitted by browsers to servers, making it a safe carrier for cryptographic key material.'
   );
 }
 
-/* ════════════════════════════════════════════════════
-   Initialisation — determine which view to show
-   ════════════════════════════════════════════════════ */
+/* ── Screen Shield & Visibility Handler ── */
+(function(){
+  const shield = document.getElementById('gl-screen-shield');
+  function sync(){
+    if (!shield) return;
+    shield.classList.toggle('show', document.visibilityState !== 'visible');
+  }
+  document.addEventListener('visibilitychange', sync, {passive:true});
+  window.addEventListener('pagehide', () => shield && shield.classList.add('show'), {passive:true});
+})();
+
+/* ── Initialisation — determine which view to show ── */
 (function init() {
   const frag = window.location.hash;
 
