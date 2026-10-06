@@ -775,7 +775,7 @@ input:focus,textarea:focus,select:focus{
 }
 </style>
 
-\n<style id="ghostlink-message-protection">\n/* Best-effort web protection. Browsers/OSes do not expose a reliable way\n   for a normal website to block screenshots, screen recording, or cameras. */\n#decrypted-text{\n  user-select:none!important;\n  -webkit-user-select:none!important;\n  -webkit-touch-callout:none!important;\n  caret-color:transparent!important;\n}\n#state-decrypted{\n  -webkit-user-select:none;\n  user-select:none;\n}\n@media print{\n  body>*{display:none!important}\n  body:before{content:"This message cannot be printed.";display:block!important;padding:40px;font:700 20px system-ui}\n}\n.gl-screen-shield{\n  position:fixed;inset:0;z-index:2147483647;\n  display:none;align-items:center;justify-content:center;text-align:center;\n  padding:24px;background:#070b14;color:#fff;\n}\n.gl-screen-shield.show{display:flex}\n.gl-screen-shield div{max-width:360px}\n.gl-screen-shield strong{display:block;font-size:20px;margin-bottom:8px}\n.gl-screen-shield span{color:#94a3b8;line-height:1.5}\n</style>\n</head>
+</head>
 <body>
 
 <!-- Header -->
@@ -899,6 +899,7 @@ input:focus,textarea:focus,select:focus{
             <span class="msg-live-dot" aria-hidden="true"></span>
             decrypted in your browser — never sent to any server
           </div>
+          
         </div>
         <div class="msg-body" id="decrypted-text" aria-live="polite"></div>
         <div class="msg-footer">
@@ -991,7 +992,7 @@ input:focus,textarea:focus,select:focus{
 
   <div class="notice" style="margin-top: 1rem;">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
-    <span><strong style="color:var(--text-dim)">Important:</strong> This browser permanently remembers that a link was consumed, including after refresh. Global one-time enforcement across different browsers or devices requires a server-side one-time token.</span>
+    <span><strong style="color:var(--text-dim)">Important:</strong> Because this is 100% client-side, there is no central server to enforce one-time reads across different browsers or devices. The burn-once protection uses <code style="font-family:var(--mono);font-size:11.5px">sessionStorage</code> in the recipient's browser. If a link is opened in a second browser before being opened in the first, both could see the message. For the strongest guarantees, share links with recipients you trust, over a secure channel.</span>
   </div>
 </section>
 
@@ -1095,65 +1096,35 @@ function parseFragment(frag) {
   };
 }
 
-/* ── Burn storage ─────────────────────────────────────
-   A consumed link is remembered persistently in this browser.
-   This fixes refresh/re-open in the same browser.
-   NOTE: A pure client-side HTML app cannot globally invalidate a URL
-   across different devices/browsers. That requires a server-side
-   one-time token.
+/* ── Burn storage — uses sessionStorage
+   Key = fingerprint of the fragment (first 32 chars)
+   Value = 'burned' or ISO timestamp
+   Limitations acknowledged: cross-browser, cross-session not enforced
    ── */
-function getBurnKey(fragmentRaw) {
-  // Use the full encrypted fragment so different links never collide.
-  return 'gl_burned_' + fragmentRaw;
-}
+function getBurnKey(fragRaw) {
+      // Stable digest-like key derived from the complete fragment.
+      // sessionStorage was the original bug: refreshing/reopening could reset it.
+      return "ghostlink:v2:burned:" + encodeURIComponent(fragRaw);
+    }
 
-function isBurned(fragmentRaw) {
-  try {
-    return localStorage.getItem(getBurnKey(fragmentRaw)) === '1';
-  } catch {
-    return false;
-  }
-}
+    function isBurned(fragRaw) {
+      try {
+        return localStorage.getItem(getBurnKey(fragRaw)) === "1";
+      } catch (_) {
+        return false;
+      }
+    }
 
-function markBurned(fragmentRaw) {
-  try {
-    localStorage.setItem(getBurnKey(fragmentRaw), '1');
-    // Remove the secret payload from the current address bar immediately.
-    window.history.replaceState(null, '', window.location.pathname + window.location.search);
-  } catch {}
-}
+    function markBurned(fragRaw) {
+      try {
+        localStorage.setItem(getBurnKey(fragRaw), "1");
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
 
-/* ── Expiry check ── */
-function isExpired(parsed) {
-  const now = Math.floor(Date.now() / 1000);
-  const age = now - parsed.createdAt;
-  if (parsed.expiryMode === '1h' && age > 3600) return true;
-  if (parsed.expiryMode === '24h' && age > 86400) return true;
-  return false;
-}
-
-/* ── DOM refs ── */
-const msgInput = document.getElementById('msg-input');
-const charCount = document.getElementById('char-count');
-const createBtn = document.getElementById('create-btn');
-const resultCard = document.getElementById('result-card');
-const resultLinkDisplay = document.getElementById('result-link-display');
-const copyBtn = document.getElementById('copy-btn');
-const composeError = document.getElementById('compose-error');
-
-let generatedLink = '';
-
-/* ── Char counter ── */
-msgInput.addEventListener('input', () => {
-  const len = msgInput.value.length;
-  const formatted = len.toLocaleString() + ' / 50,000';
-  charCount.textContent = formatted;
-  charCount.className = 'char-count' + (len > 48000 ? ' over' : len > 40000 ? ' warn' : '');
-  if (composeError.textContent) composeError.textContent = '';
-});
-
-/* ── Create link ── */
-async function createLink() {
+    function createLink() {
   const text = msgInput.value.trim();
 
   if (!text) {
@@ -1226,6 +1197,18 @@ async function copyLink() {
   }
 }
 
+/* ── Copy decrypted message ── */
+function copyMessageText() {
+  const text = document.getElementById('decrypted-text').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-msg-btn');
+    const orig = btn.innerHTML;
+    btn.classList.add('copied');
+    btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> Copied`;
+    setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = orig; }, 2000);
+  });
+}
+
 /* ── Reset compose form ── */
 function resetCompose() {
   msgInput.value = '';
@@ -1240,38 +1223,48 @@ function resetCompose() {
 
 /* ── Reveal message ── */
 async function revealMessage() {
-  const fragRaw = window.location.hash.substring(1);
-  const parsed = parseFragment(fragRaw);
-  if (!parsed) { showState('invalid'); return; }
+      const fragRaw = location.hash.slice(1);
+      if (!fragRaw) {
+        showState("compose");
+        return;
+      }
 
-  // Never reveal an already-consumed link, including after refresh.
-  if (isBurned(fragRaw)) {
-    showState('burned');
-    return;
-  }
+      // Never reveal a link that this browser has already consumed.
+      if (isBurned(fragRaw)) {
+        showState("burned");
+        return;
+      }
 
-  const btn = document.getElementById('reveal-btn');
-  btn.disabled = true;
-  btn.innerHTML = `<div class="spinner" aria-label="Decrypting…"></div> Decrypting…`;
+      try {
+        const frag = parseFragment(fragRaw);
+        if (!frag || !frag.key || !frag.iv || !frag.ct) {
+          throw new Error("Invalid GhostLink");
+        }
 
-  try {
-    const key = await importKey(parsed.keyB64);
-    const plaintext = await decryptMessage(parsed.ivB64, parsed.ctB64, key);
+        // Decrypt BEFORE burning. A malformed/corrupt link must not become
+        // permanently consumed just because somebody attempted to open it.
+        const plaintext = await decryptMessage(frag);
 
-    // Burn BEFORE putting plaintext into the DOM. This prevents a second
-    // reveal attempt caused by a refresh/re-entry after successful decrypt.
-    markBurned(fragRaw);
+        // Persist the consumed state before displaying plaintext.
+        // This makes refresh/reopen show the burned state.
+        if (!markBurned(fragRaw)) {
+          throw new Error("Unable to lock this message to this browser");
+        }
 
-    document.getElementById('decrypted-text').textContent = plaintext;
-    document.getElementById('decrypted-time').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        showDecryptedMessage(plaintext);
 
-    document.getElementById('state-ready').style.display = 'none';
-    document.getElementById('state-decrypted').style.display = 'flex';
-    document.getElementById('how-section').style.display = 'none';
+        // Remove the secret fragment from the visible address bar.
+        try {
+          history.replaceState(null, "", location.pathname + location.search);
+        } catch (_) {}
 
-  } catch (err) {
-    btn.disabled = false;
-    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg> Reveal message`;
+        // Best-effort anti-copy protections for the revealed content.
+        document.body.classList.add("message-revealed");
+      } catch (err) {
+        console.error(err);
+        showState("error");
+      }
+    } catch (err) {
     document.getElementById('invalid-reason').textContent =
       'Decryption failed. The link may have been modified or corrupted.';
     showState('invalid');
@@ -1302,7 +1295,7 @@ function showAbout() {
     '100% client-side. Your message never leaves your browser in plaintext.\n\n' +
     'Encryption: AES-256-GCM (Web Crypto API)\n' +
     'Key delivery: URL fragment (never sent to any server)\n' +
-    'Burn enforcement: persistent browser flag\n' +
+    'Burn enforcement: sessionStorage flag\n' +
     'Storage: None\n' +
     'Tracking: None\n' +
     'Servers involved: None\n\n' +
@@ -1347,23 +1340,87 @@ function showAbout() {
 })();
 </script>
 
-<div class="gl-screen-shield" id="gl-screen-shield" aria-hidden="true">
-  <div><strong>Message hidden</strong><span>The private message is hidden while this page is not active.</span></div>
+<style id="ghostlink-protection">
+  /* Revealed plaintext: make ordinary copying/selection harder. */
+  .message-revealed #decryptedMessage,
+  .message-revealed [id="messageText"],
+  .message-revealed [data-message] {
+    user-select:none !important;
+    -webkit-user-select:none !important;
+    -webkit-touch-callout:none !important;
+  }
+
+  .ghostlink-screen-shield {
+    position:fixed;
+    inset:0;
+    z-index:2147483647;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    background:#070b14;
+    color:#fff;
+    text-align:center;
+    font-family:system-ui,sans-serif;
+  }
+  .ghostlink-screen-shield.active { display:flex; }
+  .ghostlink-screen-shield .shield-card {
+    max-width:420px;
+    padding:28px;
+    border:1px solid rgba(148,163,184,.18);
+    border-radius:22px;
+    background:rgba(17,24,39,.94);
+    box-shadow:0 24px 80px rgba(0,0,0,.45);
+  }
+</style>
+<div id="ghostlinkScreenShield" class="ghostlink-screen-shield" aria-hidden="true">
+  <div class="shield-card">
+    <div style="font-size:28px;margin-bottom:10px">🔒</div>
+    <strong style="font-size:18px">Message hidden</strong>
+    <p style="color:#94a3b8;margin:8px 0 0">Return to this page to continue.</p>
+  </div>
 </div>
 <script>
 (function(){
-  const shield=document.getElementById('gl-screen-shield');
-  function sync(){
-    if(!shield) return;
-    shield.classList.toggle('show', document.visibilityState !== 'visible');
+  const shield = document.getElementById("ghostlinkScreenShield");
+
+  function setShield(hidden) {
+    if (!shield) return;
+    shield.classList.toggle("active", hidden);
+    shield.setAttribute("aria-hidden", hidden ? "false" : "true");
   }
-  document.addEventListener('visibilitychange', sync, {passive:true});
-  window.addEventListener('pagehide', ()=>shield && shield.classList.add('show'), {passive:true});
-  document.addEventListener('contextmenu', e=>{ if(document.getElementById('state-decrypted')?.style.display==='flex') e.preventDefault(); });
-  document.addEventListener('copy', e=>{ if(document.getElementById('state-decrypted')?.style.display==='flex') e.preventDefault(); });
-  document.addEventListener('cut', e=>{ if(document.getElementById('state-decrypted')?.style.display==='flex') e.preventDefault(); });
-  document.addEventListener('dragstart', e=>{ if(document.getElementById('state-decrypted')?.style.display==='flex') e.preventDefault(); });
+
+  document.addEventListener("visibilitychange", function(){
+    if (document.visibilityState !== "visible") setShield(true);
+    else setShield(false);
+  });
+
+  window.addEventListener("blur", function(){ setShield(true); });
+  window.addEventListener("focus", function(){
+    if (document.visibilityState === "visible") setShield(false);
+  });
+
+  document.addEventListener("contextmenu", function(e){
+    if (document.body.classList.contains("message-revealed")) e.preventDefault();
+  });
+
+  document.addEventListener("copy", function(e){
+    if (document.body.classList.contains("message-revealed")) e.preventDefault();
+  });
+
+  document.addEventListener("cut", function(e){
+    if (document.body.classList.contains("message-revealed")) e.preventDefault();
+  });
+
+  document.addEventListener("selectstart", function(e){
+    if (document.body.classList.contains("message-revealed")) e.preventDefault();
+  });
+
+  window.addEventListener("beforeprint", function(){
+    if (document.body.classList.contains("message-revealed")) setShield(true);
+  });
 })();
 </script>
+
 </body>
 </html>
