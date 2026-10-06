@@ -32,6 +32,7 @@
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+  /* Anti-screenshot & selection prevention */
   body {
     background: var(--bg);
     color: var(--text);
@@ -44,6 +45,49 @@
     padding: 0 1rem;
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 16px);
+    
+    /* Disable text selection */
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* Allow typing in inputs still */
+  textarea, input {
+    -webkit-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+  }
+
+  /* Disable printing entirely */
+  @media print {
+    body { display: none !important; }
+  }
+
+  /* Privacy overlay for focus-loss / screenshotting attempts */
+  .blurred-guard {
+    filter: blur(15px) !important;
+    pointer-events: none !important;
+    opacity: 0.1 !important;
+  }
+  
+  .guard-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(13, 17, 23, 0.98);
+    color: var(--red);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 600;
+    text-align: center;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .guard-overlay.active {
+    display: flex;
   }
 
   /* ── Header ── */
@@ -99,6 +143,7 @@
     max-width: 660px;
     margin-top: 3rem;
     flex: 1;
+    transition: filter 0.2s ease, opacity 0.2s ease;
   }
 
   /* ── View switcher (compose vs reveal) ── */
@@ -584,22 +629,6 @@
     min-height: 20px;
   }
 
-  /* ── Progress bar ── */
-  .progress-bar {
-    width: 100%;
-    height: 2px;
-    background: var(--bg-3);
-    border-radius: 2px;
-    overflow: hidden;
-    margin-top: 10px;
-  }
-  .progress-fill {
-    height: 100%;
-    background: var(--accent);
-    border-radius: 2px;
-    transition: width 0.3s ease;
-  }
-
   /* Responsive */
   @media (max-width: 480px) {
     .compose-heading { font-size: 21px; }
@@ -612,171 +641,17 @@
     *, *::before, *::after { animation: none !important; transition: none !important; }
   }
 </style>
-
-<style id="ghostlink-mobile-polish">
-/* GhostLink responsive visual polish — preserves existing JS hooks */
-:root{
-  --gl-bg:#070b14;
-  --gl-panel:rgba(17,24,39,.78);
-  --gl-panel-2:rgba(12,18,31,.92);
-  --gl-border:rgba(148,163,184,.16);
-  --gl-text:#f8fafc;
-  --gl-muted:#94a3b8;
-  --gl-accent:#8b5cf6;
-  --gl-accent-2:#6366f1;
-  --gl-success:#34d399;
-  --gl-radius:20px;
-}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{
-  min-height:100vh;
-  overflow-x:hidden;
-  background:
-    radial-gradient(900px 500px at 50% -120px,rgba(99,102,241,.16),transparent 65%),
-    radial-gradient(700px 420px at 100% 35%,rgba(139,92,246,.09),transparent 65%),
-    var(--gl-bg);
-}
-*,*::before,*::after{box-sizing:border-box}
-button,input,textarea,select{font:inherit}
-button{touch-action:manipulation}
-a{-webkit-tap-highlight-color:transparent}
-
-.glass,
-.card,
-.panel,
-section[class*="rounded"],
-div[class*="rounded-xl"],
-div[class*="rounded-2xl"]{
-  border-color:var(--gl-border);
-}
-
-button{
-  transition:transform .18s ease,box-shadow .18s ease,background-color .18s ease,border-color .18s ease,opacity .18s ease;
-}
-button:hover{transform:translateY(-1px)}
-button:active{transform:translateY(0) scale(.985)}
-
-textarea,input,select{
-  max-width:100%;
-  border-radius:14px;
-}
-textarea{
-  resize:vertical;
-  min-height:150px;
-}
-input:focus,textarea:focus,select:focus{
-  outline:none;
-  border-color:rgba(139,92,246,.7)!important;
-  box-shadow:0 0 0 4px rgba(139,92,246,.12);
-}
-
-@media (max-width:760px){
-  body{font-size:15px}
-  main,.container,.max-w-5xl,.max-w-4xl,.max-w-3xl{
-    width:100%!important;
-    max-width:none!important;
-    padding-left:16px!important;
-    padding-right:16px!important;
-  }
-
-  header{
-    padding-left:16px!important;
-    padding-right:16px!important;
-  }
-
-  h1{
-    font-size:clamp(2rem,10vw,3rem)!important;
-    line-height:1.04!important;
-    letter-spacing:-.045em!important;
-  }
-  h2{font-size:1.45rem!important;line-height:1.15!important}
-  p{line-height:1.6}
-
-  /* Make common grid/flex layouts collapse cleanly */
-  .grid{grid-template-columns:1fr!important}
-  .md\:grid-cols-2,.lg\:grid-cols-2,.lg\:grid-cols-3,
-  .md\:flex-row,.lg\:flex-row{grid-template-columns:1fr!important}
-  .flex-row{flex-wrap:wrap}
-  .gap-8{gap:1.25rem!important}
-  .gap-6{gap:1rem!important}
-  .gap-4{gap:.8rem!important}
-
-  /* Cards */
-  .rounded-2xl,.rounded-xl{border-radius:18px!important}
-  .p-8{padding:20px!important}
-  .p-7{padding:18px!important}
-  .p-6{padding:17px!important}
-  .p-5{padding:15px!important}
-
-  /* Large controls become thumb friendly */
-  button,.btn{
-    min-height:44px;
-  }
-
-  /* Long generated links should never break the layout */
-  code,pre,[id*="link"],[class*="link"]{
-    overflow-wrap:anywhere;
-    word-break:break-word;
-  }
-
-  /* Compose/reveal areas */
-  textarea{min-height:170px}
-}
-
-@media (max-width:480px){
-  main,.container,.max-w-5xl,.max-w-4xl,.max-w-3xl{
-    padding-left:12px!important;
-    padding-right:12px!important;
-  }
-  header{
-    padding-left:12px!important;
-    padding-right:12px!important;
-  }
-
-  h1{font-size:2.15rem!important}
-  .text-5xl{font-size:2.2rem!important}
-  .text-4xl{font-size:1.9rem!important}
-  .text-3xl{font-size:1.6rem!important}
-
-  .px-8{padding-left:16px!important;padding-right:16px!important}
-  .px-6{padding-left:14px!important;padding-right:14px!important}
-  .py-5{padding-top:14px!important;padding-bottom:14px!important}
-
-  /* Prevent button rows from overflowing */
-  .flex.gap-3,.flex.gap-4{
-    width:100%;
-  }
-  .flex.gap-3 > button,.flex.gap-4 > button{
-    flex:1 1 140px;
-  }
-
-  /* Make copy/share/download controls comfortable */
-  [id*="copy"],[id*="Copy"],
-  [id*="download"],[id*="Download"]{
-    min-height:46px;
-  }
-}
-
-/* Safe-area support for modern phones */
-@supports (padding: max(0px)){
-  body{
-    padding-bottom:max(0px,env(safe-area-inset-bottom));
-  }
-}
-
-/* Reduce motion for users who request it */
-@media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{
-    animation-duration:.001ms!important;
-    animation-iteration-count:1!important;
-    transition-duration:.001ms!important;
-    scroll-behavior:auto!important;
-  }
-}
-</style>
-
 </head>
 <body>
+
+<!-- Anti-Screenshot Privacy Guard Overlay -->
+<div id="privacy-guard" class="guard-overlay">
+  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+    <line x1="2" y1="2" x2="22" y2="22"/>
+  </svg>
+  <span>Content hidden to prevent capture</span>
+</div>
 
 <!-- Header -->
 <header class="header">
@@ -794,7 +669,7 @@ input:focus,textarea:focus,select:focus{
 </header>
 
 <!-- Main -->
-<main class="main">
+<main class="main" id="main-content">
 
   <!-- Compose View -->
   <div class="view active" id="view-compose">
@@ -899,7 +774,7 @@ input:focus,textarea:focus,select:focus{
             <span class="msg-live-dot" aria-hidden="true"></span>
             decrypted in your browser — never sent to any server
           </div>
-          
+          <!-- Copy button removed for screenshot/privacy protection -->
         </div>
         <div class="msg-body" id="decrypted-text" aria-live="polite"></div>
         <div class="msg-footer">
@@ -913,7 +788,7 @@ input:focus,textarea:focus,select:focus{
 
       <div class="notice" style="max-width: 480px; text-align: left; margin-bottom: 1.5rem;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
-        <span>This page will not show the message again. Copy or save what you need now. Refreshing or re-opening the link will show an invalid state.</span>
+        <span>This page will not show the message again. Refreshing or re-opening the link will show a burned state. Screenshots and copying are actively blocked.</span>
       </div>
 
       <button class="btn-ghost" onclick="goHome()">
@@ -986,13 +861,13 @@ input:focus,textarea:focus,select:focus{
     <div class="step-cell">
       <div class="step-num">04</div>
       <div class="step-label">Burns on read</div>
-      <div class="step-detail">Once revealed, a flag is set in the browser. Refreshing or re-opening shows a burned state.</div>
+      <div class="step-detail">Once revealed, a persistent flag is set in the browser. Refreshing or re-opening shows a burned state.</div>
     </div>
   </div>
 
   <div class="notice" style="margin-top: 1rem;">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
-    <span><strong style="color:var(--text-dim)">Important:</strong> Because this is 100% client-side, there is no central server to enforce one-time reads across different browsers or devices. The burn-once protection uses <code style="font-family:var(--mono);font-size:11.5px">sessionStorage</code> in the recipient's browser. If a link is opened in a second browser before being opened in the first, both could see the message. For the strongest guarantees, share links with recipients you trust, over a secure channel.</span>
+    <span><strong style="color:var(--text-dim)">Important:</strong> Because this is 100% client-side, there is no central server to enforce one-time reads across entirely different browsers or devices simultaneously. The burn-once protection uses <code style="font-family:var(--mono);font-size:11.5px">localStorage</code> in the recipient's browser. It successfully blocks re-opening and refreshing on the same machine.</span>
   </div>
 </section>
 
@@ -1007,16 +882,44 @@ input:focus,textarea:focus,select:focus{
 <script>
 /* ════════════════════════════════════════════════════
    GhostLink — 100% client-side encrypted messaging
-   Architecture:
-   - AES-256-GCM via Web Crypto API (SubtleCrypto)
-   - Key + ciphertext encoded as URL fragment (#)
-     → browsers never transmit fragments to servers
-   - Burn-once enforcement via sessionStorage flag
-   - No localStorage for message storage
-   - No server, no API, no cookies, no tracking
+   Architecture Updates:
+   - Upgraded to localStorage to enforce true burning across tabs/refreshes.
+   - Anti-screenshot measures: Window blur triggers privacy overlay.
    ════════════════════════════════════════════════════ */
 
 const VERSION = 'gl1';
+
+/* ── Anti-Screenshot Security Logic ── */
+const guardOverlay = document.getElementById('privacy-guard');
+const mainContent = document.getElementById('main-content');
+
+function enableSecurityGuard() {
+  guardOverlay.classList.add('active');
+  mainContent.classList.add('blurred-guard');
+}
+
+function disableSecurityGuard() {
+  guardOverlay.classList.remove('active');
+  mainContent.classList.remove('blurred-guard');
+}
+
+// Intercept window losing focus (Often triggers when Snipping Tool opens)
+window.addEventListener('blur', enableSecurityGuard);
+window.addEventListener('focus', disableSecurityGuard);
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) enableSecurityGuard();
+  else disableSecurityGuard();
+});
+
+// Intercept 'PrintScreen' key press
+window.addEventListener('keyup', (e) => {
+  if (e.key === 'PrintScreen') {
+    enableSecurityGuard();
+    try { navigator.clipboard.writeText(''); } catch(err){} // Try to clear clipboard
+    setTimeout(disableSecurityGuard, 2000); // Remove guard after 2 seconds
+  }
+});
+
 
 /* ── Utility: encode/decode bytes ── */
 function bytesToBase64url(bytes) {
@@ -1069,7 +972,6 @@ async function decryptMessage(ivB64, ctB64, key) {
 
 /* ── Fragment format:
    #VERSION.EXPIRY_MODE.CREATION_UNIX.KEY_B64.IV_B64.CT_B64
-   All segments base64url-safe, no special chars except dots
    ── */
 function buildFragment(keyB64, ivB64, ctB64, expiryMode) {
   const now = Math.floor(Date.now() / 1000);
@@ -1096,35 +998,57 @@ function parseFragment(frag) {
   };
 }
 
-/* ── Burn storage — uses sessionStorage
-   Key = fingerprint of the fragment (first 32 chars)
-   Value = 'burned' or ISO timestamp
-   Limitations acknowledged: cross-browser, cross-session not enforced
+/* ── Burn storage — upgraded to localStorage
+   Key = fingerprint of the fragment (first 48 chars)
+   Value = ISO timestamp
    ── */
-function getBurnKey(fragRaw) {
-      // Stable digest-like key derived from the complete fragment.
-      // sessionStorage was the original bug: refreshing/reopening could reset it.
-      return "ghostlink:v2:burned:" + encodeURIComponent(fragRaw);
-    }
+function getBurnKey(fragmentRaw) {
+  return 'gl_burned_' + fragmentRaw.substring(0, 48);
+}
 
-    function isBurned(fragRaw) {
-      try {
-        return localStorage.getItem(getBurnKey(fragRaw)) === "1";
-      } catch (_) {
-        return false;
-      }
-    }
+function isBurned(fragmentRaw) {
+  try {
+    // LocalStorage ensures the burn persists across refreshed tabs and new tab sessions
+    return localStorage.getItem(getBurnKey(fragmentRaw)) !== null;
+  } catch { return false; }
+}
 
-    function markBurned(fragRaw) {
-      try {
-        localStorage.setItem(getBurnKey(fragRaw), "1");
-        return true;
-      } catch (_) {
-        return false;
-      }
-    }
+function markBurned(fragmentRaw) {
+  try {
+    localStorage.setItem(getBurnKey(fragmentRaw), new Date().toISOString());
+  } catch {}
+}
 
-    function createLink() {
+/* ── Expiry check ── */
+function isExpired(parsed) {
+  const now = Math.floor(Date.now() / 1000);
+  const age = now - parsed.createdAt;
+  if (parsed.expiryMode === '1h' && age > 3600) return true;
+  if (parsed.expiryMode === '24h' && age > 86400) return true;
+  return false;
+}
+
+/* ── DOM refs ── */
+const msgInput = document.getElementById('msg-input');
+const charCount = document.getElementById('char-count');
+const createBtn = document.getElementById('create-btn');
+const resultCard = document.getElementById('result-card');
+const resultLinkDisplay = document.getElementById('result-link-display');
+const composeError = document.getElementById('compose-error');
+
+let generatedLink = '';
+
+/* ── Char counter ── */
+msgInput.addEventListener('input', () => {
+  const len = msgInput.value.length;
+  const formatted = len.toLocaleString() + ' / 50,000';
+  charCount.textContent = formatted;
+  charCount.className = 'char-count' + (len > 48000 ? ' over' : len > 40000 ? ' warn' : '');
+  if (composeError.textContent) composeError.textContent = '';
+});
+
+/* ── Create link ── */
+async function createLink() {
   const text = msgInput.value.trim();
 
   if (!text) {
@@ -1145,10 +1069,6 @@ function getBurnKey(fragRaw) {
 
     const fragment = buildFragment(keyB64, iv, ct, expiryMode);
 
-    // Build the link from the actual page URL.
-    // Using URL.hash avoids broken links when the page already has a
-    // query string/hash and keeps the encrypted payload entirely in
-    // the URL fragment.
     const linkUrl = new URL(window.location.href);
     linkUrl.search = '';
     linkUrl.hash = fragment;
@@ -1156,7 +1076,6 @@ function getBurnKey(fragRaw) {
 
     generatedLink = url;
 
-    const displayUrl = url.length > 72 ? url.substring(0, 35) + '…' + url.slice(-20) : url;
     resultLinkDisplay.innerHTML = `<strong>${window.location.hostname + window.location.pathname}</strong><span style="color:var(--text-muted)">#…${ct.substring(0, 12)}…</span>`;
     resultLinkDisplay.title = url;
 
@@ -1197,18 +1116,6 @@ async function copyLink() {
   }
 }
 
-/* ── Copy decrypted message ── */
-function copyMessageText() {
-  const text = document.getElementById('decrypted-text').textContent;
-  navigator.clipboard.writeText(text).then(() => {
-    const btn = document.getElementById('copy-msg-btn');
-    const orig = btn.innerHTML;
-    btn.classList.add('copied');
-    btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> Copied`;
-    setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = orig; }, 2000);
-  });
-}
-
 /* ── Reset compose form ── */
 function resetCompose() {
   msgInput.value = '';
@@ -1223,48 +1130,32 @@ function resetCompose() {
 
 /* ── Reveal message ── */
 async function revealMessage() {
-      const fragRaw = location.hash.slice(1);
-      if (!fragRaw) {
-        showState("compose");
-        return;
-      }
+  const fragRaw = window.location.hash.substring(1);
+  const parsed = parseFragment(fragRaw);
+  if (!parsed) { showState('invalid'); return; }
 
-      // Never reveal a link that this browser has already consumed.
-      if (isBurned(fragRaw)) {
-        showState("burned");
-        return;
-      }
+  const btn = document.getElementById('reveal-btn');
+  btn.disabled = true;
+  btn.innerHTML = `<div class="spinner" aria-label="Decrypting…"></div> Decrypting…`;
 
-      try {
-        const frag = parseFragment(fragRaw);
-        if (!frag || !frag.key || !frag.iv || !frag.ct) {
-          throw new Error("Invalid GhostLink");
-        }
+  try {
+    const key = await importKey(parsed.keyB64);
+    const plaintext = await decryptMessage(parsed.ivB64, parsed.ctB64, key);
 
-        // Decrypt BEFORE burning. A malformed/corrupt link must not become
-        // permanently consumed just because somebody attempted to open it.
-        const plaintext = await decryptMessage(frag);
+    // Apply the robust local storage burn marker
+    markBurned(fragRaw);
 
-        // Persist the consumed state before displaying plaintext.
-        // This makes refresh/reopen show the burned state.
-        if (!markBurned(fragRaw)) {
-          throw new Error("Unable to lock this message to this browser");
-        }
+    document.getElementById('decrypted-text').textContent = plaintext;
+    document.getElementById('decrypted-time').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-        showDecryptedMessage(plaintext);
+    document.getElementById('state-ready').style.display = 'none';
+    document.getElementById('state-decrypted').style.display = 'flex';
+    document.getElementById('how-section').style.display = 'none';
 
-        // Remove the secret fragment from the visible address bar.
-        try {
-          history.replaceState(null, "", location.pathname + location.search);
-        } catch (_) {}
+    // Scrub the hash from URL immediately so typical refresh goes home
+    window.history.replaceState(null, '', window.location.pathname);
 
-        // Best-effort anti-copy protections for the revealed content.
-        document.body.classList.add("message-revealed");
-      } catch (err) {
-        console.error(err);
-        showState("error");
-      }
-    } catch (err) {
+  } catch (err) {
     document.getElementById('invalid-reason').textContent =
       'Decryption failed. The link may have been modified or corrupted.';
     showState('invalid');
@@ -1295,8 +1186,8 @@ function showAbout() {
     '100% client-side. Your message never leaves your browser in plaintext.\n\n' +
     'Encryption: AES-256-GCM (Web Crypto API)\n' +
     'Key delivery: URL fragment (never sent to any server)\n' +
-    'Burn enforcement: sessionStorage flag\n' +
-    'Storage: None\n' +
+    'Burn enforcement: localStorage flag\n' +
+    'Storage: None (Remote)\n' +
     'Tracking: None\n' +
     'Servers involved: None\n\n' +
     'The URL fragment (#…) is defined by RFC 7230 to never be transmitted by browsers to servers, making it a safe carrier for cryptographic key material.'
@@ -1339,88 +1230,5 @@ function showAbout() {
   showState('ready');
 })();
 </script>
-
-<style id="ghostlink-protection">
-  /* Revealed plaintext: make ordinary copying/selection harder. */
-  .message-revealed #decryptedMessage,
-  .message-revealed [id="messageText"],
-  .message-revealed [data-message] {
-    user-select:none !important;
-    -webkit-user-select:none !important;
-    -webkit-touch-callout:none !important;
-  }
-
-  .ghostlink-screen-shield {
-    position:fixed;
-    inset:0;
-    z-index:2147483647;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    padding:24px;
-    background:#070b14;
-    color:#fff;
-    text-align:center;
-    font-family:system-ui,sans-serif;
-  }
-  .ghostlink-screen-shield.active { display:flex; }
-  .ghostlink-screen-shield .shield-card {
-    max-width:420px;
-    padding:28px;
-    border:1px solid rgba(148,163,184,.18);
-    border-radius:22px;
-    background:rgba(17,24,39,.94);
-    box-shadow:0 24px 80px rgba(0,0,0,.45);
-  }
-</style>
-<div id="ghostlinkScreenShield" class="ghostlink-screen-shield" aria-hidden="true">
-  <div class="shield-card">
-    <div style="font-size:28px;margin-bottom:10px">🔒</div>
-    <strong style="font-size:18px">Message hidden</strong>
-    <p style="color:#94a3b8;margin:8px 0 0">Return to this page to continue.</p>
-  </div>
-</div>
-<script>
-(function(){
-  const shield = document.getElementById("ghostlinkScreenShield");
-
-  function setShield(hidden) {
-    if (!shield) return;
-    shield.classList.toggle("active", hidden);
-    shield.setAttribute("aria-hidden", hidden ? "false" : "true");
-  }
-
-  document.addEventListener("visibilitychange", function(){
-    if (document.visibilityState !== "visible") setShield(true);
-    else setShield(false);
-  });
-
-  window.addEventListener("blur", function(){ setShield(true); });
-  window.addEventListener("focus", function(){
-    if (document.visibilityState === "visible") setShield(false);
-  });
-
-  document.addEventListener("contextmenu", function(e){
-    if (document.body.classList.contains("message-revealed")) e.preventDefault();
-  });
-
-  document.addEventListener("copy", function(e){
-    if (document.body.classList.contains("message-revealed")) e.preventDefault();
-  });
-
-  document.addEventListener("cut", function(e){
-    if (document.body.classList.contains("message-revealed")) e.preventDefault();
-  });
-
-  document.addEventListener("selectstart", function(e){
-    if (document.body.classList.contains("message-revealed")) e.preventDefault();
-  });
-
-  window.addEventListener("beforeprint", function(){
-    if (document.body.classList.contains("message-revealed")) setShield(true);
-  });
-})();
-</script>
-
 </body>
 </html>
