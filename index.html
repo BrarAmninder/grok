@@ -481,8 +481,12 @@ async function sbStore(ct, expiresAt) {
       body: JSON.stringify({ ct, burned: false, expires_at: expiresAt || null })
     }
   );
-  if (!res.ok) throw new Error('db_store_failed');
+  if (!res.ok) {
+    const errBody = await res.text().catch(() => '');
+    throw new Error(`db_store_failed (HTTP ${res.status}): ${errBody}`);
+  }
   const [row] = await res.json();
+  if (!row || row.id === undefined) throw new Error('db_store_failed: no id returned — check table has id column and RLS allows insert');
   return String(row.id); // Supabase auto-generated id
 }
 
@@ -684,8 +688,10 @@ async function createLink() {
     createBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Create secure link`;
     createBtn.disabled = false;
   } catch(err) {
-    composeError.textContent = 'Encryption failed.';
+    composeError.textContent = 'Error: ' + (err.message || err);
+    console.error('createLink error:', err);
     createBtn.disabled = false;
+    createBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Create secure link`;
   }
 }
 
