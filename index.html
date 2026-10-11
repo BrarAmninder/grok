@@ -466,7 +466,7 @@ const TABLE = 'burns';  // table name in your Supabase database
 //  SUPABASE HELPERS  (direct REST API — no SDK needed)
 // ═══════════════════════════════════════════════
 
-// Store encrypted ciphertext + expiry; returns the auto-generated row id (short msgId)
+// Store encrypted ciphertext + expiry; returns the auto-generated row id (UUID)
 async function sbStore(ct, expiresAt) {
   const res = await fetch(
     `${SUPABASE_URL}/rest/v1/${TABLE}`,
@@ -481,13 +481,13 @@ async function sbStore(ct, expiresAt) {
       body: JSON.stringify({ ct, burned: false, expires_at: expiresAt || null })
     }
   );
-  if (!res.ok) {
-    const errBody = await res.text().catch(() => '');
-    throw new Error(`db_store_failed (HTTP ${res.status}): ${errBody}`);
-  }
-  const [row] = await res.json();
-  if (!row || row.id === undefined) throw new Error('db_store_failed: no id returned — check table has id column and RLS allows insert');
-  return String(row.id); // Supabase auto-generated id
+  const text = await res.text();
+  if (!res.ok) throw new Error(`db_store_failed (HTTP ${res.status}): ${text}`);
+  let rows;
+  try { rows = JSON.parse(text); } catch(e) { throw new Error('db_store_failed: invalid JSON: ' + text); }
+  const row = Array.isArray(rows) ? rows[0] : rows;
+  if (!row || row.id === undefined) throw new Error('db_store_failed: no id returned: ' + text);
+  return String(row.id);
 }
 
 // Check if burned (for password-gate pre-check)
@@ -509,9 +509,11 @@ async function sbFetchAndBurn(msgId) {
     `${SUPABASE_URL}/rest/v1/${TABLE}?id=eq.${encodeURIComponent(msgId)}&select=ct,burned`,
     { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
   );
-  if (!res.ok) throw new Error('db_read_failed');
-  const rows = await res.json();
-  if (rows.length === 0) return { status: 'invalid' };
+  const text = await res.text();
+  console.log('sbFetchAndBurn response:', res.status, text);
+  if (!res.ok) throw new Error('db_read_failed: HTTP ' + res.status + ' ' + text);
+  const rows = JSON.parse(text);
+  if (!rows || rows.length === 0) throw new Error('db_row_missing: no row found for id=' + msgId);
   if (rows[0].burned) return { status: 'burned' };
   // Mark burned
   const patch = await fetch(
@@ -527,7 +529,10 @@ async function sbFetchAndBurn(msgId) {
       body: JSON.stringify({ burned: true, burned_at: new Date().toISOString() })
     }
   );
-  if (!patch.ok) throw new Error('db_burn_failed');
+  if (!patch.ok) {
+    const patchText = await patch.text();
+    throw new Error('db_burn_failed: HTTP ' + patch.status + ' ' + patchText);
+  }
   return { status: 'ok', ct: rows[0].ct };
 }
 
@@ -604,7 +609,13 @@ function parseFragment(frag) {
   }
   const parts = frag.split('.');
   if (parts.length < 6) return null;
-  const [version, expiryMode, createdAt, keyB64, ivB64, msgId] = parts;
+  const version = parts[0];
+  const expiryMode = parts[1];
+  const createdAt = parts[2];
+  const keyB64 = parts[3];
+  const ivB64 = parts[4];
+  // Join remaining parts as msgId (handles UUIDs or any id format safely)
+  const msgId = parts.slice(5).join('.');
   if (version !== VERSION) return null;
   if (!['read-once','24h','1h'].includes(expiryMode)) return null;
   if (!/^\d+$/.test(createdAt)) return null;
@@ -1026,8 +1037,9 @@ async function proceedReveal() {
     window.history.replaceState(null, '', window.location.pathname);
     pendingParsed = null;
   } catch(err) {
+    console.error('proceedReveal error:', err);
     document.getElementById('invalid-reason').textContent =
-      'We were unable to open this message. The link may be incomplete or corrupted. It has been disabled for your security.';
+      'Error: ' + (err.message || err);
     showState('invalid');
   }
 }
