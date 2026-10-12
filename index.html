@@ -145,18 +145,28 @@
   .pw-gate-pin-box::-webkit-inner-spin-button,.pw-gate-pin-box::-webkit-outer-spin-button{-webkit-appearance:none}
   .pw-gate-error{font-size:12.5px;color:var(--red);min-height:18px;margin-bottom:10px;display:flex;align-items:center;gap:5px}
   .pw-attempts{font-size:11.5px;color:var(--text-muted);font-family:var(--mono);margin-bottom:1rem}
-  .lang-btn{display:flex;align-items:center;gap:6px;background:var(--bg-2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--text-dim);cursor:pointer;transition:border-color 0.12s,color 0.12s;outline:none;font-family:var(--sans);position:relative}
-  .lang-btn:hover{border-color:var(--border-bright);color:var(--text)}
-  .lang-btn svg{flex-shrink:0}
-  .lang-dropdown{position:absolute;top:calc(100% + 8px);right:0;background:var(--bg-2);border:1px solid var(--border-bright);border-radius:var(--radius-lg);padding:6px;min-width:170px;z-index:100;box-shadow:0 8px 32px rgba(0,0,0,0.4);display:none}
-  .lang-dropdown.open{display:block}
-  .lang-option{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;font-size:13px;color:var(--text-dim);cursor:pointer;transition:background 0.1s,color 0.1s;user-select:none}
-  .lang-option:hover{background:var(--bg-3);color:var(--text)}
-  .lang-option.active{color:var(--accent);background:var(--accent-glow)}
-  .lang-flag{font-size:16px;line-height:1}
-  .lang-name{flex:1}
-  .lang-check{color:var(--accent);display:none}
-  .lang-option.active .lang-check{display:block}
+  /* FILE UPLOAD */
+  .file-section{margin-top:0.75rem;margin-bottom:1.25rem}
+  .file-drop-zone{width:100%;min-height:100px;background:var(--bg-2);border:1.5px dashed var(--border-bright);border-radius:var(--radius-lg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:border-color 0.15s,background 0.15s;padding:20px;position:relative}
+  .file-drop-zone:hover,.file-drop-zone.dragover{border-color:var(--accent);background:var(--accent-glow)}
+  .file-drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+  .file-drop-icon{color:var(--text-muted)}
+  .file-drop-label{font-size:13px;color:var(--text-dim);text-align:center}
+  .file-drop-sub{font-size:11.5px;color:var(--text-muted);font-family:var(--mono)}
+  .file-preview{background:var(--bg-3);border:1px solid var(--border-bright);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;gap:10px;margin-top:8px}
+  .file-preview-thumb{width:40px;height:40px;border-radius:6px;object-fit:cover;flex-shrink:0;background:var(--bg-4)}
+  .file-preview-thumb-video{width:40px;height:40px;border-radius:6px;object-fit:cover;flex-shrink:0;background:var(--bg-4)}
+  .file-preview-info{flex:1;min-width:0}
+  .file-preview-name{font-size:12.5px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .file-preview-size{font-size:11px;color:var(--text-muted);font-family:var(--mono)}
+  .file-remove-btn{background:none;border:none;cursor:pointer;color:var(--text-muted);padding:4px;display:flex;align-items:center;flex-shrink:0}
+  .file-remove-btn:hover{color:var(--red)}
+  .upload-progress{margin-top:6px;height:3px;background:var(--bg-4);border-radius:2px;overflow:hidden;display:none}
+  .upload-progress-bar{height:100%;background:var(--accent);width:0%;transition:width 0.2s}
+  /* MEDIA DISPLAY ON REVEAL */
+  .media-display{width:100%;margin-bottom:1rem;border-radius:var(--radius-lg);overflow:hidden;background:var(--bg-3);border:1px solid var(--border)}
+  .media-display img{width:100%;max-height:480px;object-fit:contain;display:block}
+  .media-display video{width:100%;max-height:480px;display:block;background:#000}
   @media(max-width:480px){.compose-heading{font-size:21px}.header{padding-top:1.25rem}.main{margin-top:2rem}.options-row{gap:6px}}
   @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
@@ -190,6 +200,29 @@
       <div class="char-count" id="char-count">0</div>
     </div>
     <div id="compose-error" class="inline-error" aria-live="polite"></div>
+
+    <!-- File Upload Section -->
+    <div class="file-section">
+      <p class="section-label" style="margin-bottom:8px;">Attach image or video <span style="color:var(--text-muted);font-size:10px;text-transform:none;letter-spacing:0">(optional · max 50MB)</span></p>
+      <div class="file-drop-zone" id="file-drop-zone" ondragover="fileDragOver(event)" ondragleave="fileDragLeave(event)" ondrop="fileDrop(event)">
+        <input type="file" id="file-input" accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm" onchange="fileSelected(event)">
+        <svg class="file-drop-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+        <span class="file-drop-label">Drop image or video here, or click to browse</span>
+        <span class="file-drop-sub">JPG, PNG, GIF, WEBP, MP4, WEBM</span>
+      </div>
+      <div id="file-preview" class="file-preview" style="display:none">
+        <img id="file-thumb-img" class="file-preview-thumb" style="display:none">
+        <video id="file-thumb-video" class="file-preview-thumb-video" style="display:none" muted></video>
+        <div class="file-preview-info">
+          <div class="file-preview-name" id="file-preview-name"></div>
+          <div class="file-preview-size" id="file-preview-size"></div>
+        </div>
+        <button class="file-remove-btn" onclick="removeFile()" title="Remove file">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+        </button>
+      </div>
+      <div class="upload-progress" id="upload-progress"><div class="upload-progress-bar" id="upload-progress-bar"></div></div>
+    </div>
 
     <div style="margin-top:0.75rem;margin-bottom:1.25rem;">
       <p class="section-label" style="margin-bottom:8px;">Link expires</p>
@@ -337,7 +370,11 @@
 
     <!-- Decrypted state -->
     <div id="state-decrypted" class="reveal-outer" style="display:none">
-      <div class="message-display" role="region" aria-label="Decrypted message">
+      <div id="media-display" class="media-display" style="display:none">
+        <img id="decrypted-image" style="display:none" alt="Attached image">
+        <video id="decrypted-video" style="display:none" controls playsinline></video>
+      </div>
+      <div class="message-display" role="region" aria-label="Decrypted message" id="text-message-display">
 
         <div class="msg-header">
           <div class="msg-header-left"><span class="msg-live-dot"></span>secure message — opened once</div>
@@ -458,16 +495,33 @@
 // ═══════════════════════════════════════════════
 //  SUPABASE CONFIG  (your real credentials)
 // ═══════════════════════════════════════════════
-const SUPABASE_URL = 'https://lzrjbrisjgigmlymuxmv.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_b4N20NJ3ERPBXOUud4zZkQ_wqhAXg3Y';
+const SUPABASE_URL = 'https://mcjrockqqwgdzpruyyph.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1janJvY2txcXdnZHpwcnV5eXBoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE3NTc2NzgsImV4cCI6MjEwNzMzMzY3OH0.FJxedh0fMxfVrY2GK43FSMY8BJqyQ_T182zL6MXKpbk';
 const TABLE = 'burns';  // table name in your Supabase database
 
 // ═══════════════════════════════════════════════
 //  SUPABASE HELPERS  (direct REST API — no SDK needed)
 // ═══════════════════════════════════════════════
+async function sbGet(burnId) {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/${TABLE}?burn_id=eq.${encodeURIComponent(burnId)}&select=burn_id`,
+    { headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        Accept: 'application/json',
+        'Accept-Profile': 'public'
+    } }
+  );
+  if (!res.ok) {
+    const body = await res.text();
+    console.error('sbGet failed', res.status, body);
+    throw new Error('db_read_failed:' + res.status);
+  }
+  const rows = await res.json();
+  return rows.length > 0; // true = already burned
+}
 
-// Store encrypted ciphertext + expiry; returns the auto-generated row id (UUID)
-async function sbStore(ct, expiresAt) {
+async function sbSet(burnId) {
   const res = await fetch(
     `${SUPABASE_URL}/rest/v1/${TABLE}`,
     {
@@ -476,88 +530,85 @@ async function sbStore(ct, expiresAt) {
         apikey: SUPABASE_KEY,
         Authorization: `Bearer ${SUPABASE_KEY}`,
         'Content-Type': 'application/json',
-        Prefer: 'return=representation'
-      },
-      body: JSON.stringify({ ct, burned: false, expires_at: expiresAt || null })
-    }
-  );
-  const text = await res.text();
-  if (!res.ok) throw new Error(`db_store_failed (HTTP ${res.status}): ${text}`);
-  let rows;
-  try { rows = JSON.parse(text); } catch(e) { throw new Error('db_store_failed: invalid JSON: ' + text); }
-  const row = Array.isArray(rows) ? rows[0] : rows;
-  if (!row || row.id === undefined) throw new Error('db_store_failed: no id returned: ' + text);
-  return String(row.id);
-}
-
-// Check if burned (for password-gate pre-check)
-async function sbGet(msgId) {
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/${TABLE}?id=eq.${encodeURIComponent(msgId)}&select=burned`,
-    { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
-  );
-  if (!res.ok) throw new Error('db_read_failed');
-  const rows = await res.json();
-  if (rows.length === 0) return 'missing';
-  return rows[0].burned ? 'burned' : 'ok';
-}
-
-// Fetch ciphertext and mark as burned in one go
-async function sbFetchAndBurn(msgId) {
-  // Read first
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/${TABLE}?id=eq.${encodeURIComponent(msgId)}&select=ct,burned`,
-    { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
-  );
-  const text = await res.text();
-  console.log('sbFetchAndBurn response:', res.status, text);
-  if (!res.ok) throw new Error('db_read_failed: HTTP ' + res.status + ' ' + text);
-  const rows = JSON.parse(text);
-  if (!rows || rows.length === 0) throw new Error('db_row_missing: no row found for id=' + msgId);
-  if (rows[0].burned) return { status: 'burned' };
-  // Mark burned
-  const patch = await fetch(
-    `${SUPABASE_URL}/rest/v1/${TABLE}?id=eq.${encodeURIComponent(msgId)}`,
-    {
-      method: 'PATCH',
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
+        'Content-Profile': 'public',
         Prefer: 'return=minimal'
       },
-      body: JSON.stringify({ burned: true, burned_at: new Date().toISOString() })
+      body: JSON.stringify({ burn_id: burnId, burned_at: new Date().toISOString() })
     }
   );
-  if (!patch.ok) {
-    const patchText = await patch.text();
-    throw new Error('db_burn_failed: HTTP ' + patch.status + ' ' + patchText);
+  // 201 = inserted, 409 = already exists (duplicate — still burned)
+  if (!res.ok && res.status !== 409) {
+    const body = await res.text();
+    console.error('sbSet failed', res.status, body);
+    throw new Error('db_write_failed:' + res.status);
   }
-  return { status: 'ok', ct: rows[0].ct };
-}
-
-// Mark a row burned by id (used by password-failure path)
-async function sbSet(msgId) {
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/${TABLE}?id=eq.${encodeURIComponent(msgId)}`,
-    {
-      method: 'PATCH',
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-        Prefer: 'return=minimal'
-      },
-      body: JSON.stringify({ burned: true, burned_at: new Date().toISOString() })
-    }
-  );
-  if (!res.ok && res.status !== 409) throw new Error('db_write_failed');
   return true;
 }
 
-// msgId IS the burn id now — no derivation needed
-function getBurnId(msgId) {
-  return msgId;
+// ═══════════════════════════════════════════════
+//  STORAGE HELPERS  (image/video upload & delete)
+// ═══════════════════════════════════════════════
+const BUCKET = 'ghostlink';
+
+async function sbUploadFile(file, filePath) {
+  const res = await fetch(
+    `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${filePath}`,
+    {
+      method: 'POST',
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': file.type,
+        'x-upsert': 'false'
+      },
+      body: file
+    }
+  );
+  if (!res.ok) {
+    const body = await res.text();
+    console.error('upload failed', res.status, body);
+    throw new Error('upload_failed:' + res.status);
+  }
+  return filePath;
+}
+
+async function sbGetSignedUrl(filePath) {
+  const res = await fetch(
+    `${SUPABASE_URL}/storage/v1/object/sign/${BUCKET}/${filePath}`,
+    {
+      method: 'POST',
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ expiresIn: 300 }) // 5 min signed URL
+    }
+  );
+  if (!res.ok) throw new Error('sign_failed');
+  const data = await res.json();
+  return `${SUPABASE_URL}/storage/v1${data.signedURL}`;
+}
+
+async function sbDeleteFile(filePath) {
+  const res = await fetch(
+    `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${filePath}`,
+    {
+      method: 'DELETE',
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`
+      }
+    }
+  );
+  if (!res.ok) console.error('delete failed', res.status);
+  return res.ok;
+}
+
+// Derive a stable, short burn_id from the fragment
+function getBurnId(fragmentRaw) {
+  // Use first 64 chars — unique per link, safe for DB primary key
+  return fragmentRaw.substring(0, 64).replace(/[^a-zA-Z0-9_-]/g, 'X');
 }
 
 // ═══════════════════════════════════════════════
@@ -591,36 +642,39 @@ async function decryptMessage(ivB64, ctB64, key) {
   const plain = await crypto.subtle.decrypt({name:'AES-GCM',iv:base64urlToBytes(ivB64)},key,base64urlToBytes(ctB64));
   return new TextDecoder().decode(plain);
 }
-function buildFragment(keyB64, ivB64, msgId, expiryMode, pwHash) {
-  const base = `${VERSION}.${expiryMode}.${Math.floor(Date.now()/1000)}.${keyB64}.${ivB64}.${msgId}`;
-  return pwHash ? base + '~' + pwHash : base;
+function buildFragment(keyB64, ivB64, ctB64, expiryMode, pwHash, filePathEncrypted) {
+  const base = `${VERSION}.${expiryMode}.${Math.floor(Date.now()/1000)}.${keyB64}.${ivB64}.${ctB64}`;
+  let frag = pwHash ? base + '~' + pwHash : base;
+  if (filePathEncrypted) frag += '|' + filePathEncrypted;
+  return frag;
 }
 function parseFragment(frag) {
   if (!frag || frag.startsWith('#')) frag = frag ? frag.slice(1) : '';
+  // Split off file path suffix if present (|iv.ct)
+  let filePathEncrypted = null;
+  const pipeIdx = frag.indexOf('|');
+  if (pipeIdx !== -1) {
+    filePathEncrypted = frag.substring(pipeIdx + 1);
+    frag = frag.substring(0, pipeIdx);
+  }
   // Split off password hash suffix if present
   let pwHash = null, pwHashType = null;
   const tildeIdx = frag.indexOf('~');
   if (tildeIdx !== -1) {
     pwHash = frag.substring(tildeIdx + 1);
     frag = frag.substring(0, tildeIdx);
-    // hash is prefixed with 'P' (password) or 'N' (piN) to distinguish type
     pwHashType = pwHash.startsWith('P') ? 'password' : 'pin';
     pwHash = pwHash.substring(1);
   }
   const parts = frag.split('.');
   if (parts.length < 6) return null;
-  const version = parts[0];
-  const expiryMode = parts[1];
-  const createdAt = parts[2];
-  const keyB64 = parts[3];
-  const ivB64 = parts[4];
-  // Join remaining parts as msgId (handles UUIDs or any id format safely)
-  const msgId = parts.slice(5).join('.');
+  const [version, expiryMode, createdAt, keyB64, ivB64, ...ctParts] = parts;
+  const ctB64 = ctParts.join('.');
   if (version !== VERSION) return null;
   if (!['read-once','24h','1h'].includes(expiryMode)) return null;
   if (!/^\d+$/.test(createdAt)) return null;
-  if (!keyB64 || !ivB64 || !msgId) return null;
-  return { version, expiryMode, createdAt: Number(createdAt), keyB64, ivB64, msgId, pwHash, pwHashType };
+  if (!keyB64 || !ivB64 || !ctB64) return null;
+  return { version, expiryMode, createdAt: Number(createdAt), keyB64, ivB64, ctB64, pwHash, pwHashType, filePathEncrypted };
 }
 function isExpired(parsed) {
   const age = Math.floor(Date.now()/1000) - parsed.createdAt;
@@ -640,6 +694,62 @@ const resultLinkDisplay = document.getElementById('result-link-display');
 const composeError = document.getElementById('compose-error');
 let generatedLink = '';
 let currentFragRaw = '';
+let selectedFile = null;
+
+// ═══════════════════════════════════════════════
+//  FILE UPLOAD UI
+// ═══════════════════════════════════════════════
+function fileDragOver(e) { e.preventDefault(); document.getElementById('file-drop-zone').classList.add('dragover'); }
+function fileDragLeave(e) { document.getElementById('file-drop-zone').classList.remove('dragover'); }
+function fileDrop(e) {
+  e.preventDefault();
+  document.getElementById('file-drop-zone').classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) handleFileChoice(file);
+}
+function fileSelected(e) {
+  const file = e.target.files[0];
+  if (file) handleFileChoice(file);
+}
+function handleFileChoice(file) {
+  const allowed = ['image/jpeg','image/png','image/gif','image/webp','video/mp4','video/webm'];
+  if (!allowed.includes(file.type)) {
+    composeError.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg> Only images (JPG, PNG, GIF, WEBP) and videos (MP4, WEBM) are allowed.`;
+    return;
+  }
+  if (file.size > 50 * 1024 * 1024) {
+    composeError.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg> File is too large. Maximum size is 50MB.`;
+    return;
+  }
+  selectedFile = file;
+  composeError.textContent = '';
+  document.getElementById('file-preview-name').textContent = file.name;
+  document.getElementById('file-preview-size').textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB · ' + file.type.split('/')[1].toUpperCase();
+  const thumbImg = document.getElementById('file-thumb-img');
+  const thumbVid = document.getElementById('file-thumb-video');
+  if (file.type.startsWith('image/')) {
+    thumbImg.src = URL.createObjectURL(file);
+    thumbImg.style.display = 'block';
+    thumbVid.style.display = 'none';
+  } else {
+    thumbVid.src = URL.createObjectURL(file);
+    thumbVid.style.display = 'block';
+    thumbImg.style.display = 'none';
+  }
+  document.getElementById('file-preview').style.display = 'flex';
+  document.getElementById('file-drop-zone').style.display = 'none';
+}
+function removeFile() {
+  selectedFile = null;
+  document.getElementById('file-preview').style.display = 'none';
+  document.getElementById('file-drop-zone').style.display = 'flex';
+  document.getElementById('file-input').value = '';
+  const thumbImg = document.getElementById('file-thumb-img');
+  const thumbVid = document.getElementById('file-thumb-video');
+  if (thumbImg.src) URL.revokeObjectURL(thumbImg.src);
+  if (thumbVid.src) URL.revokeObjectURL(thumbVid.src);
+  thumbImg.src = ''; thumbVid.src = '';
+}
 
 msgInput.addEventListener('input', () => {
   const len = msgInput.value.length;
@@ -650,8 +760,8 @@ msgInput.addEventListener('input', () => {
 
 async function createLink() {
   const text = msgInput.value.trim();
-  if (!text) {
-    composeError.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg> Enter a message first.`;
+  if (!text && !selectedFile) {
+    composeError.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg> Enter a message or attach a file first.`;
     msgInput.focus(); return;
   }
   const expiryMode = document.querySelector('input[name="expiry"]:checked').value;
@@ -670,7 +780,7 @@ async function createLink() {
   try {
     const key = await generateKey();
     const keyB64 = await exportKey(key);
-    const { iv, ct } = await encryptMessage(text, key);
+    const { iv, ct } = await encryptMessage(text || ' ', key);
     let pwHashFrag = null;
     if (pwEnabled) {
       const pwVal = getPwValue();
@@ -678,31 +788,41 @@ async function createLink() {
       const typePrefix = pwType === 'pin' ? 'N' : 'P';
       pwHashFrag = typePrefix + hash;
     }
-    // Store ciphertext server-side; only the key+IV go in the URL
-    const expiresAt = expiryMode === '1h'
-      ? new Date(Date.now() + 3_600_000).toISOString()
-      : expiryMode === '24h'
-        ? new Date(Date.now() + 86_400_000).toISOString()
-        : null;
-    const msgId = await sbStore(ct, expiresAt);
-    const fragment = buildFragment(keyB64, iv, msgId, expiryMode, pwHashFrag);
+    // Upload file if selected
+    let filePathEncrypted = null;
+    if (selectedFile) {
+      createBtn.innerHTML = `<div class="spinner"></div> Uploading file…`;
+      document.getElementById('upload-progress').style.display = 'block';
+      document.getElementById('upload-progress-bar').style.width = '40%';
+      const ext = selectedFile.name.split('.').pop();
+      const uniquePath = `${crypto.randomUUID()}.${ext}`;
+      await sbUploadFile(selectedFile, uniquePath);
+      document.getElementById('upload-progress-bar').style.width = '100%';
+      // Encrypt the file path so only link holder can know it
+      const { iv: fiv, ct: fct } = await encryptMessage(uniquePath, key);
+      filePathEncrypted = fiv + '.' + fct;
+      createBtn.innerHTML = `<div class="spinner"></div> Creating link…`;
+    }
+    const fragment = buildFragment(keyB64, iv, ct, expiryMode, pwHashFrag, filePathEncrypted);
     const linkUrl = new URL(window.location.href);
     linkUrl.search = ''; linkUrl.hash = fragment;
     generatedLink = linkUrl.href;
-    resultLinkDisplay.innerHTML = `<strong>${window.location.hostname + window.location.pathname}</strong><span style="color:var(--text-muted)">#…${msgId}…</span>`;
+    resultLinkDisplay.innerHTML = `<strong>${window.location.hostname + window.location.pathname}</strong><span style="color:var(--text-muted)">#…${ct.substring(0,12)}…</span>`;
     resultLinkDisplay.title = generatedLink;
     document.getElementById('expiry-chip').textContent =
       expiryMode === '1h' ? 'expires after reading · 1h max' :
       expiryMode === '24h' ? 'expires after reading · 24h max' : 'expires after reading';
+    document.getElementById('upload-progress').style.display = 'none';
     resultCard.style.display = 'block';
     resultCard.scrollIntoView({behavior:'smooth',block:'nearest'});
     createBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Create secure link`;
     createBtn.disabled = false;
   } catch(err) {
-    composeError.textContent = 'Error: ' + (err.message || err);
     console.error('createLink error:', err);
-    createBtn.disabled = false;
+    composeError.textContent = err.message.includes('upload') ? 'File upload failed. Please try again.' : 'Failed to create link.';
+    document.getElementById('upload-progress').style.display = 'none';
     createBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Create secure link`;
+    createBtn.disabled = false;
   }
 }
 
@@ -725,6 +845,7 @@ function resetCompose() {
   charCount.textContent = '0'; charCount.className = 'char-count';
   composeError.textContent = ''; resultCard.style.display = 'none'; generatedLink = '';
   document.querySelector('input[name="expiry"][value="read-once"]').checked = true;
+  removeFile();
   // Reset password section
   pwEnabled = false; pwType = 'password';
   document.getElementById('pw-toggle-box').classList.remove('checked');
@@ -844,47 +965,9 @@ async function hashPassword(raw) {
 // ═══════════════════════════════════════════════
 let gateType = 'password'; // set when link is parsed
 let correctHash = '';      // expected hash from fragment
-const MAX_ATTEMPTS = 3;
-let pendingParsed = null;  // parsed fragment held until password verified
 let pwAttempts = 0;
-
-// ── Supabase attempt tracking ──────────────────
-// Reads current attempt count for this link from Supabase
-async function sbGetAttempts(msgId) {
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/${TABLE}?id=eq.${encodeURIComponent(msgId)}&select=attempts`,
-    { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
-  );
-  if (!res.ok) return 0;
-  const rows = await res.json();
-  if (rows.length === 0) return 0;
-  return parseInt(rows[0].attempts || 0, 10);
-}
-
-// Increments attempt count on existing row
-async function sbIncrementAttempts(msgId) {
-  const getRes = await fetch(
-    `${SUPABASE_URL}/rest/v1/${TABLE}?id=eq.${encodeURIComponent(msgId)}&select=attempts`,
-    { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
-  );
-  const rows = await getRes.json();
-  const current = parseInt((rows[0] || {}).attempts || 0, 10);
-  const next = current + 1;
-  await fetch(
-    `${SUPABASE_URL}/rest/v1/${TABLE}?id=eq.${encodeURIComponent(msgId)}`,
-    {
-      method: 'PATCH',
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-        Prefer: 'return=minimal'
-      },
-      body: JSON.stringify({ attempts: next })
-    }
-  );
-  return next;
-}
+const MAX_ATTEMPTS = 5;
+let pendingParsed = null;  // parsed fragment held until password verified
 
 function toggleGateEye() {
   const inp = document.getElementById('pw-gate-input');
@@ -925,7 +1008,7 @@ async function submitPassword() {
     // Password correct — now proceed to open
     proceedReveal();
   } else {
-    try { pwAttempts = await sbIncrementAttempts(pendingParsed.msgId); } catch(e) { pwAttempts++; }
+    pwAttempts++;
     btn.disabled = false;
     btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Unlock message`;
     const left = MAX_ATTEMPTS - pwAttempts;
@@ -933,7 +1016,7 @@ async function submitPassword() {
       // Burn the link immediately — too many wrong attempts
       btn.disabled = true;
       btn.innerHTML = `<div class="spinner"></div> Destroying link…`;
-      try { await sbSet(pendingParsed.msgId); } catch(e) {}
+      try { await sbSet(getBurnId(currentFragRaw)); } catch(e) {}
       pendingParsed = null;
       window.history.replaceState(null, '', window.location.pathname);
       showState('burned');
@@ -951,22 +1034,13 @@ function showGateError(msg) {
   el.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg> ${msg}`;
 }
 
-async function showPasswordGate(parsed, type, hash) {
+function showPasswordGate(parsed, type, hash) {
   pendingParsed = parsed;
   gateType = type;
   correctHash = hash;
+  pwAttempts = 0;
   document.getElementById('pw-gate-error').innerHTML = '';
   document.getElementById('pw-attempts').textContent = '';
-  // Load real attempt count from Supabase
-  try { pwAttempts = await sbGetAttempts(parsed.msgId); } catch(e) { pwAttempts = 0; }
-  // Already exhausted attempts — burn immediately
-  if (pwAttempts >= MAX_ATTEMPTS) {
-    try { await sbSet(parsed.msgId); } catch(e) {}
-    pendingParsed = null;
-    window.history.replaceState(null, '', window.location.pathname);
-    showState('burned');
-    return;
-  }
   // Show correct input type
   document.getElementById('pw-gate-password-wrap').style.display = type === 'password' ? 'block' : 'none';
   document.getElementById('pw-gate-pin-wrap').style.display = type === 'pin' ? 'block' : 'none';
@@ -993,9 +1067,8 @@ async function initReveal() {
   showState('checking');
 
   try {
-    const status = await sbGet(parsed.msgId);
-    if (status === 'burned') { showState('burned'); return; }
-    if (status === 'missing') { showState('invalid'); return; }
+    const burned = await sbGet(getBurnId(fragRaw));
+    if (burned) { showState('burned'); return; }
     // If password protected, show gate — otherwise show ready
     if (parsed.pwHash) {
       showPasswordGate(parsed, parsed.pwHashType, parsed.pwHash);
@@ -1024,12 +1097,59 @@ async function proceedReveal() {
   btn.innerHTML = `<div class="spinner"></div> Opening message…`;
 
   try {
-    const result = await sbFetchAndBurn(parsed.msgId);
-    if (result.status === 'burned') { showState('burned'); return; }
-    if (result.status === 'invalid') { showState('invalid'); return; }
+    await sbSet(getBurnId(fragRaw));
+  } catch(err) {
+    console.error('sbSet error:', err.message);
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Reveal message`;
+    showState('dberror');
+    return;
+  }
+  try {
     const key = await importKey(parsed.keyB64);
-    const plaintext = await decryptMessage(parsed.ivB64, result.ct, key);
-    document.getElementById('decrypted-text').textContent = plaintext;
+    const plaintext = await decryptMessage(parsed.ivB64, parsed.ctB64, key);
+    const trimmed = plaintext.trim();
+    const textDisplay = document.getElementById('text-message-display');
+    const mediaDisplay = document.getElementById('media-display');
+
+    // Show text if not empty/placeholder
+    if (trimmed && trimmed !== ' ') {
+      document.getElementById('decrypted-text').textContent = plaintext;
+      textDisplay.style.display = 'block';
+    } else {
+      textDisplay.style.display = 'none';
+    }
+
+    // Handle file if present
+    if (parsed.filePathEncrypted) {
+      try {
+        const fpParts = parsed.filePathEncrypted.split('.');
+        const fpIv = fpParts[0];
+        const fpCt = fpParts.slice(1).join('.');
+        const filePath = await decryptMessage(fpIv, fpCt, key);
+        const signedUrl = await sbGetSignedUrl(filePath);
+        const isVideo = /\.(mp4|webm)$/i.test(filePath);
+        if (isVideo) {
+          const vid = document.getElementById('decrypted-video');
+          vid.src = signedUrl;
+          vid.style.display = 'block';
+          document.getElementById('decrypted-image').style.display = 'none';
+        } else {
+          const img = document.getElementById('decrypted-image');
+          img.src = signedUrl;
+          img.style.display = 'block';
+          document.getElementById('decrypted-video').style.display = 'none';
+        }
+        mediaDisplay.style.display = 'block';
+        // Delete file from storage after loading
+        setTimeout(() => sbDeleteFile(filePath), 3000);
+      } catch(fe) {
+        console.error('file reveal error:', fe.message);
+      }
+    } else {
+      mediaDisplay.style.display = 'none';
+    }
+
     document.getElementById('decrypted-time').textContent =
       new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
     showState('decrypted');
@@ -1037,9 +1157,9 @@ async function proceedReveal() {
     window.history.replaceState(null, '', window.location.pathname);
     pendingParsed = null;
   } catch(err) {
-    console.error('proceedReveal error:', err);
+    console.error('decrypt error:', err.message);
     document.getElementById('invalid-reason').textContent =
-      'Error: ' + (err.message || err);
+      'We were unable to open this message. The link may be incomplete or corrupted. It has been disabled for your security.';
     showState('invalid');
   }
 }
