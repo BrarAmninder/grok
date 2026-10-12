@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1036,17 +1035,65 @@ async function createLink() {
     let imgRef = null;
     if (attachedFiles.length > 0) {
       const totalCount = attachedFiles.length;
+      createBtn.innerHTML = `<div class="spinner"></div> Encrypting ${totalCount} file${totalCount !== 1 ? 's' : ''}…`;
+
+      // Build metadata separately from binary data to avoid huge JSON strings
+      // Each file: store metadata + raw bytes (stripped from dataUrl)
+      const meta = attachedFiles.map(f => ({
+        name: f.name,
+        type: f.type,
+        isImage: f.isImage,
+        isVideo: f.isVideo,
+        mime: f.dataUrl.split(',')[0] // e.g. "data:image/jpeg;base64"
+      }));
+
+      // Convert each dataUrl to raw bytes
+      const fileBufs = attachedFiles.map(f => {
+        const b64 = f.dataUrl.split(',')[1];
+        const bin = atob(b64);
+        const buf = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+        return buf;
+      });
+
+      // Pack: [4 bytes meta length][meta JSON bytes][4 bytes count]
+      //       then for each file: [4 bytes file length][file bytes]
+      const metaBytes = new TextEncoder().encode(JSON.stringify(meta));
+      const metaLen = new Uint8Array(4);
+      new DataView(metaLen.buffer).setUint32(0, metaBytes.length, false);
+
+      const countBytes = new Uint8Array(4);
+      new DataView(countBytes.buffer).setUint32(0, fileBufs.length, false);
+
+      // Calculate total size
+      let totalSize = 4 + metaBytes.length + 4;
+      for (const buf of fileBufs) totalSize += 4 + buf.length;
+
+      const packed = new Uint8Array(totalSize);
+      let offset = 0;
+      packed.set(metaLen, offset); offset += 4;
+      packed.set(metaBytes, offset); offset += metaBytes.length;
+      packed.set(countBytes, offset); offset += 4;
+      for (const buf of fileBufs) {
+        const lenBytes = new Uint8Array(4);
+        new DataView(lenBytes.buffer).setUint32(0, buf.length, false);
+        packed.set(lenBytes, offset); offset += 4;
+        packed.set(buf, offset); offset += buf.length;
+      }
+
       createBtn.innerHTML = `<div class="spinner"></div> Uploading ${totalCount} file${totalCount !== 1 ? 's' : ''}…`;
-      // Serialize all files (name + type + dataUrl) → encrypt as binary blob
-      const filesJson = JSON.stringify(attachedFiles.map(f => ({ name: f.name, type: f.type, dataUrl: f.dataUrl, isImage: f.isImage, isVideo: f.isVideo })));
+
+      // Encrypt the packed binary
       const imgIv = crypto.getRandomValues(new Uint8Array(12));
       const imgCt = new Uint8Array(await crypto.subtle.encrypt(
-        { name: 'AES-GCM', iv: imgIv }, key, new TextEncoder().encode(filesJson)
+        { name: 'AES-GCM', iv: imgIv }, key, packed
       ));
-      const blob = new Uint8Array(12 + imgCt.length);
-      blob.set(imgIv, 0); blob.set(imgCt, 12);
+
+      const encBlob = new Uint8Array(12 + imgCt.length);
+      encBlob.set(imgIv, 0); encBlob.set(imgCt, 12);
+
       imgRef = Array.from(crypto.getRandomValues(new Uint8Array(8))).map(b => b.toString(16).padStart(2,'0')).join('');
-      await sbUploadImages(imgRef, blob);
+      await sbUploadImages(imgRef, encBlob);
       createBtn.innerHTML = `<div class="spinner"></div> ${t('creatingLink')}`;
     }
 
@@ -1074,8 +1121,17 @@ async function createLink() {
     createBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> <span data-i18n="createBtn">${t('createBtn')}</span>`;
     createBtn.disabled = false;
   } catch(err) {
-    composeError.textContent = 'Encryption failed.';
+    console.error('createLink error:', err);
+    const msg = (err && err.message) ? err.message : String(err);
+    if (msg.includes('img_upload_failed') || msg.includes('upload')) {
+      composeError.textContent = 'File upload failed — check your Supabase bucket name and RLS policies.';
+    } else if (msg.includes('fetch') || msg.includes('Network')) {
+      composeError.textContent = 'Network error — check your internet connection and try again.';
+    } else {
+      composeError.textContent = 'Error: ' + msg;
+    }
     createBtn.disabled = false;
+    createBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> <span data-i18n="createBtn">${t('createBtn')}</span>`;
   }
 }
 
@@ -1383,14 +1439,45 @@ async function proceedReveal() {
       if (obj && obj.v === 2) {
         msgText = obj.text || '';
         if (obj.imgRef) {
-          const blob = await sbDownloadImages(obj.imgRef);
-          const iv = blob.slice(0, 12);
-          const ct = blob.slice(12);
-          const json = new TextDecoder().decode(
-            await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct)
-          );
-          msgFiles = JSON.parse(json);
-          // Auto-delete the file from storage now that it's decrypted
+          const encBlob = await sbDownloadImages(obj.imgRef);
+          const iv = encBlob.slice(0, 12);
+          const ct = encBlob.slice(12);
+          const decrypted = new Uint8Array(await crypto.subtle.decrypt(
+            { name: 'AES-GCM', iv }, key, ct
+          ));
+
+          // Try new binary format first, fall back to old JSON format
+          try {
+            let offset = 0;
+            const metaLen = new DataView(decrypted.buffer, offset, 4).getUint32(0, false); offset += 4;
+            const metaJson = new TextDecoder().decode(decrypted.slice(offset, offset + metaLen)); offset += metaLen;
+            const meta = JSON.parse(metaJson);
+            const fileCount = new DataView(decrypted.buffer, offset, 4).getUint32(0, false); offset += 4;
+
+            msgFiles = meta.map((m, i) => {
+              const fileLen = new DataView(decrypted.buffer, offset, 4).getUint32(0, false); offset += 4;
+              const fileBytes = decrypted.slice(offset, offset + fileLen); offset += fileLen;
+              // Chunked btoa to handle large files safely
+              const CHUNK = 8192;
+              let b64 = '';
+              for (let j = 0; j < fileBytes.length; j += CHUNK) {
+                b64 += String.fromCharCode.apply(null, fileBytes.subarray(j, j + CHUNK));
+              }
+              const dataUrl = m.mime + ',' + btoa(b64);
+              return { name: m.name, type: m.type, dataUrl, isImage: m.isImage, isVideo: m.isVideo };
+            });
+          } catch(e) {
+            // Legacy JSON format (old links)
+            const json = new TextDecoder().decode(decrypted);
+            const parsed = JSON.parse(json);
+            if (Array.isArray(parsed)) {
+              msgFiles = parsed;
+            } else {
+              msgFiles = (parsed.images || []).map(img => ({ ...img, isImage: true }));
+            }
+          }
+
+          // Auto-delete from storage after decryption
           sbDeleteStorageFile(obj.imgRef).catch(() => {});
         }
       } else if (obj && obj.v === 1) {
