@@ -874,6 +874,17 @@ function compressImage(file) {
   });
 }
 
+// Read non-image file as raw ArrayBuffer (no base64, no bloat)
+function readFileAsArrayBuffer(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result);
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+// Only needed for video preview src
 function readFileAsDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -910,24 +921,30 @@ async function handleAttachFiles(files) {
   const btn = document.getElementById('img-attach-btn');
   const origHTML = btn.innerHTML;
   btn.disabled = true;
-  btn.innerHTML = `<div class="spinner" style="width:12px;height:12px;border-width:2px"></div> Processing…`;
 
-  const results = await Promise.all(toProcess.map(async file => {
+  // Process files sequentially to show per-file progress
+  for (let i = 0; i < toProcess.length; i++) {
+    const file = toProcess[i];
+    btn.innerHTML = `<div class="spinner" style="width:12px;height:12px;border-width:2px"></div> ${i + 1}/${toProcess.length}…`;
     const isImage = file.type.startsWith('image/');
     const isVideo = file.type.startsWith('video/');
-    let dataUrl, size;
-    if (isImage) {
-      const compressed = await compressImage(file);
-      dataUrl = compressed.dataUrl; size = compressed.size;
-    } else {
-      dataUrl = await readFileAsDataUrl(file);
-      size = file.size;
-    }
-    return { name: file.name, type: file.type, dataUrl, size, isImage, isVideo };
-  }));
 
-  attachedFiles.push(...results);
-  renderAttachPreviews();
+    let entry;
+    if (isImage) {
+      // Images: compress + store as dataUrl for inline preview
+      const compressed = await compressImage(file);
+      entry = { name: file.name, type: file.type, dataUrl: compressed.dataUrl, size: compressed.size, isImage: true, isVideo: false, rawBuf: null };
+    } else {
+      // Non-images: store raw ArrayBuffer — no base64 overhead
+      const rawBuf = await readFileAsArrayBuffer(file);
+      // For video, also create an object URL for preview (revoked after preview renders)
+      const previewUrl = isVideo ? URL.createObjectURL(file) : null;
+      entry = { name: file.name, type: file.type, dataUrl: null, size: file.size, isImage: false, isVideo, rawBuf, previewUrl };
+    }
+    attachedFiles.push(entry);
+    renderAttachPreviews(); // show each file as it's ready
+  }
+
   btn.disabled = false;
   btn.innerHTML = origHTML;
 }
@@ -956,6 +973,23 @@ function renderAttachPreviews() {
       rm.className = 'img-thumb-remove'; rm.innerHTML = '✕'; rm.title = 'Remove';
       rm.onclick = () => { attachedFiles.splice(i, 1); renderAttachPreviews(); };
       wrap.appendChild(im); wrap.appendChild(rm);
+      strip.appendChild(wrap);
+    } else if (file.isVideo && file.previewUrl) {
+      // Video thumbnail using object URL
+      const wrap = document.createElement('div');
+      wrap.className = 'img-thumb-wrap'; wrap.title = file.name;
+      wrap.style.cssText = 'position:relative;width:80px;height:80px;flex-shrink:0;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border-bright);background:#000;display:flex;align-items:center;justify-content:center';
+      const vid = document.createElement('video');
+      vid.src = file.previewUrl;
+      vid.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
+      vid.muted = true; vid.preload = 'metadata';
+      const badge = document.createElement('div');
+      badge.style.cssText = 'position:absolute;bottom:3px;left:3px;background:rgba(0,0,0,.7);color:#fff;font-size:9px;padding:1px 4px;border-radius:3px;font-family:var(--mono)';
+      badge.textContent = '🎬 ' + formatBytes(file.size);
+      const rm = document.createElement('div');
+      rm.className = 'img-thumb-remove'; rm.innerHTML = '✕'; rm.title = 'Remove';
+      rm.onclick = () => { URL.revokeObjectURL(file.previewUrl); attachedFiles.splice(i, 1); renderAttachPreviews(); };
+      wrap.appendChild(vid); wrap.appendChild(badge); wrap.appendChild(rm);
       strip.appendChild(wrap);
     } else {
       // File pill for non-images
@@ -1037,18 +1071,20 @@ async function createLink() {
       const totalCount = attachedFiles.length;
       createBtn.innerHTML = `<div class="spinner"></div> Encrypting ${totalCount} file${totalCount !== 1 ? 's' : ''}…`;
 
-      // Build metadata separately from binary data to avoid huge JSON strings
-      // Each file: store metadata + raw bytes (stripped from dataUrl)
+      // Build metadata + get raw byte buffers (no base64 conversion needed)
       const meta = attachedFiles.map(f => ({
         name: f.name,
         type: f.type,
         isImage: f.isImage,
         isVideo: f.isVideo,
-        mime: f.dataUrl.split(',')[0] // e.g. "data:image/jpeg;base64"
+        // For images we stored dataUrl; extract mime prefix for reconstruction
+        mime: f.isImage ? f.dataUrl.split(',')[0] : ('data:' + f.type + ';base64')
       }));
 
-      // Convert each dataUrl to raw bytes
+      // Get raw bytes for each file — images decode from dataUrl, others already have rawBuf
       const fileBufs = attachedFiles.map(f => {
+        if (f.rawBuf) return new Uint8Array(f.rawBuf); // direct, no conversion
+        // Image: decode from compressed dataUrl
         const b64 = f.dataUrl.split(',')[1];
         const bin = atob(b64);
         const buf = new Uint8Array(bin.length);
@@ -1056,39 +1092,31 @@ async function createLink() {
         return buf;
       });
 
-      // Pack: [4 bytes meta length][meta JSON bytes][4 bytes count]
-      //       then for each file: [4 bytes file length][file bytes]
+      createBtn.innerHTML = `<div class="spinner"></div> Encrypting…`;
+
+      // Pack: [4 bytes metaLen][meta JSON][4 bytes fileCount] then [4 bytes fileLen][fileBytes]…
       const metaBytes = new TextEncoder().encode(JSON.stringify(meta));
-      const metaLen = new Uint8Array(4);
-      new DataView(metaLen.buffer).setUint32(0, metaBytes.length, false);
-
-      const countBytes = new Uint8Array(4);
-      new DataView(countBytes.buffer).setUint32(0, fileBufs.length, false);
-
-      // Calculate total size
       let totalSize = 4 + metaBytes.length + 4;
       for (const buf of fileBufs) totalSize += 4 + buf.length;
 
       const packed = new Uint8Array(totalSize);
+      const dv = new DataView(packed.buffer);
       let offset = 0;
-      packed.set(metaLen, offset); offset += 4;
+      dv.setUint32(offset, metaBytes.length, false); offset += 4;
       packed.set(metaBytes, offset); offset += metaBytes.length;
-      packed.set(countBytes, offset); offset += 4;
+      dv.setUint32(offset, fileBufs.length, false); offset += 4;
       for (const buf of fileBufs) {
-        const lenBytes = new Uint8Array(4);
-        new DataView(lenBytes.buffer).setUint32(0, buf.length, false);
-        packed.set(lenBytes, offset); offset += 4;
+        dv.setUint32(offset, buf.length, false); offset += 4;
         packed.set(buf, offset); offset += buf.length;
       }
 
       createBtn.innerHTML = `<div class="spinner"></div> Uploading ${totalCount} file${totalCount !== 1 ? 's' : ''}…`;
 
-      // Encrypt the packed binary
+      // Encrypt packed binary with AES-GCM
       const imgIv = crypto.getRandomValues(new Uint8Array(12));
       const imgCt = new Uint8Array(await crypto.subtle.encrypt(
         { name: 'AES-GCM', iv: imgIv }, key, packed
       ));
-
       const encBlob = new Uint8Array(12 + imgCt.length);
       encBlob.set(imgIv, 0); encBlob.set(imgCt, 12);
 
@@ -1454,17 +1482,24 @@ async function proceedReveal() {
             const meta = JSON.parse(metaJson);
             const fileCount = new DataView(decrypted.buffer, offset, 4).getUint32(0, false); offset += 4;
 
-            msgFiles = meta.map((m, i) => {
-              const fileLen = new DataView(decrypted.buffer, offset, 4).getUint32(0, false); offset += 4;
+            const dvDec = new DataView(decrypted.buffer);
+            msgFiles = meta.map((m) => {
+              const fileLen = dvDec.getUint32(offset, false); offset += 4;
               const fileBytes = decrypted.slice(offset, offset + fileLen); offset += fileLen;
-              // Chunked btoa to handle large files safely
-              const CHUNK = 8192;
-              let b64 = '';
-              for (let j = 0; j < fileBytes.length; j += CHUNK) {
-                b64 += String.fromCharCode.apply(null, fileBytes.subarray(j, j + CHUNK));
+              // Build object URL for videos (avoids base64 memory bloat on recipient side)
+              if (m.isVideo) {
+                const blob = new Blob([fileBytes], { type: m.type });
+                const objectUrl = URL.createObjectURL(blob);
+                return { name: m.name, type: m.type, dataUrl: objectUrl, isImage: false, isVideo: true, isObjectUrl: true };
               }
-              const dataUrl = m.mime + ',' + btoa(b64);
-              return { name: m.name, type: m.type, dataUrl, isImage: m.isImage, isVideo: m.isVideo };
+              // For images and other files, build dataUrl with chunked btoa
+              const CHUNK = 8192;
+              let bin = '';
+              for (let j = 0; j < fileBytes.length; j += CHUNK) {
+                bin += String.fromCharCode.apply(null, fileBytes.subarray(j, j + CHUNK));
+              }
+              const dataUrl = m.mime + ',' + btoa(bin);
+              return { name: m.name, type: m.type, dataUrl, isImage: m.isImage, isVideo: false };
             });
           } catch(e) {
             // Legacy JSON format (old links)
@@ -1506,20 +1541,23 @@ async function proceedReveal() {
         imgContainer.appendChild(wrap);
       } else if (isVideo) {
         const wrap = document.createElement('div');
-        wrap.style.cssText = 'margin-top:12px;border-radius:8px;overflow:hidden;border:1px solid var(--border);background:var(--bg-3)';
+        wrap.style.cssText = 'margin-top:12px;border-radius:8px;overflow:hidden;border:1px solid var(--border);background:#000';
         const vid = document.createElement('video');
-        vid.src = file.dataUrl;
+        vid.src = file.dataUrl; // works for both objectUrl and dataUrl
         vid.controls = true;
         vid.style.cssText = 'max-width:100%;display:block;border-radius:7px';
+        if (file.isObjectUrl) vid.onended = () => {}; // keep alive until page unloads
         wrap.appendChild(vid);
         imgContainer.appendChild(wrap);
       } else {
         // Download card for PDF, TXT, DOCX, ZIP etc.
         const icon = file.type === 'application/pdf' ? '📄' :
-                     (file.type && file.type.includes('word') || (file.name || '').endsWith('.docx')) ? '📝' :
+                     (file.type && (file.type.includes('word') || file.type.includes('document'))) || (file.name || '').endsWith('.docx') ? '📝' :
                      (file.type && file.type.startsWith('text/')) ? '📝' :
-                     (file.type && file.type.includes('zip') || (file.name || '').endsWith('.zip')) ? '🗜️' : '📎';
-        const sizeBytes = Math.round((file.dataUrl.length - file.dataUrl.indexOf(',') - 1) * 0.75);
+                     (file.type && (file.type.includes('zip') || file.type.includes('gzip') || file.type.includes('tar'))) || (file.name || '').endsWith('.zip') ? '🗜️' : '📎';
+        // Estimate size from dataUrl
+        const comma = file.dataUrl.indexOf(',');
+        const sizeBytes = comma > -1 ? Math.round((file.dataUrl.length - comma - 1) * 0.75) : file.size || 0;
         const a = document.createElement('a');
         a.className = 'file-dl-card';
         a.href = file.dataUrl;
