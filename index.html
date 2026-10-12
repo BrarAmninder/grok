@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -774,37 +775,81 @@ let currentFragRaw = '';
 // ═══════════════════════════════════════════════
 let attachedImages = []; // [{name, dataUrl, size}]
 const MAX_IMAGES = 6;
-const WARN_TOTAL_BYTES = 5_000_000; // warn above 5MB total
+const MAX_IMG_DIMENSION = 1280; // px — resize larger images down
+const IMG_QUALITY = 0.75;       // JPEG quality for compression
+const WARN_TOTAL_BYTES = 5_000_000; // warn above 5 MB total
 
-// Wire up button → file input → handler (avoids inline handler issues)
+// Wire up button → file input → handler
 const imgFileInput = document.getElementById('img-file-input');
 document.getElementById('img-attach-btn').addEventListener('click', () => {
-  imgFileInput.value = ''; // reset first so same file re-triggers
+  if (attachedImages.length >= MAX_IMAGES) return; // already at cap
+  imgFileInput.value = '';
   imgFileInput.click();
 });
 imgFileInput.addEventListener('change', function() {
-  if (this.files && this.files.length > 0) {
-    handleImageFiles(this.files);
-  }
+  if (this.files && this.files.length > 0) handleImageFiles(this.files);
 });
 
-function handleImageFiles(files) {
-  for (const file of files) {
-    if (attachedImages.length >= MAX_IMAGES) break;
-    if (!file.type.startsWith('image/')) continue;
+// Compress + resize an image file → returns a data URL (JPEG)
+function compressImage(file) {
+  return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = e => {
-      attachedImages.push({ name: file.name, dataUrl: e.target.result, size: file.size });
-      renderImagePreviews();
+      const img = new Image();
+      img.onload = () => {
+        // Calculate new dimensions keeping aspect ratio
+        let { width, height } = img;
+        if (width > MAX_IMG_DIMENSION || height > MAX_IMG_DIMENSION) {
+          if (width > height) { height = Math.round(height * MAX_IMG_DIMENSION / width); width = MAX_IMG_DIMENSION; }
+          else { width = Math.round(width * MAX_IMG_DIMENSION / height); height = MAX_IMG_DIMENSION; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        // Use JPEG for photos, PNG only for tiny images or those with transparency
+        const isSmall = file.size < 50_000;
+        const mimeOut = (file.type === 'image/png' && isSmall) ? 'image/png' : 'image/jpeg';
+        const dataUrl = canvas.toDataURL(mimeOut, IMG_QUALITY);
+        // Estimate compressed size from base64 length
+        const compressedSize = Math.round((dataUrl.length - dataUrl.indexOf(',') - 1) * 0.75);
+        resolve({ dataUrl, size: compressedSize });
+      };
+      img.src = e.target.result;
     };
     reader.readAsDataURL(file);
-  }
+  });
+}
+
+async function handleImageFiles(files) {
+  const slots = MAX_IMAGES - attachedImages.length;
+  if (slots <= 0) return;
+  const toProcess = Array.from(files).filter(f => f.type.startsWith('image/')).slice(0, slots);
+  if (toProcess.length === 0) return;
+
+  // Show loading state on button
+  const btn = document.getElementById('img-attach-btn');
+  const origHTML = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = `<div class="spinner" style="width:12px;height:12px;border-width:2px"></div> Processing…`;
+
+  // Compress all selected images in parallel
+  const results = await Promise.all(toProcess.map(file =>
+    compressImage(file).then(({ dataUrl, size }) => ({ name: file.name, dataUrl, size }))
+  ));
+
+  attachedImages.push(...results);
+  renderImagePreviews();
+
+  btn.disabled = attachedImages.length >= MAX_IMAGES;
+  btn.innerHTML = origHTML;
 }
 
 function renderImagePreviews() {
   const strip = document.getElementById('img-preview-strip');
   const countLabel = document.getElementById('img-count-label');
   const warn = document.getElementById('img-size-warn');
+  const btn = document.getElementById('img-attach-btn');
+
   strip.innerHTML = '';
   attachedImages.forEach((img, i) => {
     const wrap = document.createElement('div');
@@ -817,17 +862,31 @@ function renderImagePreviews() {
     rm.className = 'img-thumb-remove';
     rm.innerHTML = '✕';
     rm.title = 'Remove';
-    rm.onclick = () => { attachedImages.splice(i, 1); renderImagePreviews(); };
+    rm.onclick = () => {
+      attachedImages.splice(i, 1);
+      renderImagePreviews();
+    };
     wrap.appendChild(im);
     wrap.appendChild(rm);
     strip.appendChild(wrap);
   });
+
+  // Counter label
   if (attachedImages.length > 0) {
+    const remaining = MAX_IMAGES - attachedImages.length;
     countLabel.style.display = '';
-    countLabel.textContent = attachedImages.length + '/' + MAX_IMAGES + ' image' + (attachedImages.length > 1 ? 's' : '');
+    countLabel.textContent = attachedImages.length + '/' + MAX_IMAGES + ' image' + (attachedImages.length !== 1 ? 's' : '');
+    if (remaining === 0) countLabel.textContent += ' (max)';
   } else {
     countLabel.style.display = 'none';
   }
+
+  // Disable attach button when at cap
+  btn.disabled = attachedImages.length >= MAX_IMAGES;
+  btn.style.opacity = btn.disabled ? '0.45' : '';
+  btn.style.cursor = btn.disabled ? 'not-allowed' : '';
+
+  // Size warning (based on actual compressed sizes)
   const totalBytes = attachedImages.reduce((s, img) => s + img.size, 0);
   warn.style.display = totalBytes > WARN_TOTAL_BYTES ? 'flex' : 'none';
 }
@@ -865,7 +924,7 @@ async function createLink() {
     // If there are images, encrypt them and upload to Supabase Storage
     let imgRef = null;
     if (attachedImages.length > 0) {
-      createBtn.innerHTML = `<div class="spinner"></div> Uploading images…`;
+      createBtn.innerHTML = `<div class="spinner"></div> Uploading ${attachedImages.length} image${attachedImages.length !== 1 ? 's' : ''}…`;
       // Serialize images (name + dataUrl) → encrypt as binary blob
       const imgJson = JSON.stringify(attachedImages.map(img => ({ name: img.name, dataUrl: img.dataUrl })));
       const imgIv = crypto.getRandomValues(new Uint8Array(12));
@@ -928,7 +987,10 @@ function resetCompose() {
   msgInput.value = '';
   charCount.textContent = '0'; charCount.className = 'char-count';
   composeError.textContent = ''; resultCard.style.display = 'none'; generatedLink = '';
-  attachedImages = []; renderImagePreviews();
+  attachedImages = [];
+  renderImagePreviews();
+  const ab = document.getElementById('img-attach-btn');
+  if (ab) { ab.disabled = false; ab.style.opacity = ''; ab.style.cursor = ''; }
   document.querySelector('input[name="expiry"][value="read-once"]').checked = true;
   // Reset password section
   pwEnabled = false; pwType = 'password';
