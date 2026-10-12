@@ -1065,67 +1065,63 @@ async function createLink() {
     const key = await generateKey();
     const keyB64 = await exportKey(key);
 
-    // If there are files, upload them directly (no client-side encryption of file bytes)
-    // Security model: each file is stored at a 32-char random unguessable path (128-bit entropy).
-    // The path is stored inside the AES-encrypted URL fragment — only the link holder can retrieve it.
-    // Files are deleted from storage immediately after the recipient opens the link.
+    // If there are files, encrypt them and upload to Supabase Storage
     let imgRef = null;
     if (attachedFiles.length > 0) {
       const totalCount = attachedFiles.length;
+      createBtn.innerHTML = `<div class="spinner"></div> Encrypting ${totalCount} file${totalCount !== 1 ? 's' : ''}…`;
 
-      // Upload files one by one showing progress
-      const uploadedFiles = [];
-      for (let i = 0; i < attachedFiles.length; i++) {
-        const f = attachedFiles[i];
-        createBtn.innerHTML = `<div class="spinner"></div> Uploading ${i + 1}/${totalCount}… ${f.name.length > 20 ? f.name.slice(0,18)+'…' : f.name}`;
+      // Build metadata + get raw byte buffers (no base64 conversion needed)
+      const meta = attachedFiles.map(f => ({
+        name: f.name,
+        type: f.type,
+        isImage: f.isImage,
+        isVideo: f.isVideo,
+        // For images we stored dataUrl; extract mime prefix for reconstruction
+        mime: f.isImage ? f.dataUrl.split(',')[0] : ('data:' + f.type + ';base64')
+      }));
 
-        // Generate a cryptographically random unguessable path for this file
-        const filePath = Array.from(crypto.getRandomValues(new Uint8Array(16)))
-          .map(b => b.toString(16).padStart(2,'0')).join('');
+      // Get raw bytes for each file — images decode from dataUrl, others already have rawBuf
+      const fileBufs = attachedFiles.map(f => {
+        if (f.rawBuf) return new Uint8Array(f.rawBuf); // direct, no conversion
+        // Image: decode from compressed dataUrl
+        const b64 = f.dataUrl.split(',')[1];
+        const bin = atob(b64);
+        const buf = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+        return buf;
+      });
 
-        // Get raw bytes — images from dataUrl, others from rawBuf
-        let body, mimeType;
-        if (f.rawBuf) {
-          body = f.rawBuf;
-          mimeType = f.type || 'application/octet-stream';
-        } else {
-          // Image stored as dataUrl — convert to Blob for upload
-          const b64 = f.dataUrl.split(',')[1];
-          const bin = atob(b64);
-          const bytes = new Uint8Array(bin.length);
-          for (let j = 0; j < bin.length; j++) bytes[j] = bin.charCodeAt(j);
-          body = bytes;
-          mimeType = f.dataUrl.split(';')[0].slice(5) || f.type;
-        }
+      createBtn.innerHTML = `<div class="spinner"></div> Encrypting…`;
 
-        const res = await fetch(`${SUPABASE_URL}/storage/v1/object/ghostlink/${filePath}`, {
-          method: 'POST',
-          headers: {
-            apikey: SUPABASE_KEY,
-            Authorization: `Bearer ${SUPABASE_KEY}`,
-            'Content-Type': mimeType,
-            'x-upsert': 'true'
-          },
-          body
-        });
-        if (!res.ok) {
-          const errText = await res.text().catch(() => res.status);
-          throw new Error(`Upload failed (${res.status}): ${errText}`);
-        }
+      // Pack: [4 bytes metaLen][meta JSON][4 bytes fileCount] then [4 bytes fileLen][fileBytes]…
+      const metaBytes = new TextEncoder().encode(JSON.stringify(meta));
+      let totalSize = 4 + metaBytes.length + 4;
+      for (const buf of fileBufs) totalSize += 4 + buf.length;
 
-        uploadedFiles.push({
-          path: filePath,
-          name: f.name,
-          type: f.type,
-          size: f.size,
-          isImage: f.isImage,
-          isVideo: f.isVideo,
-          mime: f.isImage ? f.dataUrl.split(',')[0] : ('data:' + f.type + ';base64')
-        });
+      const packed = new Uint8Array(totalSize);
+      const dv = new DataView(packed.buffer);
+      let offset = 0;
+      dv.setUint32(offset, metaBytes.length, false); offset += 4;
+      packed.set(metaBytes, offset); offset += metaBytes.length;
+      dv.setUint32(offset, fileBufs.length, false); offset += 4;
+      for (const buf of fileBufs) {
+        dv.setUint32(offset, buf.length, false); offset += 4;
+        packed.set(buf, offset); offset += buf.length;
       }
 
-      // Store only the metadata + paths in the encrypted URL — tiny, instant to encrypt
-      imgRef = JSON.stringify(uploadedFiles);
+      createBtn.innerHTML = `<div class="spinner"></div> Uploading ${totalCount} file${totalCount !== 1 ? 's' : ''}…`;
+
+      // Encrypt packed binary with AES-GCM
+      const imgIv = crypto.getRandomValues(new Uint8Array(12));
+      const imgCt = new Uint8Array(await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv: imgIv }, key, packed
+      ));
+      const encBlob = new Uint8Array(12 + imgCt.length);
+      encBlob.set(imgIv, 0); encBlob.set(imgCt, 12);
+
+      imgRef = Array.from(crypto.getRandomValues(new Uint8Array(8))).map(b => b.toString(16).padStart(2,'0')).join('');
+      await sbUploadImages(imgRef, encBlob);
       createBtn.innerHTML = `<div class="spinner"></div> ${t('creatingLink')}`;
     }
 
@@ -1471,66 +1467,53 @@ async function proceedReveal() {
       if (obj && obj.v === 2) {
         msgText = obj.text || '';
         if (obj.imgRef) {
-          // imgRef is now JSON array of {path, name, type, size, isImage, isVideo, mime}
-          // OR legacy encrypted blob path (old links) — detect by trying JSON.parse first
-          let fileMeta;
+          const encBlob = await sbDownloadImages(obj.imgRef);
+          const iv = encBlob.slice(0, 12);
+          const ct = encBlob.slice(12);
+          const decrypted = new Uint8Array(await crypto.subtle.decrypt(
+            { name: 'AES-GCM', iv }, key, ct
+          ));
+
+          // Try new binary format first, fall back to old JSON format
           try {
-            fileMeta = JSON.parse(obj.imgRef);
+            let offset = 0;
+            const metaLen = new DataView(decrypted.buffer, offset, 4).getUint32(0, false); offset += 4;
+            const metaJson = new TextDecoder().decode(decrypted.slice(offset, offset + metaLen)); offset += metaLen;
+            const meta = JSON.parse(metaJson);
+            const fileCount = new DataView(decrypted.buffer, offset, 4).getUint32(0, false); offset += 4;
+
+            const dvDec = new DataView(decrypted.buffer);
+            msgFiles = meta.map((m) => {
+              const fileLen = dvDec.getUint32(offset, false); offset += 4;
+              const fileBytes = decrypted.slice(offset, offset + fileLen); offset += fileLen;
+              // Build object URL for videos (avoids base64 memory bloat on recipient side)
+              if (m.isVideo) {
+                const blob = new Blob([fileBytes], { type: m.type });
+                const objectUrl = URL.createObjectURL(blob);
+                return { name: m.name, type: m.type, dataUrl: objectUrl, isImage: false, isVideo: true, isObjectUrl: true };
+              }
+              // For images and other files, build dataUrl with chunked btoa
+              const CHUNK = 8192;
+              let bin = '';
+              for (let j = 0; j < fileBytes.length; j += CHUNK) {
+                bin += String.fromCharCode.apply(null, fileBytes.subarray(j, j + CHUNK));
+              }
+              const dataUrl = m.mime + ',' + btoa(bin);
+              return { name: m.name, type: m.type, dataUrl, isImage: m.isImage, isVideo: false };
+            });
           } catch(e) {
-            fileMeta = null; // legacy format
+            // Legacy JSON format (old links)
+            const json = new TextDecoder().decode(decrypted);
+            const parsed = JSON.parse(json);
+            if (Array.isArray(parsed)) {
+              msgFiles = parsed;
+            } else {
+              msgFiles = (parsed.images || []).map(img => ({ ...img, isImage: true }));
+            }
           }
 
-          if (Array.isArray(fileMeta)) {
-            // New fast format: download each file individually by its random path
-            const btn2 = pendingParsed
-              ? document.getElementById('pw-submit-btn')
-              : document.getElementById('reveal-btn');
-            msgFiles = await Promise.all(fileMeta.map(async (fm, idx) => {
-              if (fileMeta.length > 1) {
-                btn2.innerHTML = `<div class="spinner"></div> Downloading ${idx + 1}/${fileMeta.length}…`;
-              }
-              const res = await fetch(`${SUPABASE_URL}/storage/v1/object/ghostlink/${fm.path}`, {
-                headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
-              });
-              if (!res.ok) throw new Error('file_download_failed');
-              const arrayBuf = await res.arrayBuffer();
-              const blob = new Blob([arrayBuf], { type: fm.type });
-              const objectUrl = URL.createObjectURL(blob);
-              // Auto-delete this file from storage
-              sbDeleteStorageFile(fm.path).catch(() => {});
-              return { name: fm.name, type: fm.type, size: fm.size,
-                       isImage: fm.isImage, isVideo: fm.isVideo,
-                       dataUrl: objectUrl, isObjectUrl: true, mime: fm.mime };
-            }));
-          } else {
-            // Legacy format: download encrypted blob and decrypt
-            const encBlob = await sbDownloadImages(obj.imgRef);
-            const iv = encBlob.slice(0, 12);
-            const ct = encBlob.slice(12);
-            const decrypted = new Uint8Array(await crypto.subtle.decrypt(
-              { name: 'AES-GCM', iv }, key, ct
-            ));
-            try {
-              let offset = 0;
-              const metaLen = new DataView(decrypted.buffer, offset, 4).getUint32(0, false); offset += 4;
-              const meta = JSON.parse(new TextDecoder().decode(decrypted.slice(offset, offset + metaLen))); offset += metaLen;
-              offset += 4; // fileCount
-              const dvDec = new DataView(decrypted.buffer);
-              msgFiles = meta.map(m => {
-                const fileLen = dvDec.getUint32(offset, false); offset += 4;
-                const fileBytes = decrypted.slice(offset, offset + fileLen); offset += fileLen;
-                const blob = new Blob([fileBytes], { type: m.type });
-                return { name: m.name, type: m.type, isImage: m.isImage, isVideo: m.isVideo,
-                         dataUrl: URL.createObjectURL(blob), isObjectUrl: true };
-              });
-            } catch(e) {
-              const json = new TextDecoder().decode(decrypted);
-              const parsed = JSON.parse(json);
-              const arr = Array.isArray(parsed) ? parsed : (parsed.images || []);
-              msgFiles = arr.map(img => ({ ...img, isImage: true }));
-            }
-            sbDeleteStorageFile(obj.imgRef).catch(() => {});
-          }
+          // Auto-delete from storage after decryption
+          sbDeleteStorageFile(obj.imgRef).catch(() => {});
         }
       } else if (obj && obj.v === 1) {
         msgText = obj.text || '';
@@ -1545,7 +1528,6 @@ async function proceedReveal() {
     msgFiles.forEach(file => {
       const isImage = file.isImage || (file.type && file.type.startsWith('image/')) || (!file.type && file.dataUrl && file.dataUrl.startsWith('data:image/'));
       const isVideo = file.isVideo || (file.type && file.type.startsWith('video/'));
-      // For downloads: use object URL directly for all types (works for both formats)
 
       if (isImage) {
         const wrap = document.createElement('div');
@@ -1573,7 +1555,9 @@ async function proceedReveal() {
                      (file.type && (file.type.includes('word') || file.type.includes('document'))) || (file.name || '').endsWith('.docx') ? '📝' :
                      (file.type && file.type.startsWith('text/')) ? '📝' :
                      (file.type && (file.type.includes('zip') || file.type.includes('gzip') || file.type.includes('tar'))) || (file.name || '').endsWith('.zip') ? '🗜️' : '📎';
-        const sizeBytes = file.size || 0;
+        // Estimate size from dataUrl
+        const comma = file.dataUrl.indexOf(',');
+        const sizeBytes = comma > -1 ? Math.round((file.dataUrl.length - comma - 1) * 0.75) : file.size || 0;
         const a = document.createElement('a');
         a.className = 'file-dl-card';
         a.href = file.dataUrl;
