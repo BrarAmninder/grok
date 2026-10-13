@@ -678,24 +678,64 @@
     .logo-icon:before{opacity:.4}
   }
 
-  /* Composer layout: attachment and password stay on one row; expiry is compact. */
-  .message-area-wrapper{margin-bottom:0!important}
-  .compose-toolbar{position:relative!important;left:auto!important;top:auto!important;bottom:auto!important;opacity:1!important;pointer-events:auto!important;display:flex!important;flex-direction:row!important;align-items:center!important;flex-wrap:nowrap!important;gap:14px!important;margin:8px 0 0 27px!important;padding-top:10px!important;border-top:1px solid rgba(45,55,86,.10)!important;z-index:2}
-  .compose-toolbar .toolbar-btn{white-space:nowrap!important}
-  .composer-actions{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:10px!important;height:auto!important;margin-top:8px!important;padding-top:0!important;border-top:0!important}
-  .composer-actions .expiry-control{order:0!important;align-self:flex-start!important;flex:0 0 auto!important;width:fit-content!important;min-width:0!important;max-width:160px!important;height:28px!important;gap:4px!important;padding:4px 22px 4px 7px!important;border-radius:8px!important}
-  .composer-actions .expiry-control>svg:first-child{width:12px!important;height:12px!important}
-  .composer-actions .expiry-control select{width:auto!important;max-width:115px!important;font-size:10.5px!important}
-  .composer-actions .btn-primary{order:1!important;flex:0 0 auto!important;width:100%!important;min-width:0!important;height:auto!important;margin:0!important;padding:12px 18px!important;font-size:14px!important}
-  @media(max-width:480px){.compose-toolbar{margin-left:27px!important;gap:12px!important}.composer-actions{flex-wrap:nowrap!important}.composer-actions .expiry-control{max-width:150px!important}.composer-actions .expiry-control select{max-width:105px!important}}
-
-  /* Plain inline expiry selector placed before Attach Image. */
-  .compose-toolbar .expiry-control{display:inline-flex!important;align-items:center!important;gap:4px!important;flex:0 0 auto!important;width:auto!important;min-width:0!important;max-width:none!important;height:auto!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;color:var(--text-muted)!important;box-shadow:none!important;margin:0 2px 0 0!important}
-  .compose-toolbar .expiry-control>svg:first-child{width:13px!important;height:13px!important;flex-shrink:0!important}
-  .compose-toolbar .expiry-control .select-chevron{position:static!important;width:10px!important;height:10px!important;flex-shrink:0!important}
+  /* ── Toolbar: 3 centered items below textarea ── */
+  .message-area-wrapper{margin-bottom:0!important;position:relative!important}
+  .compose-toolbar{
+    position:relative!important;left:auto!important;top:auto!important;bottom:auto!important;
+    opacity:1!important;pointer-events:auto!important;
+    display:flex!important;flex-direction:row!important;align-items:center!important;
+    justify-content:center!important;flex-wrap:nowrap!important;
+    gap:0!important;margin:0!important;padding:8px 0 6px!important;
+    border-top:1px solid rgba(45,55,86,.10)!important;z-index:2;
+  }
+  /* Dividers between the 3 toolbar items */
+  .compose-toolbar > *{border-right:1px solid rgba(45,55,86,.10)!important;padding:0 18px!important}
+  .compose-toolbar > *:last-child{border-right:0!important}
+  .compose-toolbar .toolbar-btn{white-space:nowrap!important;border:0!important;background:transparent!important;border-radius:0!important;padding:0 18px!important;font-size:11.5px!important;display:flex!important;align-items:center!important;gap:5px!important}
+  /* Expiry inline inside toolbar */
+  .compose-toolbar .expiry-control{display:inline-flex!important;align-items:center!important;gap:4px!important;flex:0 0 auto!important;width:auto!important;min-width:0!important;max-width:none!important;height:auto!important;padding:0 18px!important;border:0!important;border-radius:0!important;background:transparent!important;color:var(--text-muted)!important;box-shadow:none!important;margin:0!important}
+  .compose-toolbar .expiry-control>svg:first-child{width:12px!important;height:12px!important;flex-shrink:0!important}
+  .compose-toolbar .expiry-control .select-chevron{position:static!important;width:9px!important;height:9px!important;flex-shrink:0!important}
   .compose-toolbar .expiry-control select{width:auto!important;min-width:0!important;max-width:none!important;padding:0!important;border:0!important;background:transparent!important;color:inherit!important;font-size:11px!important;font-weight:600!important}
+  /* Password toggle inside toolbar: no checkbox box, just pill style */
+  .compose-toolbar .password-section{padding:0 18px!important;border-right:0!important}
+  .compose-toolbar .password-toggle{gap:5px!important;white-space:nowrap!important}
+  .compose-toolbar .password-toggle-box{display:none!important}
+  /* When password is active, show a small tick badge on the key icon */
+  .compose-toolbar .password-toggle.pw-set .password-key-icon{color:var(--accent)!important}
+  .compose-toolbar .password-toggle.pw-set .password-toggle-label{color:var(--accent)!important}
+  .pw-set-badge{display:none;align-items:center;justify-content:center;width:14px;height:14px;background:var(--accent);border-radius:50%;flex-shrink:0}
+  .pw-set-badge svg{display:block}
+  .compose-toolbar .password-toggle.pw-set .pw-set-badge{display:flex!important}
+  /* Image count below toolbar, centered */
+  #img-count-label{
+    display:none;text-align:center;font-size:11px;
+    color:var(--text-muted);font-family:var(--mono);
+    padding:2px 0 6px;border-top:0;margin:0!important;
+  }
+  /* Password panel slide-in from top (above create-link) */
+  .password-fields{
+    overflow:hidden;
+    max-height:0;
+    opacity:0;
+    transition:max-height 0.28s cubic-bezier(.4,0,.2,1), opacity 0.22s ease, margin-top 0.22s ease!important;
+    margin-top:0!important;
+  }
+  .password-fields.visible{
+    max-height:240px;
+    opacity:1;
+    margin-top:10px!important;
+  }
+  /* Composer actions */
+  .composer-actions{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:10px!important;height:auto!important;margin-top:8px!important;padding-top:0!important;border-top:0!important}
   .composer-actions .expiry-control{display:none!important}
-  @media(max-width:480px){.compose-toolbar{margin-left:0!important;gap:10px!important}.compose-toolbar .expiry-control select{font-size:10px!important}.compose-toolbar .toolbar-btn{font-size:10px!important}}
+  .composer-actions .btn-primary{order:1!important;flex:0 0 auto!important;width:100%!important;min-width:0!important;height:auto!important;margin:0!important;padding:12px 18px!important;font-size:14px!important}
+  @media(max-width:480px){
+    .compose-toolbar > *{padding:0 12px!important}
+    .compose-toolbar .toolbar-btn{padding:0 12px!important}
+    .compose-toolbar .expiry-control{padding:0 12px!important}
+    .compose-toolbar .password-section{padding:0 12px!important}
+  }
 
 </style>
 <script>
@@ -843,50 +883,35 @@
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v12H9l-5 3V5Z"/></svg>
             </div>
     <textarea id="msg-input" rows="1" placeholder="Enter your secret message…" autocomplete="off" spellcheck="true" aria-label="Message to encrypt"></textarea>
-            <div class="compose-toolbar">
-            <div class="expiry-control">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-              <select id="expiry-select" aria-label="Link expiration">
-                <option value="read-once" data-i18n="expiryAfterRead">1 View</option>
-              </select>
-              <svg class="select-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
-            </div>
+            <div class="compose-toolbar" id="compose-toolbar-row">
+              <div class="expiry-control">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                <select id="expiry-select" aria-label="Link expiration">
+                  <option value="read-once" data-i18n="expiryAfterRead">1 View</option>
+                </select>
+                <svg class="select-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+              </div>
               <button class="toolbar-btn" id="img-attach-btn" type="button">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
                 <span data-i18n="attachImage">Attach image</span>
               </button>
               <div class="password-section" id="pw-section-toggle">
-                <div class="password-toggle" onclick="togglePasswordSection(event)">
+                <div class="password-toggle" onclick="togglePasswordSection(event)" id="pw-toggle-trigger">
                   <div class="password-toggle-box" id="pw-toggle-box">
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>
                   </div>
-                  <svg class="password-key-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="15" r="4"/><path d="m10.85 12.15 7-7a2.12 2.12 0 0 1 3 3l-1.5 1.5 1.5 1.5-3 3-1.5-1.5-2 2"/></svg>
+                  <svg class="password-key-icon" id="pw-key-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="15" r="4"/><path d="m10.85 12.15 7-7a2.12 2.12 0 0 1 3 3l-1.5 1.5 1.5 1.5-3 3-1.5-1.5-2 2"/></svg>
                   <span class="password-toggle-label" data-i18n="pwToggle">Password Lock</span>
+                  <span class="pw-set-badge" id="pw-set-badge" title="Password set"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5"><path d="M20 6 9 17l-5-5"/></svg></span>
                 </div>
               </div>
-              <span id="img-count-label" style="font-size:11.5px;color:var(--text-muted);font-family:var(--mono);display:none"></span>
             </div>
+            <!-- Image count shown below toolbar, centered -->
+            <div id="img-count-label" style="display:none;text-align:center;font-size:11px;color:var(--text-muted);font-family:var(--mono);margin:4px 0 0;padding:0 4px;"></div>
             <div class="char-count" id="char-count">0</div>
           </div>
           <input type="file" id="img-file-input" accept="image/*" multiple style="display:none">
-          <div class="img-preview-strip" id="img-preview-strip"></div>
-          <div id="img-size-warn" class="img-size-warn" style="display:none">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-            <span data-i18n="imgSizeWarn">Images are large — the link may be very long. Keep total images under 1 MB for best results.</span>
-          </div>
-
-          <div id="compose-error" class="inline-error" aria-live="polite"></div>
-          <div class="composer-actions">
-
-            <div class="options-row" role="radiogroup" aria-label="Expiry options">
-              <label class="option-pill"><input type="radio" name="expiry" value="read-once" checked><span data-i18n="expiryAfterRead">After reading</span></label>
-            </div>
-
-            <button class="btn-primary" id="create-btn" onclick="createLink()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-              <span data-i18n="createBtn">Create Link</span>
-            </button>
-          </div>
+          <!-- Password fields slide in ABOVE Create Link -->
           <div class="password-fields" id="pw-fields">
             <div class="pw-type-row">
               <button class="pw-type-btn active" id="btn-type-password" data-i18n="pwTypePw" onclick="setPwType('password')">🔑 Password</button>
@@ -907,6 +932,23 @@
               </div>
             </div>
             <p class="pw-hint" id="pw-hint" data-i18n="pwHintPw">Share this password with the recipient separately — do not include it in the message.</p>
+          </div>
+
+          <div class="img-preview-strip" id="img-preview-strip"></div>
+          <div id="img-size-warn" class="img-size-warn" style="display:none">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            <span data-i18n="imgSizeWarn">Images are large — the link may be very long. Keep total images under 1 MB for best results.</span>
+          </div>
+
+          <div id="compose-error" class="inline-error" aria-live="polite"></div>
+          <div class="composer-actions">
+            <div class="options-row" role="radiogroup" aria-label="Expiry options">
+              <label class="option-pill"><input type="radio" name="expiry" value="read-once" checked><span data-i18n="expiryAfterRead">After reading</span></label>
+            </div>
+            <button class="btn-primary" id="create-btn" onclick="createLink()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              <span data-i18n="createBtn">Create Link</span>
+            </button>
           </div>
 
           <div id="result-card" class="result-card" style="display:none" aria-live="polite">
@@ -1687,6 +1729,8 @@ function resetCompose() {
   pwEnabled = false; pwType = 'password';
   document.getElementById('pw-toggle-box').classList.remove('checked');
   document.getElementById('pw-fields').classList.remove('visible');
+  const trigEl = document.getElementById('pw-toggle-trigger');
+  if (trigEl) trigEl.classList.remove('pw-set');
   document.getElementById('pw-password-input').value = '';
   [0,1,2,3].forEach(i => { document.getElementById('pin-'+i).value=''; });
   setPwType('password');
@@ -1742,25 +1786,48 @@ let pwType = 'password'; // 'password' | 'pin'
 function togglePasswordSection(event) {
   const box = document.getElementById('pw-toggle-box');
   const fields = document.getElementById('pw-fields');
+  const trigger = document.getElementById('pw-toggle-trigger');
   const panelOpen = fields.classList.contains('visible');
-  const clickedCheckbox = event && event.target.closest('.password-toggle-box');
 
-  // With protection already enabled, clicking the label reopens its editor.
-  // Clicking the checked box itself still turns protection off.
-  if (pwEnabled && !panelOpen && !clickedCheckbox) {
+  if (pwEnabled && panelOpen) {
+    // Panel is open — close it (keep pwEnabled=true, show tick badge)
+    fields.classList.remove('visible');
+    trigger.classList.add('pw-set');
+    return;
+  }
+
+  if (pwEnabled && !panelOpen) {
+    // Already set, panel closed — clicking reopens editor
     fields.classList.add('visible');
+    trigger.classList.remove('pw-set');
     setTimeout(() => document.getElementById(pwType === 'pin' ? 'pin-0' : 'pw-password-input').focus(), 50);
     return;
   }
 
+  // Toggle on/off
   pwEnabled = !pwEnabled;
   box.classList.toggle('checked', pwEnabled);
   fields.classList.toggle('visible', pwEnabled);
+  trigger.classList.toggle('pw-set', false); // clear badge when opening fresh
   if (pwEnabled) {
     setTimeout(() => {
       if (!fields.classList.contains('visible')) return;
       document.getElementById(pwType === 'pin' ? 'pin-0' : 'pw-password-input').focus();
     }, 50);
+  }
+}
+
+// When user types a password and the card loses focus / clicks elsewhere, auto-close panel and show tick
+function maybeCollapsePwPanel() {
+  const fields = document.getElementById('pw-fields');
+  const trigger = document.getElementById('pw-toggle-trigger');
+  if (!pwEnabled || !fields.classList.contains('visible')) return;
+  const hasVal = pwType === 'pin'
+    ? [0,1,2,3].every(i => { const el=document.getElementById('pin-'+i); return el && el.value.trim() !== ''; })
+    : document.getElementById('pw-password-input').value.trim() !== '';
+  if (hasVal) {
+    fields.classList.remove('visible');
+    trigger.classList.add('pw-set');
   }
 }
 
@@ -2956,6 +3023,21 @@ function applyTranslations() {
   const noLoophole = document.querySelector('.how-section .notice span');
   if (noLoophole) noLoophole.innerHTML = L.noLoophole;
 }
+
+// Auto-collapse pw panel with tick when user finishes entering password
+(function wirePasswordCollapse() {
+  function onPwBlur() {
+    setTimeout(maybeCollapsePwPanel, 180);
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    const pwInp = document.getElementById('pw-password-input');
+    if (pwInp) pwInp.addEventListener('blur', onPwBlur);
+    [0,1,2,3].forEach(i => {
+      const pin = document.getElementById('pin-'+i);
+      if (pin) pin.addEventListener('blur', onPwBlur);
+    });
+  });
+})();
 
 // ═══════════════════════════════════════════════
 //  INIT  — check server FIRST, then show state
