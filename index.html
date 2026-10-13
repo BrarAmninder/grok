@@ -172,19 +172,272 @@
   .lang-option.active{color:var(--accent);font-weight:600}
   .lang-option-flag{font-size:15px}
   @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+  /* GhostLink landing-page redesign */
+  :root{
+    --bg:#f7f8ff;--bg-2:#fff;--bg-3:#f7f5ff;--bg-4:#f0edff;
+    --border:rgba(43,48,75,.11);--border-bright:rgba(43,48,75,.19);
+    --text:#151a2d;--text-dim:#697187;--text-muted:#98a0b2;
+    --accent:#7952f5;--accent-glow:rgba(121,82,245,.13);--accent-2:#a647df;
+    --green:#169b67;--green-bg:rgba(22,155,103,.09);
+    --red:#dc4a63;--red-bg:rgba(220,74,99,.09);
+    --amber:#b47914;--amber-bg:rgba(180,121,20,.1);
+    --radius:12px;--radius-lg:20px;
+  }
+  html{scroll-behavior:smooth;scroll-padding-top:90px}
+  body{
+    align-items:stretch;padding:0 24px;min-height:100vh;
+    background:
+      radial-gradient(ellipse at 84% 42%,rgba(197,174,255,.22),transparent 36%),
+      radial-gradient(ellipse at 16% 35%,rgba(223,215,255,.17),transparent 34%),
+      #fbfcff;
+    color:var(--text);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  }
+  .header{
+    width:100%;max-width:1200px;margin:0 auto;padding:15px 0;
+    border-bottom:1px solid rgba(40,48,75,.06);gap:0;min-height:64px;
+  }
+  .logo{gap:10px}
+  .logo-icon{
+    width:34px;height:34px;border:0;border-radius:12px;
+    background:linear-gradient(140deg,#8a55f7,#c34de5);
+    box-shadow:0 5px 14px rgba(136,78,236,.25);
+  }
+  .logo-icon svg{width:18px;height:18px}
+  .logo-name{font-size:18px;font-weight:750;letter-spacing:-.045em;color:#151a2d}
+  .logo-name span{color:#8a4fe9}
+  .top-nav{display:flex;align-items:center;gap:28px;margin-left:auto}
+  .top-nav a{
+    color:#667086;text-decoration:none;font-size:13px;font-weight:550;
+    transition:color .18s ease,transform .18s ease;white-space:nowrap;
+  }
+  .top-nav a:hover{color:var(--accent);transform:translateY(-1px)}
+  .top-nav a.active{color:#824ee8;position:relative}
+  .top-nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:-9px;height:2px;border-radius:2px;background:#9b53e8}
+  .top-nav .nav-cta{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    color:white;background:linear-gradient(115deg,#7554f6,#bd4fe4);
+    border-radius:999px;padding:11px 19px;box-shadow:0 6px 16px rgba(129,78,234,.2);
+  }
+  .top-nav .nav-cta:hover{color:white;box-shadow:0 9px 22px rgba(129,78,234,.28)}
+  .top-nav .nav-cta::after{display:none}
+  .header-spacer{display:none}
+  .header-badge{display:none}
+  .lang-switcher{margin-left:20px}
+  .lang-btn{background:#fff;color:#697187;border-color:var(--border);padding:7px 10px;box-shadow:0 2px 8px rgba(25,35,70,.04)}
+  .lang-dropdown{background:#fff;border-color:var(--border);box-shadow:0 12px 34px rgba(25,35,70,.12)}
+  .lang-option{color:#566078}
+  .main{width:100%;max-width:1200px;margin:0 auto;padding:62px 0 0;flex:0 0 auto}
+  .view.active{display:block}
+  .hero-layout{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);gap:7%;align-items:center}
+  .hero-column{min-width:0;max-width:650px}
+  .hero-intro{margin-bottom:25px}
+  .hero-kicker{
+    display:inline-flex;align-items:center;gap:8px;padding:7px 13px;margin-bottom:19px;
+    border:1px solid rgba(143,84,227,.13);border-radius:999px;
+    background:rgba(250,246,255,.88);color:#7444bc;font-size:11.5px;font-weight:650;
+  }
+  .hero-kicker span{width:7px;height:7px;border-radius:50%;background:#a34de8;box-shadow:0 0 0 4px rgba(163,77,232,.1)}
+  .compose-heading{max-width:620px;font-size:clamp(40px,5.15vw,62px);font-weight:780;letter-spacing:-.064em;line-height:1.01;color:#161b2d;margin:0 0 15px}
+  .gradient-text{display:block;background:linear-gradient(100deg,#586df4 12%,#a64de6 82%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .compose-sub{max-width:57ch;margin:0;color:#697187;font-size:15px;line-height:1.66}
+  .compose-card{
+    position:relative;background:rgba(255,255,255,.96);border:1px solid rgba(48,57,89,.09);
+    border-radius:19px;padding:10px 13px 10px;box-shadow:0 12px 32px rgba(46,43,92,.075),0 2px 5px rgba(46,43,92,.035);
+    transition:box-shadow .2s ease,border-color .2s ease;
+  }
+  .compose-card:focus-within{border-color:rgba(121,82,245,.3);box-shadow:0 16px 38px rgba(83,70,151,.12),0 0 0 4px rgba(121,82,245,.07)}
+  .message-area-wrapper{display:block;position:relative;margin:0;min-height:52px}
+  .message-icon{position:absolute;left:1px;top:5px;z-index:1;color:#96a0b2;pointer-events:none}
+  textarea{
+    display:block;width:100%;min-height:52px;max-height:180px;padding:4px 55px 20px 28px;
+    resize:vertical;border:0;border-radius:0;background:transparent;color:#242b3e;
+    font-family:inherit;font-size:13.5px;line-height:1.55;outline:none;box-shadow:none;caret-color:var(--accent);
+  }
+  textarea::placeholder{color:#8d96a9}
+  textarea:focus{border:0;box-shadow:none}
+  .char-count{right:2px;top:4px;bottom:auto;font-family:inherit;font-size:10.5px;color:#8992a5}
+  .compose-toolbar{position:absolute;left:29px;top:auto;bottom:0;margin:0;z-index:2}
+  .toolbar-btn{padding:4px 7px;border:0;background:transparent;color:#7f899c;font-size:11.5px}
+  .toolbar-btn:hover{background:#f5f1ff;color:#7d4ee5}
+  .img-preview-strip{margin:8px 0}
+  .composer-actions{display:flex;align-items:center;gap:9px;margin-top:6px;padding-top:7px;border-top:1px solid rgba(45,55,86,.08)}
+  .expiry-control{
+    min-width:92px;display:inline-flex;align-items:center;gap:6px;position:relative;
+    padding:6px 26px 6px 10px;border:1px solid rgba(48,57,89,.1);border-radius:10px;
+    color:#8790a3;background:#fff;
+  }
+  .expiry-control>svg:first-child{flex-shrink:0}
+  .expiry-control select{
+    width:100%;min-width:38px;appearance:none;border:0;outline:0;background:transparent;
+    color:#4e586e;font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer;
+  }
+  .expiry-control .select-chevron{position:absolute;right:8px;pointer-events:none;color:#838da1}
+  .options-row{display:none}
+  .password-section{position:relative;flex:1;margin:0}
+  .password-toggle{gap:5px;width:auto;white-space:nowrap}
+  .password-toggle-box{width:14px;height:14px;border-color:#aeb6c5;border-radius:4px}
+  .password-toggle-box.checked{background:var(--accent);border-color:var(--accent)}
+  .password-key-icon{color:#8b94a7}
+  .password-toggle-label{font-size:11.5px;color:#657087}
+  .password-fields{
+    position:absolute;left:-12px;top:calc(100% + 14px);z-index:5;width:min(320px,80vw);
+    padding:14px;background:#fff;border:1px solid var(--border);border-radius:14px;
+    box-shadow:0 14px 34px rgba(31,36,73,.14);
+  }
+  .pw-type-btn,.pw-input,.pin-box{background:#fbfaff;color:var(--text);border-color:var(--border)}
+  .pw-hint{font-family:inherit;color:#778096}
+  .btn-primary{
+    width:auto;min-width:126px;padding:9px 15px;gap:7px;border-radius:999px;
+    background:linear-gradient(112deg,#7655f5,#bd4fe4);font-size:12px;font-weight:700;
+    box-shadow:0 5px 13px rgba(129,78,234,.18);white-space:nowrap;
+  }
+  .btn-primary:hover{background:linear-gradient(112deg,#6d4eea,#b843d9);box-shadow:0 8px 18px rgba(129,78,234,.25)}
+  .btn-primary:disabled{color:#fff}
+  .compose-card .spinner{border-color:rgba(255,255,255,.35);border-top-color:#fff}
+  .inline-error{min-height:0;margin-top:0}
+  .img-size-warn{font-family:inherit}
+  .result-card{margin-top:14px;background:#fbfaff;border-color:var(--border)}
+  .link-box{background:#fff;border-color:var(--border)}
+  .info-chip{font-family:inherit;color:#626c82;background:#fff}
+  .notice{font-family:inherit}
+  .hero-art{position:relative;min-height:390px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .soft-orb{position:absolute;border-radius:50%;filter:blur(1px);pointer-events:none}
+  .orb-one{width:300px;height:300px;top:41px;right:25px;background:radial-gradient(circle,rgba(203,187,255,.25),rgba(223,211,255,.08) 66%,transparent 72%)}
+  .orb-two{width:210px;height:210px;bottom:20px;left:7px;background:radial-gradient(circle,rgba(255,212,242,.2),transparent 72%)}
+  .preview-card{
+    position:relative;z-index:1;width:min(345px,92%);display:flex;align-items:flex-start;gap:13px;
+    padding:17px 18px;background:rgba(255,255,255,.91);border:1px solid rgba(50,58,92,.07);
+    border-radius:16px;box-shadow:0 14px 35px rgba(55,47,113,.1);backdrop-filter:blur(12px);
+    transform:translate(15px,-15px);animation:floatCard 5s ease-in-out infinite;
+  }
+  .preview-icon{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center;color:#914fe3;background:#f8efff;border-radius:10px}
+  .preview-copy{flex:1;min-width:0}
+  .preview-heading{display:flex;justify-content:space-between;align-items:center;gap:9px;color:#20263a;font-size:12px}
+  .preview-heading span{padding:3px 7px;border-radius:999px;background:#eaf8f1;color:#179767;font-size:9px;font-weight:700}
+  .preview-copy p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;margin:7px 0 0;color:#8b94a7;font-size:11.5px;line-height:1.5;overflow-wrap:anywhere}
+  .preview-arrow{position:relative;z-index:1;width:57px;height:72px;margin:7px -80px 5px 155px;color:#a04ae6;transform:rotate(5deg)}
+  .link-preview{
+    position:relative;z-index:1;width:min(305px,88%);min-height:49px;padding:0 17px;
+    display:flex;align-items:center;gap:10px;border:1px solid rgba(50,58,92,.06);
+    border-radius:999px;background:rgba(255,255,255,.97);box-shadow:0 12px 28px rgba(55,47,113,.1);
+    color:#31374a;font-size:11.5px;transform:translate(10px,-1px);animation:floatCard 5s ease-in-out 1.2s infinite;
+  }
+  .link-preview-icon{display:grid;place-items:center;width:21px;height:21px;border-radius:50%;background:#f5eaff;color:#954ce1}
+  .link-preview strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;font-size:11px}
+  .link-preview-copy{color:#9ba3b4}
+  .preview-sparkle{position:absolute;right:-6px;top:-12px;color:#bd55ea;font-size:24px}
+  .hero-caption{position:relative;z-index:1;margin-top:24px;color:#939aab;font-size:11px;letter-spacing:.04em}
+  @keyframes floatCard{0%,100%{translate:0 0}50%{translate:0 -7px}}
+  .hero-trustbar{display:flex;flex-wrap:wrap;gap:12px;margin:42px 0 18px}
+  .trust-item{
+    min-width:138px;min-height:62px;display:flex;align-items:center;gap:10px;
+    padding:10px 13px;border:1px solid rgba(51,58,90,.07);border-radius:13px;
+    background:rgba(255,255,255,.72);box-shadow:0 4px 14px rgba(53,49,93,.025);
+    color:#667087;font-size:11px;line-height:1.35;
+  }
+  .trust-item strong{font-size:11.5px;color:#333a50;font-weight:700}
+  .trust-icon{width:23px;height:23px;display:grid;place-items:center;flex:0 0 23px;color:#9250e7}
+  .trust-icon svg{width:17px;height:17px}
+  .how-section{width:100%;max-width:1200px;margin:72px auto 0;padding-bottom:0}
+  .how-section-title{font-family:inherit;color:#21283b;font-size:25px;font-weight:750;letter-spacing:-.035em;text-transform:none;margin-bottom:18px}
+  .steps-grid{gap:13px;background:transparent;border:0;border-radius:0;overflow:visible}
+  .step-cell{gap:9px;padding:19px 18px;background:rgba(255,255,255,.87);border:1px solid rgba(43,48,75,.08);border-radius:16px;box-shadow:0 7px 20px rgba(46,43,92,.035)}
+  .step-num{font-family:inherit;color:#9850e7;font-size:11px}
+  .step-label{color:#252b3d;font-size:14px}
+  .step-detail{color:#788196;font-size:12px;line-height:1.6}
+  .how-section .notice{background:rgba(255,255,255,.7);border-color:rgba(43,48,75,.08);color:#717b91}
+  .faq-section{width:100%;max-width:1200px;margin:66px auto 54px}
+  .faq-title{margin:0 0 18px;color:#21283b;font-size:25px;font-weight:750;letter-spacing:-.035em}
+  .faq-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+  .faq-item{padding:18px;background:rgba(255,255,255,.83);border:1px solid rgba(43,48,75,.08);border-radius:15px}
+  .faq-item h3{margin:0 0 8px;color:#30374c;font-size:13px}
+  .faq-item p{margin:0;color:#788196;font-size:12px;line-height:1.6}
+  .footer{width:100%;max-width:1200px;margin:0 auto;padding:22px 0 27px;border-top:1px solid rgba(43,48,75,.09)}
+  .footer-left,.footer-right,.footer-right a{font-family:inherit;color:#8790a2}
+  .footer-right a:hover{color:#7952f5}
+  .reveal-outer{padding:24px 0}
+  .message-display,.pw-gate-input,.pw-gate-pin-box{background:#fff;color:var(--text)}
+  .msg-header,.msg-footer{background:#f7f5ff}
+  .msg-body{color:#273047}
+  @media(max-width:900px){
+    body{padding:0 20px}
+    .header{flex-wrap:wrap;gap:10px}
+    .top-nav{gap:16px}
+    .lang-switcher{margin-left:10px}
+    .main{padding-top:48px}
+    .hero-layout{grid-template-columns:minmax(0,1.1fr) minmax(260px,.9fr);gap:3%}
+    .compose-heading{font-size:clamp(38px,5.7vw,52px)}
+    .hero-art{min-height:330px}
+    .composer-actions{gap:7px}
+    .btn-primary{min-width:112px;padding-inline:12px}
+  }
+  @media(max-width:680px){
+    body{padding:0 17px}
+    .header{padding:12px 0;min-height:58px}
+    .logo-name{font-size:17px}
+    .top-nav{order:3;width:100%;justify-content:space-between;gap:9px;padding:5px 0 0}
+    .top-nav a{font-size:11px}
+    .top-nav .nav-cta{padding:8px 12px}
+    .top-nav a.active::after{bottom:-6px}
+    .lang-switcher{margin-left:auto}
+    .main{padding-top:37px}
+    .hero-layout{grid-template-columns:1fr;gap:20px}
+    .hero-column{max-width:none}
+    .hero-intro{margin-bottom:21px}
+    .hero-kicker{margin-bottom:16px}
+    .compose-heading{max-width:540px;font-size:clamp(39px,10vw,54px)}
+    .compose-sub{font-size:14px}
+    .compose-card{padding:10px 12px;border-radius:16px}
+    .message-area-wrapper{min-height:60px}
+    textarea{min-height:60px;padding-left:27px}
+    .compose-toolbar{left:27px;top:auto;bottom:0}
+    .composer-actions{flex-wrap:wrap;gap:9px}
+    .password-section{flex:1}
+    .btn-primary{margin-left:auto}
+    .hero-art{min-height:295px;margin-top:4px}
+    .preview-card{transform:translate(0,-6px)}
+    .preview-arrow{margin-left:126px}
+    .link-preview{transform:translate(0,-1px)}
+    .hero-trustbar{gap:9px;margin:26px 0 0}
+    .trust-item{flex:1 1 calc(50% - 9px);min-width:0}
+    .how-section{margin-top:55px}
+    .steps-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .faq-list{grid-template-columns:1fr}
+    .faq-section{margin:50px auto 40px}
+  }
+  @media(max-width:390px){
+    body{padding:0 13px}
+    .top-nav{gap:6px}
+    .top-nav a{font-size:10px}
+    .top-nav .nav-cta{padding:8px 9px}
+    .composer-actions{gap:7px}
+    .password-toggle-label{font-size:10.5px}
+    .btn-primary{min-width:107px;font-size:11px}
+  }
 </style>
 </head>
 <body>
 
-<header class="header">
+  <header class="header">
   <div class="logo" onclick="goHome()">
     <div class="logo-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:#6E76E5">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:#fff">
+        <path d="M5 20V8a7 7 0 0 1 14 0v12l-3-2-4 2-4-2-3 2Z"/><path d="M9 9h.01M15 9h.01"/>
       </svg>
     </div>
     <span class="logo-name">Ghost<span>Link</span></span>
   </div>
+  <nav class="top-nav" aria-label="Main navigation">
+    <a class="active" href="#" onclick="document.getElementById('home').scrollIntoView({behavior:'smooth'});return false">Home</a>
+    <a href="#" onclick="document.getElementById('how-section').scrollIntoView({behavior:'smooth'});return false">How It Works</a>
+    <a href="#" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'});return false">Features</a>
+    <a href="#" onclick="document.getElementById('faq').scrollIntoView({behavior:'smooth'});return false">FAQ</a>
+    <a class="nav-cta" href="#" onclick="document.getElementById('compose-card').scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('msg-input').focus({preventScroll:true});return false">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      Create Link
+    </a>
+  </nav>
   <div class="header-spacer"></div>
   <div class="header-badge" id="badge-encrypted">end-to-end encrypted</div>
 
@@ -259,79 +512,88 @@
 
   <!-- Compose View -->
   <div class="view active" id="view-compose">
-    <p class="section-label">New message</p>
-    <h1 class="compose-heading" data-i18n="heading">Send a private message. Once.</h1>
-    <p class="compose-sub" data-i18n="sub">Write your message and we'll create a secure, one-time link. The recipient opens it once — after that, the link stops working forever. No account needed.</p>
-
-    <div class="message-area-wrapper">
-      <textarea id="msg-input" placeholder="Write your message here…" autocomplete="off" spellcheck="true" aria-label="Message to encrypt"></textarea>
-      <div class="char-count" id="char-count">0</div>
-    </div>
-    <!-- Toolbar -->
-    <div class="compose-toolbar">
-      <button class="toolbar-btn" id="img-attach-btn" type="button">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
-        <span data-i18n="attachImage">Attach image</span>
-      </button>
-      <span id="img-count-label" style="font-size:11.5px;color:var(--text-muted);font-family:var(--mono);display:none"></span>
-    </div>
-    <input type="file" id="img-file-input" accept="image/*" multiple style="display:none">
-    <div class="img-preview-strip" id="img-preview-strip"></div>
-    <div id="img-size-warn" class="img-size-warn" style="display:none">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-      <span data-i18n="imgSizeWarn">Images are large — the link may be very long. Keep total images under 1 MB for best results.</span>
-    </div>
-
-    <div id="compose-error" class="inline-error" aria-live="polite"></div>
-
-    <div style="margin-top:0.75rem;margin-bottom:1.25rem;">
-      <p class="section-label" style="margin-bottom:8px;">Link expires</p>
-      <div class="options-row" role="radiogroup" aria-label="Expiry options">
-        <label class="option-pill"><input type="radio" name="expiry" value="read-once" checked><span class="option-dot"></span><span data-i18n="expiryAfterRead">After reading</span></label>
-        <label class="option-pill"><input type="radio" name="expiry" value="24h"><span class="option-dot"></span><span data-i18n="expiry24h">After reading or 24 hours</span></label>
-        <label class="option-pill"><input type="radio" name="expiry" value="1h"><span class="option-dot"></span><span data-i18n="expiry1h">After reading or 1 hour</span></label>
-      </div>
-    </div>
-
-    <div class="password-section">
-      <p class="section-label" data-i18n="pwSectionLabel" style="margin-bottom:8px;">Password protection</p>
-      <div class="password-toggle" onclick="togglePasswordSection()">
-        <div class="password-toggle-box" id="pw-toggle-box">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>
+    <div class="hero-layout" id="home">
+      <div class="hero-column">
+        <div class="hero-intro">
+          <div class="hero-kicker"><span></span> One Message · One Link · Never Again</div>
+          <h1 class="compose-heading" data-i18n="heading">Send a Message That <span class="gradient-text">Disappears</span></h1>
+          <p class="compose-sub" data-i18n="sub">Type your message, get a unique single-use link, and share it securely. Once it’s viewed, it self-destructs instantly — no traces left behind.</p>
         </div>
-        <span class="password-toggle-label" data-i18n="pwToggle">Require a password to open this message</span>
-      </div>
-      <div class="password-fields" id="pw-fields">
-        <div class="pw-type-row">
-          <button class="pw-type-btn active" id="btn-type-password" data-i18n="pwTypePw" onclick="setPwType('password')">🔑 Password</button>
-          <button class="pw-type-btn" id="btn-type-pin" data-i18n="pwTypePin" onclick="setPwType('pin')">🔢 4-digit PIN</button>
-        </div>
-        <!-- Password input -->
-        <div id="pw-password-wrap" class="pw-input-wrap">
-          <input class="pw-input" id="pw-password-input" type="password" placeholder="Enter a password…" data-i18n="pwPlaceholder" autocomplete="new-password" maxlength="128">
-          <button class="pw-eye" type="button" onclick="togglePwEye()" tabindex="-1">
-            <svg id="pw-eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-          </button>
-        </div>
-        <!-- PIN input -->
-        <div id="pw-pin-wrap" style="display:none">
-          <div class="pin-grid">
-            <input class="pin-box" id="pin-0" type="number" min="0" max="9" maxlength="1" placeholder="·" oninput="pinMove(this,0)">
-            <input class="pin-box" id="pin-1" type="number" min="0" max="9" maxlength="1" placeholder="·" oninput="pinMove(this,1)">
-            <input class="pin-box" id="pin-2" type="number" min="0" max="9" maxlength="1" placeholder="·" oninput="pinMove(this,2)">
-            <input class="pin-box" id="pin-3" type="number" min="0" max="9" maxlength="1" placeholder="·" oninput="pinMove(this,3)">
+
+        <div class="compose-card" id="compose-card">
+          <div class="message-area-wrapper">
+            <div class="message-icon" aria-hidden="true">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5Z"/></svg>
+            </div>
+            <textarea id="msg-input" maxlength="500" placeholder="Enter your secret message…" autocomplete="off" spellcheck="true" aria-label="Message to encrypt"></textarea>
+            <div class="compose-toolbar">
+              <button class="toolbar-btn" id="img-attach-btn" type="button">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                <span data-i18n="attachImage">Attach image</span>
+              </button>
+              <span id="img-count-label" style="font-size:11.5px;color:var(--text-muted);font-family:var(--mono);display:none"></span>
+            </div>
+            <div class="char-count" id="char-count">0/500</div>
           </div>
-        </div>
-        <p class="pw-hint" id="pw-hint" data-i18n="pwHintPw">Share this password with the recipient separately — do not include it in the message.</p>
-      </div>
-    </div>
+          <input type="file" id="img-file-input" accept="image/*" multiple style="display:none">
+          <div class="img-preview-strip" id="img-preview-strip"></div>
+          <div id="img-size-warn" class="img-size-warn" style="display:none">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            <span data-i18n="imgSizeWarn">Images are large — the link may be very long. Keep total images under 1 MB for best results.</span>
+          </div>
 
-    <button class="btn-primary" id="create-btn" onclick="createLink()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      <span data-i18n="createBtn">Create secure link</span>
-    </button>
-
-    <div id="result-card" class="result-card" style="display:none" aria-live="polite">
+          <div id="compose-error" class="inline-error" aria-live="polite"></div>
+          <div class="composer-actions">
+            <div class="expiry-control">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+              <select id="expiry-select" aria-label="Link expiration">
+                <option value="read-once" data-i18n="expiryAfterRead">1 View</option>
+                <option value="24h" data-i18n="expiry24h">After reading or 24 hours</option>
+                <option value="1h" data-i18n="expiry1h">After reading or 1 hour</option>
+              </select>
+              <svg class="select-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
+            <div class="options-row" role="radiogroup" aria-label="Expiry options">
+              <label class="option-pill"><input type="radio" name="expiry" value="read-once" checked><span data-i18n="expiryAfterRead">After reading</span></label>
+              <label class="option-pill"><input type="radio" name="expiry" value="24h"><span data-i18n="expiry24h">After reading or 24 hours</span></label>
+              <label class="option-pill"><input type="radio" name="expiry" value="1h"><span data-i18n="expiry1h">After reading or 1 hour</span></label>
+            </div>
+            <div class="password-section">
+              <div class="password-toggle" onclick="togglePasswordSection()">
+                <div class="password-toggle-box" id="pw-toggle-box">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>
+                </div>
+                <svg class="password-key-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="15" r="4"/><path d="m10.85 12.15 7-7a2.12 2.12 0 0 1 3 3l-1.5 1.5 1.5 1.5-3 3-1.5-1.5-2 2"/></svg>
+                <span class="password-toggle-label" data-i18n="pwToggle">Password Lock</span>
+              </div>
+              <div class="password-fields" id="pw-fields">
+                <div class="pw-type-row">
+                  <button class="pw-type-btn active" id="btn-type-password" data-i18n="pwTypePw" onclick="setPwType('password')">🔑 Password</button>
+                  <button class="pw-type-btn" id="btn-type-pin" data-i18n="pwTypePin" onclick="setPwType('pin')">🔢 4-digit PIN</button>
+                </div>
+                <div id="pw-password-wrap" class="pw-input-wrap">
+                  <input class="pw-input" id="pw-password-input" type="password" placeholder="Enter a password…" data-i18n="pwPlaceholder" autocomplete="new-password" maxlength="128">
+                  <button class="pw-eye" type="button" onclick="togglePwEye()" tabindex="-1">
+                    <svg id="pw-eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                </div>
+                <div id="pw-pin-wrap" style="display:none">
+                  <div class="pin-grid">
+                    <input class="pin-box" id="pin-0" type="number" min="0" max="9" maxlength="1" placeholder="·" oninput="pinMove(this,0)">
+                    <input class="pin-box" id="pin-1" type="number" min="0" max="9" maxlength="1" placeholder="·" oninput="pinMove(this,1)">
+                    <input class="pin-box" id="pin-2" type="number" min="0" max="9" maxlength="1" placeholder="·" oninput="pinMove(this,2)">
+                    <input class="pin-box" id="pin-3" type="number" min="0" max="9" maxlength="1" placeholder="·" oninput="pinMove(this,3)">
+                  </div>
+                </div>
+                <p class="pw-hint" id="pw-hint" data-i18n="pwHintPw">Share this password with the recipient separately — do not include it in the message.</p>
+              </div>
+            </div>
+            <button class="btn-primary" id="create-btn" onclick="createLink()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              <span data-i18n="createBtn">Create Link</span>
+            </button>
+          </div>
+          <div id="result-card" class="result-card" style="display:none" aria-live="polite">
       <div class="result-header">
         <div class="result-icon">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3FB950" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
@@ -365,6 +627,42 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
         Write another message
       </button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="hero-art" aria-label="One-time message link preview">
+        <div class="soft-orb orb-one"></div>
+        <div class="soft-orb orb-two"></div>
+        <div class="preview-card">
+          <div class="preview-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5Z"/></svg>
+          </div>
+          <div class="preview-copy">
+            <div class="preview-heading"><strong>Your message</strong><span>Live Preview</span></div>
+            <p id="message-preview">This message will self-destruct after being viewed.</p>
+          </div>
+        </div>
+        <svg class="preview-arrow" viewBox="0 0 70 85" fill="none" aria-hidden="true"><path d="M61 4C61 35 44 48 12 67" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="4 5"/><path d="m13 57-2 11 11-1" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="link-preview">
+          <span class="link-preview-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          </span>
+          <strong>ghostlink.com / one-time link</strong>
+          <span class="link-preview-copy" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>
+          </span>
+          <span class="preview-sparkle">✦</span>
+        </div>
+        <div class="hero-caption">One link. One view. Gone for good.</div>
+      </aside>
+    </div>
+
+    <div class="hero-trustbar" id="features">
+      <div class="trust-item"><span class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span><span><strong>100%</strong><br>Private</span></div>
+      <div class="trust-item"><span class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16M4 10h16M4 15h10M4 20h7"/><path d="m17 16 3 3-3 3"/></svg></span><span><strong>Zero</strong><br>Plaintext Storage</span></div>
+      <div class="trust-item"><span class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span><span><strong>Encrypted</strong><br>in your browser</span></div>
+      <div class="trust-item"><span class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2 3 14h8l-1 8 11-12h-8l1-8Z"/></svg></span><span><strong>One-Time</strong><br>View</span></div>
     </div>
   </div>
 
@@ -537,6 +835,24 @@
   <div class="notice" style="margin-top:1rem">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
     <span><strong style="color:var(--text-dim)">No loopholes:</strong> Expiry is enforced on our servers, not in the browser. Clearing cache, switching devices, or using a different network cannot reopen a message that has already been read.</span>
+  </div>
+</section>
+
+<section class="faq-section" id="faq" aria-labelledby="faq-title">
+  <h2 class="faq-title" id="faq-title">Questions, answered</h2>
+  <div class="faq-list">
+    <article class="faq-item">
+      <h3>Can anyone read my message before it is opened?</h3>
+      <p>Your message is encrypted in your browser before a link is created. Only someone with the link can try to open it.</p>
+    </article>
+    <article class="faq-item">
+      <h3>What happens after the first view?</h3>
+      <p>The link is marked as used and cannot be opened again. You can also choose a one-hour or 24-hour time limit.</p>
+    </article>
+    <article class="faq-item">
+      <h3>Can I add another layer of protection?</h3>
+      <p>Yes. Turn on Password Lock before creating the link, then share the password separately from the message link.</p>
+    </article>
   </div>
 </section>
 
@@ -762,6 +1078,7 @@ function isExpired(parsed) {
 // ═══════════════════════════════════════════════
 const msgInput = document.getElementById('msg-input');
 const charCount = document.getElementById('char-count');
+const expirySelect = document.getElementById('expiry-select');
 const createBtn = document.getElementById('create-btn');
 const resultCard = document.getElementById('result-card');
 const resultLinkDisplay = document.getElementById('result-link-display');
@@ -885,9 +1202,17 @@ function renderImagePreviews() {
 
 msgInput.addEventListener('input', () => {
   const len = msgInput.value.length;
-  charCount.textContent = len.toLocaleString();
+  charCount.textContent = `${len}/500`;
   charCount.className = 'char-count';
+  if (len >= 450) charCount.classList.add('warn');
+  const preview = document.getElementById('message-preview');
+  if (preview) preview.textContent = msgInput.value.trim() || 'This message will self-destruct after being viewed.';
   if (composeError.textContent) composeError.textContent = '';
+});
+
+expirySelect.addEventListener('change', () => {
+  const selected = document.querySelector(`input[name="expiry"][value="${expirySelect.value}"]`);
+  if (selected) selected.checked = true;
 });
 
 async function createLink() {
@@ -982,6 +1307,10 @@ function resetCompose() {
   attachedImages = [];
   renderImagePreviews();
   document.querySelector('input[name="expiry"][value="read-once"]').checked = true;
+  expirySelect.value = 'read-once';
+  charCount.textContent = '0/500';
+  const preview = document.getElementById('message-preview');
+  if (preview) preview.textContent = 'This message will self-destruct after being viewed.';
   // Reset password section
   pwEnabled = false; pwType = 'password';
   document.getElementById('pw-toggle-box').classList.remove('checked');
@@ -1013,6 +1342,8 @@ function goHome() {
   document.getElementById('view-compose').classList.add('active');
   document.getElementById('view-reveal').classList.remove('active');
   document.getElementById('how-section').style.display = 'block';
+  document.getElementById('faq').style.display = 'block';
+  document.querySelector('.top-nav').style.display = '';
   resetCompose();
 }
 
@@ -1314,21 +1645,21 @@ const LANGS = {
     flag:'🇬🇧', label:'EN', dir:'ltr',
     badge:'end-to-end encrypted',
     newMsg:'New message',
-    heading:'Send a private message. Once.',
-    sub:'Write your message and we\'ll create a secure, one-time link. The recipient opens it once — after that, the link stops working forever. No account needed.',
+    heading:'Send a Message That <span class="gradient-text">Disappears</span>',
+    sub:'Type your message, get a unique single-use link, and share it securely. Once it’s viewed, it self-destructs instantly — no traces left behind.',
     sectionLabel:'New message',
     expiryLabel:'Link expires',
-    expiryAfterRead:'After reading',
+    expiryAfterRead:'1 View',
     expiry24h:'After reading or 24 hours',
     expiry1h:'After reading or 1 hour',
     pwSectionLabel:'Password protection',
-    pwToggle:'Require a password to open this message',
+    pwToggle:'Password Lock',
     pwTypePw:'🔑 Password',
     pwTypePin:'🔢 4-digit PIN',
     pwPlaceholder:'Enter a password…',
     pwHintPw:'Share this password with the recipient separately — do not include it in the message.',
     pwHintPin:'Share this PIN with the recipient separately — do not include it in the message.',
-    createBtn:'Create secure link',
+    createBtn:'Create Link',
     pwGateTitle:'Password required',
     pwGateBodyPw:'This message is protected. Enter the password the sender gave you to continue.',
     pwGateBodyPin:'This message is protected. Enter the 4-digit PIN the sender gave you to continue.',
@@ -2202,6 +2533,8 @@ function applyTranslations() {
     if (val === undefined) return;
     if (el.tagName === 'INPUT' && el.type !== 'radio' && el.type !== 'checkbox') {
       el.placeholder = val;
+    } else if (el.tagName === 'OPTION') {
+      el.textContent = val;
     } else {
       el.innerHTML = val;
     }
@@ -2234,10 +2567,12 @@ function applyTranslations() {
     document.getElementById('view-compose').classList.add('active');
     return;
   }
+  document.querySelector('.top-nav').style.display = 'none';
   currentFragRaw = frag.substring(1);
   document.getElementById('view-compose').classList.remove('active');
   document.getElementById('view-reveal').classList.add('active');
   document.getElementById('how-section').style.display = 'none';
+  document.getElementById('faq').style.display = 'none';
   initReveal();
 })();
 </script>
