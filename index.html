@@ -693,6 +693,17 @@
   .composer-actions .expiry-control{display:none!important}
   @media(max-width:480px){.compose-toolbar{margin-left:0!important;gap:10px!important}.compose-toolbar .expiry-control select{font-size:10px!important}.compose-toolbar .toolbar-btn{font-size:10px!important}}
 
+  /* Mobile fixes: keep the password editor inside the viewport without shifting the page. */
+  .compose-toolbar .password-section{position:relative!important;min-width:0!important}
+  .compose-toolbar .password-fields{left:0!important;right:auto!important;top:calc(100% + 8px)!important;width:min(320px,calc(100vw - 40px))!important;max-width:calc(100vw - 40px)!important;box-sizing:border-box!important;z-index:1000!important}
+  .lang-switcher{position:relative!important;z-index:1001!important;align-self:center!important}
+  .lang-dropdown{position:absolute!important;top:calc(100% + 6px)!important;bottom:auto!important;right:0!important;left:auto!important;height:auto!important;max-height:min(320px,50vh)!important;width:max-content!important;max-width:calc(100vw - 24px)!important;box-sizing:border-box!important;z-index:2000!important}
+  .header{overflow:visible!important}
+  @media(max-width:480px){
+    .compose-toolbar .password-fields{left:0!important;right:auto!important;width:min(300px,calc(100vw - 36px))!important;max-width:calc(100vw - 36px)!important}
+    .lang-dropdown{right:0!important;left:auto!important;max-height:45vh!important}
+  }
+
 </style>
 <script>
   try {
@@ -2984,4 +2995,5 @@ function applyTranslations() {
 </script>
 </body>
 </html>
+
 
