@@ -776,14 +776,10 @@
       Create Link
     </a>
   </nav>
-  <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" title="Switch to dark mode" aria-pressed="false">
-    <svg class="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 15.1A8.5 8.5 0 0 1 8.9 3.8 8.6 8.6 0 1 0 20.2 15.1Z"/></svg>
-    <svg class="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
-  </button>
   <div class="header-spacer"></div>
   <div class="header-badge" id="badge-encrypted">end-to-end encrypted</div>
 
-  <!-- Language Switcher -->
+  <!-- Language Switcher + Theme Toggle grouped on the right -->
   <div class="lang-switcher" id="lang-switcher">
     <button class="lang-btn" onclick="toggleLangMenu()" aria-label="Select language" aria-expanded="false" id="lang-btn">
       <span class="lang-flag" id="lang-current-flag">🇬🇧</span>
@@ -1824,15 +1820,25 @@ function collapsePwPanelIfFilled() {
   }
 }
 
-// Re-open panel when user focuses the password input area (for editing)
+// Collapse password panel only when focus truly leaves the entire panel
 document.addEventListener('DOMContentLoaded', function() {
-  // Attach collapse-on-blur to password input
+  const panel = document.getElementById('pw-fields');
+  if (panel) {
+    // focusout bubbles up from any child — check if new focus is still inside panel
+    panel.addEventListener('focusout', (e) => {
+      setTimeout(() => {
+        // relatedTarget = element receiving focus; if it's inside panel, don't collapse
+        if (panel.contains(document.activeElement)) return;
+        collapsePwPanelIfFilled();
+      }, 0);
+    });
+  }
+  // Enter key on password input also collapses
   const pwIn = document.getElementById('pw-password-input');
   if (pwIn) {
-    pwIn.addEventListener('blur', () => setTimeout(collapsePwPanelIfFilled, 180));
     pwIn.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); collapsePwPanelIfFilled(); } });
   }
-  // PIN last digit
+  // PIN last digit auto-collapse
   const pin3 = document.getElementById('pin-3');
   if (pin3) pin3.addEventListener('input', () => { if (pin3.value) setTimeout(collapsePwPanelIfFilled, 300); });
 });
@@ -1860,6 +1866,8 @@ function togglePwEye() {
   icon.innerHTML = isText
     ? '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>'
     : '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>';
+  // Keep focus on the input so panel doesn't collapse
+  requestAnimationFrame(() => inp.focus());
 }
 
 function pinMove(el, idx) {
