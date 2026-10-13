@@ -195,14 +195,19 @@
   .lang-option:hover{background:var(--bg-3);color:var(--text)}
   .lang-option.active{color:var(--accent);font-weight:600}
   .lang-option-flag{font-size:15px}
-  /* ── Mobile: lang dropdown opens UPWARD so it overlays, not pushes ── */
+  /* ── Mobile: lang dropdown opens DOWNWARD, fixed so it's never clipped ── */
   @media(max-width:680px){
+    .lang-switcher{position:static}
     .lang-dropdown{
+      position:fixed;
       top:auto;
-      bottom:calc(100% + 6px);
-      max-height:260px;
+      bottom:auto;
+      right:16px;
+      max-height:70vh;
+      overflow-y:auto;
+      z-index:9999;
     }
-    .lang-switcher.open .lang-chevron{transform:rotate(0deg)}
+    .lang-switcher.open .lang-chevron{transform:rotate(180deg)}
   }
   html{overflow-x:hidden}
   @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
@@ -244,9 +249,12 @@
     color:#667086;text-decoration:none;font-size:13px;font-weight:550;
     transition:color .18s ease,transform .18s ease;white-space:nowrap;
   }
-  .top-nav a:hover{color:var(--accent);transform:translateY(-1px)}
-  .top-nav a.active{color:#824ee8;position:relative}
-  .top-nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:-9px;height:2px;border-radius:2px;background:#9b53e8}
+  .top-nav a:not(.nav-cta){position:relative}
+  .top-nav a:not(.nav-cta)::after{content:"";position:absolute;left:0;right:0;bottom:-9px;height:2px;border-radius:2px;background:#9b53e8;opacity:0;transition:opacity .18s ease}
+  .top-nav a:not(.nav-cta):hover{color:var(--accent);transform:translateY(-1px)}
+  .top-nav a:not(.nav-cta):hover::after{opacity:1}
+  .top-nav a.active{color:#824ee8}
+  .top-nav a.active::after{opacity:1}
   .top-nav .nav-cta{
     display:inline-flex;align-items:center;justify-content:center;gap:8px;
     color:white;background:linear-gradient(115deg,#7554f6,#bd4fe4);
@@ -412,7 +420,7 @@
     .top-nav{order:3;width:100%;justify-content:space-between;gap:9px;padding:5px 0 0}
     .top-nav a{font-size:11px}
     .top-nav .nav-cta{padding:8px 12px}
-    .top-nav a.active::after{bottom:-6px}
+    .top-nav a:not(.nav-cta)::after{bottom:-6px}
     .main{padding-top:37px}
     .hero-layout{grid-template-columns:1fr;gap:20px}
     .hero-column{max-width:none}
@@ -462,7 +470,7 @@
     .logo-name{font-size:15.5px}
     .top-nav{width:497px;flex:none;gap:0;justify-content:space-between;margin-left:auto;margin-right:0}
     .top-nav a{font-size:10.5px}
-    .top-nav a.active::after{bottom:-7px}
+    .top-nav a:not(.nav-cta)::after{bottom:-7px}
     .top-nav .nav-cta{gap:6px;padding:7px 8.5px;font-size:10.5px}
     .main{padding:40px 0 0}
     .hero-layout{grid-template-columns:390px 240px;column-gap:155px;row-gap:0;align-items:start}
@@ -587,6 +595,7 @@
   html[data-theme="dark"] .logo-name{color:var(--text)}
   html[data-theme="dark"] .logo-name span{color:#b69cff}
   html[data-theme="dark"] .top-nav a:not(.nav-cta){color:#aab3c8}
+  html[data-theme="dark"] .top-nav a:not(.nav-cta):hover::after{background:#aa8dff}
   html[data-theme="dark"] .top-nav a.active{color:#c1adff}
   html[data-theme="dark"] .top-nav a.active::after{background:#aa8dff}
   html[data-theme="dark"] .lang-btn{
@@ -766,7 +775,7 @@
     <span class="logo-name">Ghost<span>Link</span></span>
   </div>
   <nav class="top-nav" aria-label="Main navigation">
-    <a class="active" href="#" onclick="document.getElementById('home').scrollIntoView({behavior:'smooth'});return false">Home</a>
+    <a href="#" onclick="document.getElementById('home').scrollIntoView({behavior:'smooth'});return false">Home</a>
     <a href="#" onclick="document.getElementById('how-section').scrollIntoView({behavior:'smooth'});return false">How It Works</a>
     <a href="#" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'});return false">Features</a>
     <a href="#" onclick="document.getElementById('faq').scrollIntoView({behavior:'smooth'});return false">FAQ</a>
@@ -2983,11 +2992,32 @@ function t(key) {
 function toggleLangMenu() {
   const sw = document.getElementById('lang-switcher');
   const btn = document.getElementById('lang-btn');
+  const dropdown = sw.querySelector('.lang-dropdown');
   const isOpen = sw.classList.toggle('open');
   btn.setAttribute('aria-expanded', isOpen);
   if (isOpen) {
+    // On mobile, use fixed positioning anchored to the button's screen position
+    if (window.innerWidth <= 680) {
+      const rect = btn.getBoundingClientRect();
+      dropdown.style.top = (rect.bottom + 6) + 'px';
+      dropdown.style.right = (window.innerWidth - rect.right) + 'px';
+      dropdown.style.left = 'auto';
+      // Ensure it doesn't overflow the bottom of the screen
+      const maxH = window.innerHeight - rect.bottom - 16;
+      dropdown.style.maxHeight = Math.min(maxH, window.innerHeight * 0.7) + 'px';
+    } else {
+      dropdown.style.top = '';
+      dropdown.style.right = '';
+      dropdown.style.left = '';
+      dropdown.style.maxHeight = '';
+    }
     const close = e => { if (!sw.contains(e.target)) { sw.classList.remove('open'); btn.setAttribute('aria-expanded','false'); document.removeEventListener('click', close); } };
     setTimeout(() => document.addEventListener('click', close), 0);
+  } else {
+    dropdown.style.top = '';
+    dropdown.style.right = '';
+    dropdown.style.left = '';
+    dropdown.style.maxHeight = '';
   }
 }
 
