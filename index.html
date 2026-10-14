@@ -1155,6 +1155,7 @@
       </div>
       <h1 class="reveal-title" data-i18n="dberrorTitle">Something went wrong</h1>
       <p class="reveal-body" data-i18n="dberrorBody">We were unable to verify this link right now. For your security, messages cannot be opened until our service is reachable. Please try again in a moment.</p>
+      <p id="dberror-detail" style="font-size:12px;color:var(--text-muted);font-family:var(--mono);margin-top:-0.75rem;margin-bottom:1.25rem;max-width:38ch;text-align:center"></p>
       <button class="reveal-btn" onclick="retryInit()" style="background:var(--amber)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
         <span data-i18n="retryBtn">Retry</span>
@@ -1274,10 +1275,37 @@ if (brandGhost && brandLogo) {
 }
 
 // ═══════════════════════════════════════════════
-//  SUPABASE CONFIG  (your real credentials)
+//  SUPABASE CONFIG
+//
+//  ⚠️  IMPORTANT — DO NOT put a real API key in this file.
+//  This file is served to every browser; any key here is public.
+//
+//  Two safe options:
+//    A) Self-host: add a tiny backend (Cloudflare Worker / Vercel Edge Function)
+//       that forwards Supabase calls from the server side, where the key is hidden.
+//    B) Use Supabase Row-Level-Security (RLS) so that only the burn operations
+//       you need are reachable by the anon key, then the risk of the anon key
+//       leaking is minimal (it can only do what RLS allows).
+//
+//  For local / dev use you can paste a key below, but strip it before committing
+//  or publishing the file.
 // ═══════════════════════════════════════════════
 const SUPABASE_URL = 'https://rrpucvavleazlrtmzldv.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_HCkMESR71p7_seeoyB2OCA_UgBzBPMG';
+
+// If running without a key (e.g. in production where you have a backend proxy)
+// set SUPABASE_URL to your proxy endpoint and leave SUPABASE_KEY empty.
+// The fetch helpers below pass the key only when it is non-empty.
+
+function _sbHeaders(extra = {}) {
+  const h = { 'Content-Type': 'application/json', ...extra };
+  if (SUPABASE_KEY) {
+    h['apikey'] = SUPABASE_KEY;
+    h['Authorization'] = `Bearer ${SUPABASE_KEY}`;
+  }
+  return h;
+}
+
 const TABLE = 'burns';  // table name in your Supabase database
 
 // ═══════════════════════════════════════════════
@@ -1291,12 +1319,7 @@ async function sbUploadImages(imgRef, encryptedBytes) {
     `${SUPABASE_URL}/storage/v1/object/ghostlink/${imgRef}`,
     {
       method: 'POST',
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/octet-stream',
-        'x-upsert': 'true'
-      },
+      headers: { ..._sbHeaders(), 'Content-Type': 'application/octet-stream', 'x-upsert': 'true' },
       body: encryptedBytes
     }
   );
@@ -1308,7 +1331,7 @@ async function sbUploadImages(imgRef, encryptedBytes) {
 async function sbDownloadImages(imgRef) {
   const res = await fetch(
     `${SUPABASE_URL}/storage/v1/object/ghostlink/${imgRef}`,
-    { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+    { headers: _sbHeaders() }
   );
   if (!res.ok) throw new Error('img_download_failed');
   return new Uint8Array(await res.arrayBuffer());
@@ -1317,7 +1340,7 @@ async function sbDownloadImages(imgRef) {
 async function sbGet(burnId) {
   const res = await fetch(
     `${SUPABASE_URL}/rest/v1/${TABLE}?burn_id=eq.${encodeURIComponent(burnId)}&select=burn_id`,
-    { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+    { headers: _sbHeaders() }
   );
   if (!res.ok) throw new Error('db_read_failed');
   const rows = await res.json();
@@ -1325,22 +1348,31 @@ async function sbGet(burnId) {
 }
 
 async function sbSet(burnId) {
+  // We use "resolution=ignore-duplicates" so Supabase issues an
+  // INSERT … ON CONFLICT DO NOTHING internally.
+  // • 201 → we inserted the row — we are the first (and only) opener.
+  // • 200/204 with empty body → conflict ignored — someone else already
+  //   burned this link (race condition caught).
+  // • 409 → same as above on older Supabase versions.
   const res = await fetch(
     `${SUPABASE_URL}/rest/v1/${TABLE}`,
     {
       method: 'POST',
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-        Prefer: 'return=minimal'
-      },
+      headers: { ..._sbHeaders(), Prefer: 'resolution=ignore-duplicates,return=representation' },
       body: JSON.stringify({ burn_id: burnId, burned_at: new Date().toISOString() })
     }
   );
-  // 201 = inserted, 409 = already exists (duplicate — still burned)
-  if (!res.ok && res.status !== 409) throw new Error('db_write_failed');
-  return true;
+
+  if (res.status === 201) {
+    // We won the race — row is freshly inserted.
+    return true;
+  }
+  if (res.status === 200 || res.status === 204 || res.status === 409) {
+    // Row already existed — another opener beat us.
+    // Signal this to the caller so it can show "already burned".
+    throw new Object({ alreadyBurned: true });
+  }
+  throw new Error('db_write_failed');
 }
 
 // ── Password attempt tracking (stored in Supabase table: pw_attempts) ──
@@ -1350,7 +1382,7 @@ async function sbSet(burnId) {
 async function sbGetAttempts(burnId) {
   const res = await fetch(
     `${SUPABASE_URL}/rest/v1/pw_attempts?burn_id=eq.${encodeURIComponent(burnId)}&select=attempts`,
-    { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+    { headers: _sbHeaders() }
   );
   if (!res.ok) throw new Error('attempts_read_failed');
   const rows = await res.json();
@@ -1358,42 +1390,59 @@ async function sbGetAttempts(burnId) {
 }
 
 async function sbIncrementAttempt(burnId) {
-  // Upsert: insert with attempts=1, or increment existing row by 1
-  const res = await fetch(
+  // ── Preferred path: call a Postgres function that does an atomic
+  //    INSERT … ON CONFLICT DO UPDATE attempts = attempts + 1
+  //    and returns the new count.  Create the RPC in Supabase SQL editor:
+  //
+  //    CREATE OR REPLACE FUNCTION increment_attempt(p_burn_id text)
+  //    RETURNS int LANGUAGE plpgsql AS $$
+  //    DECLARE new_count int;
+  //    BEGIN
+  //      INSERT INTO pw_attempts(burn_id, attempts) VALUES(p_burn_id, 1)
+  //        ON CONFLICT (burn_id) DO UPDATE SET attempts = pw_attempts.attempts + 1;
+  //      SELECT attempts INTO new_count FROM pw_attempts WHERE burn_id = p_burn_id;
+  //      RETURN new_count;
+  //    END;$$;
+  //
+  try {
+    const rpcRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/rpc/increment_attempt`,
+      {
+        method: 'POST',
+        headers: _sbHeaders(),
+        body: JSON.stringify({ p_burn_id: burnId })
+      }
+    );
+    if (rpcRes.ok) {
+      const count = await rpcRes.json();
+      if (typeof count === 'number') return count;
+    }
+  } catch(e) { /* fall through */ }
+
+  // ── Fallback: INSERT first (handles the no-row case atomically),
+  //    then PATCH only if the row already existed (status 409 / 200).
+  //    This is still slightly racy under extreme concurrency, but the RPC
+  //    above removes the race entirely once you add the Postgres function.
+  const insRes = await fetch(
     `${SUPABASE_URL}/rest/v1/pw_attempts`,
     {
       method: 'POST',
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-        Prefer: 'resolution=merge-duplicates,return=representation'
-      },
-      // Insert attempts=1; on conflict (burn_id already exists) merge — but Supabase
-      // merge-duplicates replaces, so we use an RPC instead if available.
-      // Fallback: read current count, then patch.
+      headers: { ..._sbHeaders(), Prefer: 'return=representation' },
       body: JSON.stringify({ burn_id: burnId, attempts: 1 })
     }
   );
-  if (res.status === 201 || res.status === 200) {
-    const rows = await res.json();
-    // If merge returned the row, check if we need to patch (count was already >0)
-    if (rows && rows[0] && rows[0].attempts === 1) return 1; // freshly inserted
-    // Row existed but merge replaced with 1 — fix by patching the real value
+  if (insRes.status === 201) {
+    // Fresh row — count is exactly 1
+    return 1;
   }
-  // Fallback: read current, then PATCH with count+1
+  // Row already existed — read current value then PATCH to current+1
   const cur = await sbGetAttempts(burnId);
   const next = cur + 1;
   await fetch(
     `${SUPABASE_URL}/rest/v1/pw_attempts?burn_id=eq.${encodeURIComponent(burnId)}`,
     {
       method: 'PATCH',
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-        Prefer: 'return=minimal'
-      },
+      headers: { ..._sbHeaders(), Prefer: 'return=minimal' },
       body: JSON.stringify({ attempts: next })
     }
   );
@@ -1404,10 +1453,7 @@ async function sbDeleteAttempts(burnId) {
   // Clean up attempt row when link is burned (success or exhausted)
   await fetch(
     `${SUPABASE_URL}/rest/v1/pw_attempts?burn_id=eq.${encodeURIComponent(burnId)}`,
-    {
-      method: 'DELETE',
-      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
-    }
+    { method: 'DELETE', headers: _sbHeaders() }
   );
 }
 
@@ -1906,6 +1952,21 @@ async function hashPassword(raw) {
 
 // ═══════════════════════════════════════════════
 //  PASSWORD / PIN — RECIPIENT SIDE
+//
+//  ⚠️  Security note — browser-side password check:
+//  The SHA-256 hash of the password lives in the URL fragment.
+//  A determined user who opens DevTools can inspect `correctHash`
+//  and `pendingParsed` and skip the gate.  This is an inherent
+//  limitation of a 100% client-side architecture.
+//
+//  To eliminate this:  move the hash check and decryption key
+//  delivery to a server-side endpoint.  The recipient POSTs their
+//  password hash to your server; the server verifies it, marks the
+//  link burned, and returns the decryption key only on success.
+//  The key never travels in the URL.
+//
+//  The current implementation still prevents casual snooping and
+//  enforces the 5-attempt lockout server-side (via pw_attempts table).
 // ═══════════════════════════════════════════════
 let gateType = 'password'; // set when link is parsed
 let correctHash = '';      // expected hash from fragment
@@ -2054,6 +2115,15 @@ async function initReveal() {
       showState('ready');
     }
   } catch(err) {
+    // Distinguish network failure from a Supabase-specific error so the
+    // user sees a more helpful message.
+    const isOffline = !navigator.onLine || err instanceof TypeError;
+    const el = document.getElementById('dberror-detail');
+    if (el) {
+      el.textContent = isOffline
+        ? 'Your device appears to be offline. Check your internet connection and retry.'
+        : 'Our verification service could not be reached. This may be temporary — please retry in a moment.';
+    }
     showState('dberror');
   }
 }
@@ -2076,7 +2146,16 @@ async function proceedReveal() {
 
   try {
     const burnId = getBurnId(fragRaw);
-    await sbSet(burnId);
+    // sbSet throws {alreadyBurned:true} if another opener beat us (race condition).
+    let weWon = false;
+    try {
+      await sbSet(burnId);
+      weWon = true;
+    } catch(e) {
+      if (e && e.alreadyBurned) { showState('burned'); return; }
+      throw e; // real DB error — re-throw
+    }
+    if (!weWon) { showState('burned'); return; }
     try { await sbDeleteAttempts(burnId); } catch(e) {} // clean up attempt counter
     const key = await importKey(parsed.keyB64);
     const plaintext = await decryptMessage(parsed.ivB64, parsed.ctB64, key);
