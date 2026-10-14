@@ -923,7 +923,7 @@
             </div>
             <div id="pw-password-wrap" class="pw-input-wrap">
               <input class="pw-input" id="pw-password-input" type="password" placeholder="Enter a password…" data-i18n="pwPlaceholder" autocomplete="new-password" maxlength="128">
-              <button class="pw-eye" type="button" onclick="togglePwEye()" tabindex="-1">
+              <button class="pw-eye" type="button" onclick="togglePwEye()" onmousedown="event.preventDefault()" tabindex="-1">
                 <svg id="pw-eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
             </div>
@@ -1044,7 +1044,7 @@
       <!-- Password field (shown for password type) -->
       <div id="pw-gate-password-wrap" style="width:100%;max-width:280px;position:relative;margin-bottom:6px">
         <input class="pw-gate-input" id="pw-gate-input" type="password" placeholder="Enter password…" autocomplete="off" onkeydown="if(event.key==='Enter')submitPassword()">
-        <button class="pw-eye" type="button" onclick="toggleGateEye()" tabindex="-1" style="right:12px">
+        <button class="pw-eye" type="button" onclick="toggleGateEye()" onmousedown="event.preventDefault()" tabindex="-1" style="right:12px">
           <svg id="pw-gate-eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
         </button>
       </div>
@@ -1836,11 +1836,19 @@ function collapsePwPanelIfFilled() {
 document.addEventListener('DOMContentLoaded', function() {
   const panel = document.getElementById('pw-fields');
   if (panel) {
+    // Prevent eye button mousedown from stealing focus away from the input
+    const eyeBtn = document.querySelector('#pw-password-wrap .pw-eye');
+    if (eyeBtn) {
+      eyeBtn.addEventListener('mousedown', (e) => e.preventDefault());
+    }
     // focusout bubbles up from any child — check if new focus is still inside panel
     panel.addEventListener('focusout', (e) => {
       setTimeout(() => {
-        // relatedTarget = element receiving focus; if it's inside panel, don't collapse
+        // relatedTarget = element receiving focus after blur
+        const going = e.relatedTarget;
+        // Don't collapse if focus stayed inside panel, or went to the eye button
         if (panel.contains(document.activeElement)) return;
+        if (going && (panel.contains(going) || going.classList.contains('pw-eye'))) return;
         collapsePwPanelIfFilled();
       }, 0);
     });
@@ -1878,8 +1886,7 @@ function togglePwEye() {
   icon.innerHTML = isText
     ? '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>'
     : '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>';
-  // Keep focus on the input so panel doesn't collapse
-  requestAnimationFrame(() => inp.focus());
+  // mousedown preventDefault keeps focus on input — no manual refocus needed
 }
 
 function pinMove(el, idx) {
