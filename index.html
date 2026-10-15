@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -117,8 +118,30 @@
   .password-toggle-box svg{display:none}
   .password-toggle-box.checked svg{display:block}
   .password-toggle-label{font-size:13px;color:var(--text-dim)}
-  .password-fields{margin-top:10px;display:none;flex-direction:column;gap:8px}
+  .password-fields{
+    display:none;flex-direction:column;gap:8px;
+    margin-bottom:12px;margin-top:4px;
+    background:var(--bg-2);
+    border:1px solid rgba(110,118,229,0.35);
+    border-radius:var(--radius-lg);
+    padding:14px 14px 12px;
+    position:relative;
+    animation:pwSlideUp 0.2s ease;
+  }
+  .password-fields::after{
+    content:'';
+    position:absolute;
+    bottom:-7px;
+    left:24px;
+    width:12px;height:12px;
+    background:var(--bg-2);
+    border-right:1px solid rgba(110,118,229,0.35);
+    border-bottom:1px solid rgba(110,118,229,0.35);
+    transform:rotate(45deg);
+  }
+  @keyframes pwSlideUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
   .password-fields.visible{display:flex}
+  .img-count-badge{display:flex;align-items:center;gap:6px;margin-bottom:4px;margin-top:-2px}
   .pw-type-row{display:flex;gap:6px}
   .pw-type-btn{flex:1;padding:7px 10px;background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius);font-size:12.5px;color:var(--text-dim);cursor:pointer;transition:all 0.12s;font-family:var(--sans)}
   .pw-type-btn.active{border-color:var(--accent);color:var(--accent);background:var(--accent-glow)}
@@ -159,6 +182,7 @@
   .img-thumb-remove:hover{background:var(--red-bg);border-color:rgba(248,81,73,.4);color:var(--red)}
   .img-size-warn{font-size:11.5px;color:var(--amber);font-family:var(--mono);display:flex;align-items:center;gap:5px;margin-bottom:.5rem}
   /* ── Language switcher ── */
+  .header-right-controls{display:flex;align-items:center;gap:6px;margin-left:auto}
   .lang-switcher{position:relative;display:flex;align-items:center}
   .lang-btn{display:flex;align-items:center;gap:6px;background:var(--bg-2);border:1px solid var(--border);border-radius:20px;padding:4px 11px 4px 9px;font-size:12px;color:var(--text-dim);cursor:pointer;transition:border-color .12s,color .12s,background .12s;font-family:var(--sans);font-weight:500;outline:none;user-select:none;white-space:nowrap}
   .lang-btn:hover{border-color:var(--border-bright);color:var(--text);background:var(--bg-3)}
@@ -172,6 +196,21 @@
   .lang-option:hover{background:var(--bg-3);color:var(--text)}
   .lang-option.active{color:var(--accent);font-weight:600}
   .lang-option-flag{font-size:15px}
+  /* ── Mobile: lang dropdown opens DOWNWARD, fixed so it's never clipped ── */
+  @media(max-width:680px){
+    .lang-switcher{position:static}
+    .lang-dropdown{
+      position:fixed;
+      top:auto;
+      bottom:auto;
+      right:16px;
+      max-height:70vh;
+      overflow-y:auto;
+      z-index:9999;
+    }
+    .lang-switcher.open .lang-chevron{transform:rotate(180deg)}
+  }
+  html{overflow-x:hidden}
   @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 
   /* GhostLink landing-page redesign */
@@ -382,7 +421,6 @@
     .top-nav a{font-size:11px}
     .top-nav .nav-cta{padding:8px 12px}
     .top-nav a:not(.nav-cta)::after{bottom:-6px}
-    .lang-switcher{margin-left:auto}
     .main{padding-top:37px}
     .hero-layout{grid-template-columns:1fr;gap:20px}
     .hero-column{max-width:none}
@@ -485,7 +523,6 @@
     .how-section{margin:68px auto 0}
     .faq-section{margin:66px auto 54px}
     .footer{display:flex;align-items:center;gap:12px;margin:0 auto}
-    .footer .lang-switcher{margin-left:auto;flex:0 0 auto}
   }
 
   /* Clean GhostLink mascot: no aura, no sparkles, just clear expressive motion. */
@@ -536,7 +573,7 @@
     box-shadow:0 11px 26px rgba(46,43,92,.075);
   }
   @media(max-width:680px){
-    .theme-toggle{order:1;margin-left:auto}
+    .header-right-controls{order:1;margin-left:auto}
   }
   @media(prefers-reduced-motion:reduce){
     .theme-toggle,.trust-item,.step-cell,.faq-item{transition:none!important}
@@ -564,8 +601,9 @@
   html[data-theme="dark"] .logo-name{color:var(--text)}
   html[data-theme="dark"] .logo-name span{color:#b69cff}
   html[data-theme="dark"] .top-nav a:not(.nav-cta){color:#aab3c8}
+  html[data-theme="dark"] .top-nav a:not(.nav-cta):hover::after{background:#aa8dff}
   html[data-theme="dark"] .top-nav a.active{color:#c1adff}
-  html[data-theme="dark"] .top-nav a:not(.nav-cta)::after{background:#aa8dff}
+  html[data-theme="dark"] .top-nav a.active::after{background:#aa8dff}
   html[data-theme="dark"] .lang-btn{
     color:var(--text-dim);background:var(--bg-2);border-color:var(--border);box-shadow:none;
   }
@@ -609,7 +647,10 @@
   html[data-theme="dark"] .password-toggle-label{color:var(--text-dim)}
   html[data-theme="dark"] .password-key-icon{color:var(--text-muted)}
   html[data-theme="dark"] .password-fields{
-    background:var(--bg-2);border-color:var(--border-bright);box-shadow:0 14px 34px rgba(0,0,0,.34);
+    background:var(--bg-3);border-color:rgba(110,118,229,0.4);box-shadow:none;
+  }
+  html[data-theme="dark"] .password-fields::after{
+    background:var(--bg-3);border-color:rgba(110,118,229,0.4);
   }
   html[data-theme="dark"] .pw-type-btn,
   html[data-theme="dark"] .pw-input,
@@ -696,16 +737,7 @@
   .composer-actions .expiry-control{display:none!important}
   @media(max-width:480px){.compose-toolbar{margin-left:0!important;gap:10px!important}.compose-toolbar .expiry-control select{font-size:10px!important}.compose-toolbar .toolbar-btn{font-size:10px!important}}
 
-  /* Mobile fixes: keep the password editor inside the viewport without shifting the page. */
-  .compose-toolbar .password-section{position:relative!important;min-width:0!important}
-  .compose-toolbar .password-fields{left:0!important;right:auto!important;top:calc(100% + 8px)!important;width:min(320px,calc(100vw - 40px))!important;max-width:calc(100vw - 40px)!important;box-sizing:border-box!important;z-index:1000!important}
-  .lang-switcher{position:relative!important;z-index:1001!important;align-self:center!important}
-  .lang-dropdown{position:absolute!important;top:calc(100% + 6px)!important;bottom:auto!important;right:0!important;left:auto!important;height:auto!important;max-height:min(320px,50vh)!important;width:max-content!important;max-width:calc(100vw - 24px)!important;box-sizing:border-box!important;z-index:2000!important}
-  .header{overflow:visible!important}
-  @media(max-width:480px){
-    .compose-toolbar .password-fields{left:0!important;right:auto!important;width:min(300px,calc(100vw - 36px))!important;max-width:calc(100vw - 36px)!important}
-    .lang-dropdown{right:0!important;left:auto!important;max-height:45vh!important}
-  }
+
 
 </style>
 <script>
@@ -752,7 +784,7 @@
     <span class="logo-name">Ghost<span>Link</span></span>
   </div>
   <nav class="top-nav" aria-label="Main navigation">
-    <a class="active" href="#" onclick="document.getElementById('home').scrollIntoView({behavior:'smooth'});return false">Home</a>
+    <a href="#" onclick="document.getElementById('home').scrollIntoView({behavior:'smooth'});return false">Home</a>
     <a href="#" onclick="document.getElementById('how-section').scrollIntoView({behavior:'smooth'});return false">How It Works</a>
     <a href="#" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'});return false">Features</a>
     <a href="#" onclick="document.getElementById('faq').scrollIntoView({behavior:'smooth'});return false">FAQ</a>
@@ -761,15 +793,12 @@
       Create Link
     </a>
   </nav>
-  <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" title="Switch to dark mode" aria-pressed="false">
-    <svg class="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 15.1A8.5 8.5 0 0 1 8.9 3.8 8.6 8.6 0 1 0 20.2 15.1Z"/></svg>
-    <svg class="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
-  </button>
   <div class="header-spacer"></div>
   <div class="header-badge" id="badge-encrypted">end-to-end encrypted</div>
 
-  <!-- Language Switcher -->
-  <div class="lang-switcher" id="lang-switcher">
+  <!-- Language + Theme grouped together on the right -->
+  <div class="header-right-controls">
+    <div class="lang-switcher" id="lang-switcher">
     <button class="lang-btn" onclick="toggleLangMenu()" aria-label="Select language" aria-expanded="false" id="lang-btn">
       <span class="lang-flag" id="lang-current-flag">🇬🇧</span>
       <span id="lang-current-label">EN</span>
@@ -831,6 +860,11 @@
       <div class="lang-option" onclick="setLang('si')" data-lang="si" role="menuitem"><span class="lang-option-flag">🇱🇰</span> සිංහල</div>
       <div class="lang-option" onclick="setLang('uz')" data-lang="uz" role="menuitem"><span class="lang-option-flag">🇺🇿</span> O'zbek</div>
     </div>
+  </div>
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" title="Switch to dark mode" aria-pressed="false">
+      <svg class="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 15.1A8.5 8.5 0 0 1 8.9 3.8 8.6 8.6 0 1 0 20.2 15.1Z"/></svg>
+      <svg class="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
+    </button>
   </div>
 
 </header>
@@ -895,7 +929,10 @@
                 <p class="pw-hint" id="pw-hint" data-i18n="pwHintPw">Share this password with the recipient separately — do not include it in the message.</p>
               </div>
             </div>
-                            <span id="img-count-label" style="font-size:11.5px;color:var(--text-muted);font-family:var(--mono);display:none"></span>
+          <div id="img-count-label" style="display:none;align-items:center;gap:6px;margin-bottom:4px;margin-top:-4px">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+              <span id="img-count-text"></span>
+          </div>
             </div>
             <div class="char-count" id="char-count">0</div>
           </div>
@@ -1502,9 +1539,7 @@ function restoreCreateButton() {
 let attachedImages = []; // [{name, dataUrl, size}]
 const MAX_IMG_DIMENSION = 1280; // px — resize larger images down
 const IMG_QUALITY = 0.75;       // JPEG quality for compression
-const WARN_TOTAL_BYTES = 2_000_000; // warn at 2 MB compressed total; storage limits vary by project
-const MAX_IMAGE_COUNT = 4;
-const MAX_IMAGE_BYTES = 4_000_000;
+const WARN_TOTAL_BYTES = 5_000_000; // warn above 5 MB total
 
 // Wire up button → file input → handler
 const imgFileInput = document.getElementById('img-file-input');
@@ -1517,42 +1552,28 @@ imgFileInput.addEventListener('change', function() {
 });
 
 // Compress + resize an image file → returns a data URL (JPEG)
-const COMPRESS_TIMEOUT_MS = 15_000; // 15 s — if processing hangs, reject cleanly
 function compressImage(file) {
-  return new Promise((resolve, reject) => {
-    if (!file.type || !file.type.startsWith('image/')) return reject(new Error('unsupported_image_type'));
-    let settled = false;
-    const done = (fn, val) => { if (settled) return; settled = true; clearTimeout(timer); fn(val); };
-    const timer = setTimeout(() => done(reject, new Error('image_processing_timeout')), COMPRESS_TIMEOUT_MS);
+  return new Promise((resolve) => {
     const reader = new FileReader();
-    reader.onerror = () => done(reject, new Error('image_read_failed'));
-    reader.onabort = () => done(reject, new Error('image_read_aborted'));
     reader.onload = e => {
       const img = new Image();
-      img.onerror = () => done(reject, new Error('image_decode_failed'));
       img.onload = () => {
-        try {
-          // Calculate new dimensions keeping aspect ratio
-          let { width, height } = img;
-          if (width > MAX_IMG_DIMENSION || height > MAX_IMG_DIMENSION) {
-            if (width > height) { height = Math.round(height * MAX_IMG_DIMENSION / width); width = MAX_IMG_DIMENSION; }
-            else { width = Math.round(width * MAX_IMG_DIMENSION / height); height = MAX_IMG_DIMENSION; }
-          }
-          const canvas = document.createElement('canvas');
-          canvas.width = width; canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          if (!ctx) return done(reject, new Error('image_canvas_unavailable'));
-          ctx.drawImage(img, 0, 0, width, height);
-          // Use JPEG for photos, PNG only for tiny images or those with transparency
-          const isSmall = file.size < 50_000;
-          const mimeOut = (file.type === 'image/png' && isSmall) ? 'image/png' : 'image/jpeg';
-          const dataUrl = canvas.toDataURL(mimeOut, IMG_QUALITY);
-          // Estimate compressed size from base64 length
-          const compressedSize = Math.round((dataUrl.length - dataUrl.indexOf(',') - 1) * 0.75);
-          done(resolve, { dataUrl, size: compressedSize });
-        } catch (canvasErr) {
-          done(reject, canvasErr);
+        // Calculate new dimensions keeping aspect ratio
+        let { width, height } = img;
+        if (width > MAX_IMG_DIMENSION || height > MAX_IMG_DIMENSION) {
+          if (width > height) { height = Math.round(height * MAX_IMG_DIMENSION / width); width = MAX_IMG_DIMENSION; }
+          else { width = Math.round(width * MAX_IMG_DIMENSION / height); height = MAX_IMG_DIMENSION; }
         }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        // Use JPEG for photos, PNG only for tiny images or those with transparency
+        const isSmall = file.size < 50_000;
+        const mimeOut = (file.type === 'image/png' && isSmall) ? 'image/png' : 'image/jpeg';
+        const dataUrl = canvas.toDataURL(mimeOut, IMG_QUALITY);
+        // Estimate compressed size from base64 length
+        const compressedSize = Math.round((dataUrl.length - dataUrl.indexOf(',') - 1) * 0.75);
+        resolve({ dataUrl, size: compressedSize });
       };
       img.src = e.target.result;
     };
@@ -1561,33 +1582,25 @@ function compressImage(file) {
 }
 
 async function handleImageFiles(files) {
-  const selected = Array.from(files).filter(f => f.type && f.type.startsWith('image/'));
-  if (!selected.length) { composeError.textContent = 'Please choose a supported image file.'; return; }
-  const room = MAX_IMAGE_COUNT - attachedImages.length;
-  if (room <= 0) { composeError.textContent = `You can attach up to ${MAX_IMAGE_COUNT} images.`; return; }
-  const toProcess = selected.slice(0, room);
+  const toProcess = Array.from(files).filter(f => f.type.startsWith('image/'));
+  if (toProcess.length === 0) return;
+
+  // Show loading state on button
   const btn = document.getElementById('img-attach-btn');
   const origHTML = btn.innerHTML;
   btn.disabled = true;
   btn.innerHTML = `<div class="spinner" style="width:12px;height:12px;border-width:2px"></div> Processing…`;
-  composeError.textContent = '';
-  try {
-    const results = await Promise.all(toProcess.map(async file => {
-      const img = await compressImage(file);
-      return { name: file.name, dataUrl: img.dataUrl, size: img.size };
-    }));
-    const total = attachedImages.reduce((sum, img) => sum + img.size, 0) + results.reduce((sum, img) => sum + img.size, 0);
-    if (total > MAX_IMAGE_BYTES) throw new Error('image_size_limit');
-    attachedImages.push(...results);
-    if (selected.length > room) composeError.textContent = `Only ${MAX_IMAGE_COUNT} images are allowed. Extra images were not added.`;
-    renderImagePreviews();
-  } catch (err) {
-    console.error('Image processing failed:', err);
-    composeError.textContent = err.message === 'image_size_limit' ? 'Images are too large together. Remove an image or choose smaller images (4 MB total maximum).' : 'One of the images could not be processed. Try another image.';
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = origHTML;
-  }
+
+  // Compress all selected images in parallel
+  const results = await Promise.all(toProcess.map(file =>
+    compressImage(file).then(({ dataUrl, size }) => ({ name: file.name, dataUrl, size }))
+  ));
+
+  attachedImages.push(...results);
+  renderImagePreviews();
+
+  btn.disabled = false;
+  btn.innerHTML = origHTML;
 }
 
 function renderImagePreviews() {
@@ -1617,10 +1630,11 @@ function renderImagePreviews() {
     strip.appendChild(wrap);
   });
 
-  // Counter label
+  // Counter label — shown below strip as a pill badge
   if (attachedImages.length > 0) {
-    countLabel.style.display = '';
-    countLabel.textContent = attachedImages.length + ' image' + (attachedImages.length !== 1 ? 's' : '');
+    countLabel.style.display = 'flex';
+    const textSpan = document.getElementById('img-count-text');
+    if (textSpan) textSpan.textContent = attachedImages.length + ' image' + (attachedImages.length !== 1 ? 's' : '') + ' attached';
   } else {
     countLabel.style.display = 'none';
   }
@@ -1655,7 +1669,6 @@ async function createLink() {
     msgInput.focus(); return;
   }
   if (text.length > MAX_MSG_LENGTH) { composeError.textContent = `Messages are limited to ${MAX_MSG_LENGTH.toLocaleString()} characters.`; return; }
-  if (attachedImages.length > MAX_IMAGE_COUNT) { composeError.textContent = `You can attach up to ${MAX_IMAGE_COUNT} images.`; return; }
   const expiryMode = document.querySelector('input[name="expiry"]:checked').value;
   let pwVal = '';
   if (pwEnabled) {
@@ -3014,11 +3027,32 @@ function t(key) {
 function toggleLangMenu() {
   const sw = document.getElementById('lang-switcher');
   const btn = document.getElementById('lang-btn');
+  const dropdown = sw.querySelector('.lang-dropdown');
   const isOpen = sw.classList.toggle('open');
   btn.setAttribute('aria-expanded', isOpen);
   if (isOpen) {
+    // On mobile, use fixed positioning anchored to the button's screen position
+    if (window.innerWidth <= 680) {
+      const rect = btn.getBoundingClientRect();
+      dropdown.style.top = (rect.bottom + 6) + 'px';
+      dropdown.style.right = (window.innerWidth - rect.right) + 'px';
+      dropdown.style.left = 'auto';
+      // Ensure it doesn't overflow the bottom of the screen
+      const maxH = window.innerHeight - rect.bottom - 16;
+      dropdown.style.maxHeight = Math.min(maxH, window.innerHeight * 0.7) + 'px';
+    } else {
+      dropdown.style.top = '';
+      dropdown.style.right = '';
+      dropdown.style.left = '';
+      dropdown.style.maxHeight = '';
+    }
     const close = e => { if (!sw.contains(e.target)) { sw.classList.remove('open'); btn.setAttribute('aria-expanded','false'); document.removeEventListener('click', close); } };
     setTimeout(() => document.addEventListener('click', close), 0);
+  } else {
+    dropdown.style.top = '';
+    dropdown.style.right = '';
+    dropdown.style.left = '';
+    dropdown.style.maxHeight = '';
   }
 }
 
