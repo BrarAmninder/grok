@@ -1325,10 +1325,39 @@ async function sbDownloadImages(imgRef) {
   if (!res.ok) throw new Error(res.status === 404 ? 'The attached image is no longer available.' : 'Could not download the attached image. Please retry.');
   return new Uint8Array(await res.arrayBuffer());
 }
-async function sbCreateMessage(msgId,ciphertext,iv,expiryMode,passwordHash,passwordType) { return sbRpc('gl_create_message',{p_msg_id:msgId,p_ciphertext:ciphertext,p_iv:iv,p_expiry_mode:expiryMode,p_password_hash:passwordHash,p_password_type:passwordType}); }
-async function sbMessageStatus(msgId) { return sbRpc('gl_message_status',{p_msg_id:msgId}); }
-async function sbCheckPassword(msgId,passwordHash) { return sbRpc('gl_check_password',{p_msg_id:msgId,p_password_hash:passwordHash}); }
-async function sbConsumeMessage(msgId,passwordHash) { return sbRpc('gl_consume_message',{p_msg_id:msgId,p_password_hash:passwordHash}); }
+// Compatibility layer for the SQL script already installed by the site owner.
+// This SQL does not contain password-hash support, so password-protected link
+// creation is explicitly disabled rather than falsely claiming server enforcement.
+async function sbCreateMessage(msgId,ciphertext,iv,expiryMode,passwordHash,passwordType) {
+  if (passwordHash || passwordType) throw new Error('Password-protected links are not supported by the current Supabase SQL. Turn off Password Lock, or update the SQL later to add server-side password verification.');
+  return sbRpc('gl_save_message',{p_msg_id:msgId,p_ciphertext:ciphertext,p_iv:iv,p_created_at:Math.floor(Date.now()/1000),p_expiry_mode:expiryMode});
+}
+async function sbMessageStatus(msgId) {
+  const rows = await sbRpc('gl_get_message',{p_msg_id:msgId});
+  const row = Array.isArray(rows) ? rows[0] : rows;
+  if (!row) return {status:'missing'};
+  if (row.burned_at || !row.ciphertext || !row.iv) return {status:'burned'};
+  const age = Math.floor(Date.now()/1000) - Number(row.created_at || 0);
+  if ((row.expiry_mode === '1h' && age > 3600) || (row.expiry_mode === '24h' && age > 86400)) return {status:'expired'};
+  return {status:'ready', password_required:false, ciphertext:row.ciphertext, iv:row.iv, created_at:row.created_at, expiry_mode:row.expiry_mode};
+}
+async function sbCheckPassword(msgId,passwordHash) {
+  throw new Error('Password verification is unavailable in the current Supabase SQL.');
+}
+async function sbConsumeMessage(msgId,passwordHash) {
+  if (passwordHash) throw new Error('Password verification is unavailable in the current Supabase SQL.');
+  // Fetch ciphertext first, then atomically claim the row. Only the client whose
+  // claim succeeds is allowed to reveal the cached ciphertext.
+  const rows = await sbRpc('gl_get_message',{p_msg_id:msgId});
+  const row = Array.isArray(rows) ? rows[0] : rows;
+  if (!row) return {status:'missing'};
+  if (row.burned_at || !row.ciphertext || !row.iv) return {status:'burned'};
+  const age = Math.floor(Date.now()/1000) - Number(row.created_at || 0);
+  if ((row.expiry_mode === '1h' && age > 3600) || (row.expiry_mode === '24h' && age > 86400)) return {status:'expired'};
+  const claimed = await sbRpc('gl_claim_message',{p_msg_id:msgId});
+  if (claimed !== true) return {status:'burned'};
+  return {status:'ok',ciphertext:row.ciphertext,iv:row.iv};
+}
 
 // ═══════════════════════════════════════════════
 //  CRYPTO HELPERS  (unchanged from original)
@@ -1544,6 +1573,10 @@ async function createLink() {
   if (attachedImages.length > MAX_IMAGES) { composeError.textContent = `You can attach up to ${MAX_IMAGES} images.`; return; }
   const expiryMode = document.querySelector('input[name="expiry"]:checked').value;
   // Validate password if enabled
+  if (pwEnabled) {
+    composeError.textContent = 'Password Lock requires additional Supabase SQL support that is not present in your currently installed SQL. Turn off Password Lock to create a link with the current setup.';
+    return;
+  }
   if (pwEnabled) {
     const pwVal = getPwValue();
     if (!pwVal) {
