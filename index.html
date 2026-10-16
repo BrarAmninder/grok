@@ -412,8 +412,6 @@
     .hero-art{min-height:330px}
     .composer-actions{gap:7px}
     .btn-primary{min-width:112px;padding-inline:12px}
-    .ghost-buddy{position:absolute;top:52%;left:auto;right:2%;width:54px;height:63px}
-    .hero-caption-bubble{position:absolute;top:calc(52% + 66px);right:2%;left:auto;width:120px;font-size:9px}
   }
   @media(max-width:680px){
     body{padding:0 17px}
@@ -511,8 +509,6 @@
     .link-preview-copy{color:#7663ca}
     .preview-sparkle{right:-7px;top:-10px;font-size:20px}
     .hero-caption{display:none}
-    .ghost-buddy{position:absolute;top:163px;left:190px;width:64px;height:74px}
-    .hero-caption-bubble{position:absolute;top:203px;left:7px;width:148px;display:block}
     .hero-trustbar{width:390px;flex-wrap:nowrap;gap:12px;margin:32px 0 0}
     .trust-item{flex:1 1 0;min-width:0;min-height:41px;padding:5px 7px;gap:6px;border-radius:8px;font-size:10px;line-height:1.18}
     .trust-item strong{font-size:10px}
@@ -552,62 +548,6 @@
     background:#f8f6ff;border-color:rgba(143,84,227,.14);
   }
   .hero-caption{letter-spacing:0}
-
-  /* ── Ghost buddy in hero art ── */
-  .ghost-buddy{
-    position:absolute;z-index:3;top:163px;left:190px;
-    width:64px;height:74px;
-    animation:ghostBuddyFloat 3.8s ease-in-out infinite;
-    pointer-events:none;
-  }
-  .ghost-buddy svg{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 7px 10px rgba(100,72,166,.18))}
-  .ghost-body{fill:url(#buddyGhostGradient);stroke:rgba(255,255,255,.78);stroke-width:1.8;stroke-linejoin:round}
-  .ghost-eye-dot{fill:#35254f}
-  .ghost-blush{fill:#ffabd3;opacity:.95}
-  .ghost-wink,.ghost-smile{fill:none;stroke:#35254f;stroke-width:2.2;stroke-linecap:round}
-  .ghost-arm-wave{
-    fill:none;stroke:#f4eaff;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round;
-    transform-box:fill-box;transform-origin:0% 90%;
-    animation:ghostArmWave 2.8s ease-in-out infinite;
-  }
-  @keyframes ghostBuddyFloat{
-    0%,100%{transform:translateY(0) rotate(3deg)}
-    50%{transform:translateY(-6px) rotate(-3deg)}
-  }
-  @keyframes ghostArmWave{
-    0%,100%{transform:rotate(0)}
-    50%{transform:rotate(-13deg)}
-  }
-
-  /* Speech bubble — desktop: positioned absolutely next to ghost */
-  .hero-caption-bubble{
-    position:absolute;z-index:3;
-    top:203px;left:7px;
-    width:148px;
-    padding:7px 11px;
-    border:1px solid rgba(143,84,227,.16);
-    border-radius:12px 12px 12px 4px;
-    background:rgba(255,255,255,.94);
-    box-shadow:0 7px 18px rgba(55,47,113,.08);
-    color:#8066b7;font-size:9px;line-height:1.45;text-align:center;
-    pointer-events:none;
-  }
-
-  /* Mobile — ghost visible, repositioned, speech bubble shown inline */
-  @media(max-width:680px){
-    .ghost-buddy{
-      position:relative;top:auto;left:auto;
-      width:58px;height:68px;
-      margin:10px auto -6px;
-      display:block;
-    }
-    .hero-caption-bubble{
-      position:relative;top:auto;left:auto;
-      width:auto;max-width:200px;
-      margin:4px auto 10px;
-      font-size:10px;
-    }
-  }
   .theme-toggle{
     width:34px;height:34px;flex:0 0 34px;margin-left:12px;
     display:grid;place-items:center;border:1px solid rgba(43,48,75,.13);
@@ -760,10 +700,6 @@
   html[data-theme="dark"] .footer-right,
   html[data-theme="dark"] .footer-right a{color:var(--text-muted)}
   html[data-theme="dark"] .footer-right a:hover{color:#cbbcff}
-  html[data-theme="dark"] .hero-caption-bubble{
-    background:rgba(28,33,50,.94);border-color:rgba(161,138,255,.22);
-    color:#c0a8f0;box-shadow:0 7px 18px rgba(0,0,0,.25);
-  }
   html[data-theme="dark"] .message-display{background:var(--bg-2);border-color:var(--border)}
   html[data-theme="dark"] .msg-header,
   html[data-theme="dark"] .msg-footer{background:var(--bg-3);border-color:var(--border)}
@@ -1063,30 +999,6 @@
             <p id="message-preview">This message will self-destruct after being viewed.</p>
           </div>
         </div>
-        <!-- Ghost buddy mascot -->
-        <div class="ghost-buddy" aria-hidden="true">
-          <svg viewBox="0 0 72 84" fill="none">
-            <defs>
-              <linearGradient id="buddyGhostGradient" x1="12" y1="13" x2="60" y2="70" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#5d5aef"/>
-                <stop offset=".55" stop-color="#8550ed"/>
-                <stop offset="1" stop-color="#c14de5"/>
-              </linearGradient>
-            </defs>
-            <ellipse cx="36" cy="72" rx="18" ry="3.5" fill="#7952f5" opacity=".1"/>
-            <path class="ghost-body" d="M12 58V35a24 24 0 0 1 48 0v23c-4-3.8-8-3.8-12 0s-8 3.8-12 0-8-3.8-12 0-8 3.8-12 0-8-3.8-12 0Z"/>
-            <path class="ghost-arm-wave" d="M59 45c7 0 9-6 5-10m0 0v-5m1 5 4-3"/>
-            <path class="ghost-wink" d="M25.5 35q2.5-3 5 0"/>
-            <circle class="ghost-eye-dot" cx="44" cy="35" r="2.5"/>
-            <circle cx="44.8" cy="34.2" r=".7" fill="#fff"/>
-            <ellipse class="ghost-blush" cx="23" cy="43" rx="3" ry="1.8"/>
-            <ellipse class="ghost-blush" cx="50" cy="43" rx="3" ry="1.8"/>
-            <path class="ghost-smile" d="M33 45q3 3.5 6 0"/>
-          </svg>
-        </div>
-        <!-- Speech bubble -->
-        <div class="hero-caption-bubble">I saw nothing. I was floating.</div>
-
         <svg class="preview-arrow" viewBox="0 0 70 85" fill="none" aria-hidden="true"><path d="M61 4C61 35 44 48 12 67" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="4 5"/><path d="m13 57-2 11 11-1" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <div class="link-preview">
           <span class="link-preview-icon">
@@ -1379,193 +1291,49 @@ if (brandGhost && brandLogo) {
 //  or publishing the file.
 // ═══════════════════════════════════════════════
 const SUPABASE_URL = 'https://mcjrockqqwgdzpruyyph.supabase.co';
-
-// Load key from sessionStorage so it survives page navigations but is never
-// baked into the source. The first time the page loads it will prompt you.
-// On a real deployment, inject this value from your server (e.g. a <meta> tag
-// written by your backend, or fetched from an authenticated endpoint).
-let SUPABASE_KEY = (() => {
-  try {
-    const stored = sessionStorage.getItem('gl_sbkey');
-    if (stored) return stored;
-  } catch(e) {}
-  return '';
-})();
-
-// If running without a key (e.g. in production where you have a backend proxy)
-// set SUPABASE_URL to your proxy endpoint and leave SUPABASE_KEY empty.
-// The fetch helpers below pass the key only when it is non-empty.
-
+// This is a publishable/anon key, not a secret. RLS and the SQL RPCs below
+// restrict what it can do. NEVER place a service_role/secret key in this file.
+const SUPABASE_KEY = 'sb_publishable_GK_LjZa5ocQj3HviIGiJbw_YveHEJn-';
 function _sbHeaders(extra = {}) {
-  const h = { 'Content-Type': 'application/json', ...extra };
-  if (SUPABASE_KEY) {
-    h['apikey'] = SUPABASE_KEY;
-    h['Authorization'] = `Bearer ${SUPABASE_KEY}`;
-  }
-  return h;
+  return { 'Content-Type': 'application/json', apikey: SUPABASE_KEY,
+    Authorization: `Bearer ${SUPABASE_KEY}`, ...extra };
 }
-
-const TABLE = 'burns';  // table name in your Supabase database
-
-// ═══════════════════════════════════════════════
-//  SUPABASE HELPERS  (direct REST API — no SDK needed)
-// ═══════════════════════════════════════════════
-
-// Upload encrypted image bytes to Supabase Storage bucket "ghostlink-images"
-// Returns the file path (= imgRef) stored in the URL fragment
+const MAX_ATTEMPTS = 5;
+const MAX_MESSAGE_CHARS = 3000;
+const MAX_IMAGES = 3;
+const MAX_TOTAL_IMAGE_BYTES = 3_000_000;
+async function sbRpc(name, body) {
+  let res;
+  try { res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`, { method:'POST', headers:_sbHeaders(), body:JSON.stringify(body) }); }
+  catch (_) { throw new Error('Network unavailable. Check your connection and retry.'); }
+  const raw = await res.text(); let data = null;
+  try { data = raw ? JSON.parse(raw) : null; } catch (_) {}
+  if (!res.ok) throw new Error(data?.message || data?.hint || `Supabase request failed (${res.status}).`);
+  return data;
+}
 async function sbUploadImages(imgRef, encryptedBytes) {
-  const res = await fetch(
-    `${SUPABASE_URL}/storage/v1/object/ghostlink/${imgRef}`,
-    {
-      method: 'POST',
-      headers: { ..._sbHeaders(), 'Content-Type': 'application/octet-stream', 'x-upsert': 'true' },
-      body: encryptedBytes
-    }
-  );
-  if (!res.ok) throw new Error('img_upload_failed');
+  let res;
+  try { res = await fetch(`${SUPABASE_URL}/storage/v1/object/ghostlink/${imgRef}`, { method:'POST', headers:{..._sbHeaders(),'Content-Type':'application/octet-stream','x-upsert':'false'}, body:encryptedBytes }); }
+  catch (_) { throw new Error('Storage is unreachable. Check your connection and retry.'); }
+  if (!res.ok) throw new Error(res.status === 413 ? 'The attached images are too large.' : 'Image upload failed. Check the existing ghostlink bucket permissions and file-size limit.');
   return imgRef;
 }
-
-// Download encrypted image bytes from Supabase Storage
 async function sbDownloadImages(imgRef) {
-  const res = await fetch(
-    `${SUPABASE_URL}/storage/v1/object/ghostlink/${imgRef}`,
-    { headers: _sbHeaders() }
-  );
-  if (!res.ok) throw new Error('img_download_failed');
+  let res;
+  try { res = await fetch(`${SUPABASE_URL}/storage/v1/object/ghostlink/${encodeURIComponent(imgRef)}`, {headers:_sbHeaders()}); }
+  catch (_) { throw new Error('Storage is unreachable. Check your connection and retry.'); }
+  if (!res.ok) throw new Error(res.status === 404 ? 'The attached image is no longer available.' : 'Could not download the attached image. Please retry.');
   return new Uint8Array(await res.arrayBuffer());
 }
-
-async function sbGet(burnId) {
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/${TABLE}?burn_id=eq.${encodeURIComponent(burnId)}&select=burn_id`,
-    { headers: _sbHeaders() }
-  );
-  if (!res.ok) throw new Error('db_read_failed');
-  const rows = await res.json();
-  return rows.length > 0; // true = already burned
-}
-
-async function sbSet(burnId) {
-  // We use "resolution=ignore-duplicates" so Supabase issues an
-  // INSERT … ON CONFLICT DO NOTHING internally.
-  // • 201 → we inserted the row — we are the first (and only) opener.
-  // • 200/204 with empty body → conflict ignored — someone else already
-  //   burned this link (race condition caught).
-  // • 409 → same as above on older Supabase versions.
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/${TABLE}`,
-    {
-      method: 'POST',
-      headers: { ..._sbHeaders(), Prefer: 'resolution=ignore-duplicates,return=representation' },
-      body: JSON.stringify({ burn_id: burnId, burned_at: new Date().toISOString() })
-    }
-  );
-
-  if (res.status === 201) {
-    // We won the race — row is freshly inserted.
-    return true;
-  }
-  if (res.status === 200 || res.status === 204 || res.status === 409) {
-    // Row already existed — another opener beat us.
-    // Signal this to the caller so it can show "already burned".
-    throw new Object({ alreadyBurned: true });
-  }
-  throw new Error('db_write_failed');
-}
-
-// ── Password attempt tracking (stored in Supabase table: pw_attempts) ──
-// Schema: burn_id text PK, attempts int default 0
-// RLS: insert/update/select with anon key (same policy as burns table)
-
-async function sbGetAttempts(burnId) {
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/pw_attempts?burn_id=eq.${encodeURIComponent(burnId)}&select=attempts`,
-    { headers: _sbHeaders() }
-  );
-  if (!res.ok) throw new Error('attempts_read_failed');
-  const rows = await res.json();
-  return rows.length > 0 ? rows[0].attempts : 0;
-}
-
-async function sbIncrementAttempt(burnId) {
-  // ── Preferred path: call a Postgres function that does an atomic
-  //    INSERT … ON CONFLICT DO UPDATE attempts = attempts + 1
-  //    and returns the new count.  Create the RPC in Supabase SQL editor:
-  //
-  //    CREATE OR REPLACE FUNCTION increment_attempt(p_burn_id text)
-  //    RETURNS int LANGUAGE plpgsql AS $$
-  //    DECLARE new_count int;
-  //    BEGIN
-  //      INSERT INTO pw_attempts(burn_id, attempts) VALUES(p_burn_id, 1)
-  //        ON CONFLICT (burn_id) DO UPDATE SET attempts = pw_attempts.attempts + 1;
-  //      SELECT attempts INTO new_count FROM pw_attempts WHERE burn_id = p_burn_id;
-  //      RETURN new_count;
-  //    END;$$;
-  //
-  try {
-    const rpcRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/rpc/increment_attempt`,
-      {
-        method: 'POST',
-        headers: _sbHeaders(),
-        body: JSON.stringify({ p_burn_id: burnId })
-      }
-    );
-    if (rpcRes.ok) {
-      const count = await rpcRes.json();
-      if (typeof count === 'number') return count;
-    }
-  } catch(e) { /* fall through */ }
-
-  // ── Fallback: INSERT first (handles the no-row case atomically),
-  //    then PATCH only if the row already existed (status 409 / 200).
-  //    This is still slightly racy under extreme concurrency, but the RPC
-  //    above removes the race entirely once you add the Postgres function.
-  const insRes = await fetch(
-    `${SUPABASE_URL}/rest/v1/pw_attempts`,
-    {
-      method: 'POST',
-      headers: { ..._sbHeaders(), Prefer: 'return=representation' },
-      body: JSON.stringify({ burn_id: burnId, attempts: 1 })
-    }
-  );
-  if (insRes.status === 201) {
-    // Fresh row — count is exactly 1
-    return 1;
-  }
-  // Row already existed — read current value then PATCH to current+1
-  const cur = await sbGetAttempts(burnId);
-  const next = cur + 1;
-  await fetch(
-    `${SUPABASE_URL}/rest/v1/pw_attempts?burn_id=eq.${encodeURIComponent(burnId)}`,
-    {
-      method: 'PATCH',
-      headers: { ..._sbHeaders(), Prefer: 'return=minimal' },
-      body: JSON.stringify({ attempts: next })
-    }
-  );
-  return next;
-}
-
-async function sbDeleteAttempts(burnId) {
-  // Clean up attempt row when link is burned (success or exhausted)
-  await fetch(
-    `${SUPABASE_URL}/rest/v1/pw_attempts?burn_id=eq.${encodeURIComponent(burnId)}`,
-    { method: 'DELETE', headers: _sbHeaders() }
-  );
-}
-
-// Derive a stable, short burn_id from the fragment
-function getBurnId(fragmentRaw) {
-  // Use first 64 chars — unique per link, safe for DB primary key
-  return fragmentRaw.substring(0, 64).replace(/[^a-zA-Z0-9_-]/g, 'X');
-}
+async function sbCreateMessage(msgId,ciphertext,iv,expiryMode,passwordHash,passwordType) { return sbRpc('gl_create_message',{p_msg_id:msgId,p_ciphertext:ciphertext,p_iv:iv,p_expiry_mode:expiryMode,p_password_hash:passwordHash,p_password_type:passwordType}); }
+async function sbMessageStatus(msgId) { return sbRpc('gl_message_status',{p_msg_id:msgId}); }
+async function sbCheckPassword(msgId,passwordHash) { return sbRpc('gl_check_password',{p_msg_id:msgId,p_password_hash:passwordHash}); }
+async function sbConsumeMessage(msgId,passwordHash) { return sbRpc('gl_consume_message',{p_msg_id:msgId,p_password_hash:passwordHash}); }
 
 // ═══════════════════════════════════════════════
 //  CRYPTO HELPERS  (unchanged from original)
 // ═══════════════════════════════════════════════
-const VERSION = 'gl1';
+const VERSION = 'gl2';
 
 function bytesToBase64url(bytes) {
   let b = '';
@@ -1593,31 +1361,20 @@ async function decryptMessage(ivB64, ctB64, key) {
   const plain = await crypto.subtle.decrypt({name:'AES-GCM',iv:base64urlToBytes(ivB64)},key,base64urlToBytes(ctB64));
   return new TextDecoder().decode(plain);
 }
-function buildFragment(keyB64, ivB64, ctB64, expiryMode, pwHash) {
-  const base = `${VERSION}.${expiryMode}.${Math.floor(Date.now()/1000)}.${keyB64}.${ivB64}.${ctB64}`;
-  return pwHash ? base + '~' + pwHash : base;
+function buildFragment(keyB64, msgId, expiryMode) {
+  // The encryption key stays in the URL fragment for end-to-end decryption.
+  // Ciphertext and password hashes are stored server-side, not in the URL.
+  return `${VERSION}.${expiryMode}.${Math.floor(Date.now()/1000)}.${keyB64}.${msgId}`;
 }
 function parseFragment(frag) {
   if (!frag || frag.startsWith('#')) frag = frag ? frag.slice(1) : '';
-  // Split off password hash suffix if present
-  let pwHash = null, pwHashType = null;
-  const tildeIdx = frag.indexOf('~');
-  if (tildeIdx !== -1) {
-    pwHash = frag.substring(tildeIdx + 1);
-    frag = frag.substring(0, tildeIdx);
-    // hash is prefixed with 'P' (password) or 'N' (piN) to distinguish type
-    pwHashType = pwHash.startsWith('P') ? 'password' : 'pin';
-    pwHash = pwHash.substring(1);
-  }
   const parts = frag.split('.');
-  if (parts.length < 6) return null;
-  const [version, expiryMode, createdAt, keyB64, ivB64, ...ctParts] = parts;
-  const ctB64 = ctParts.join('.');
-  if (version !== VERSION) return null;
-  if (!['read-once','24h','1h'].includes(expiryMode)) return null;
-  if (!/^\d+$/.test(createdAt)) return null;
-  if (!keyB64 || !ivB64 || !ctB64) return null;
-  return { version, expiryMode, createdAt: Number(createdAt), keyB64, ivB64, ctB64, pwHash, pwHashType };
+  if (parts.length !== 5) return null;
+  const [version, expiryMode, createdAt, keyB64, msgId] = parts;
+  if (version !== VERSION || !['read-once','24h','1h'].includes(expiryMode)) return null;
+  if (!/^\d+$/.test(createdAt) || !/^[a-f0-9]{32}$/.test(msgId) || !keyB64) return null;
+  try { if (base64urlToBytes(keyB64).length !== 32) return null; } catch (_) { return null; }
+  return { version, expiryMode, createdAt:Number(createdAt), keyB64, msgId, pwHash:null, pwHashType:null };
 }
 function isExpired(parsed) {
   const age = Math.floor(Date.now()/1000) - parsed.createdAt;
@@ -1650,7 +1407,7 @@ function restoreCreateButton() {
 let attachedImages = []; // [{name, dataUrl, size}]
 const MAX_IMG_DIMENSION = 1280; // px — resize larger images down
 const IMG_QUALITY = 0.75;       // JPEG quality for compression
-const WARN_TOTAL_BYTES = 5_000_000; // warn above 5 MB total
+const WARN_TOTAL_BYTES = MAX_TOTAL_IMAGE_BYTES; // enforce a conservative 3 MB compressed total
 
 // Wire up button → file input → handler
 const imgFileInput = document.getElementById('img-file-input');
@@ -1664,27 +1421,32 @@ imgFileInput.addEventListener('change', function() {
 
 // Compress + resize an image file → returns a data URL (JPEG)
 function compressImage(file) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
+    if (!file || !file.type || !file.type.startsWith('image/')) return reject(new Error('Choose a valid image file.'));
     const reader = new FileReader();
+    reader.onerror = () => reject(new Error(`Could not read "${file.name}". The file may be damaged.`));
+    reader.onabort = () => reject(new Error(`Reading "${file.name}" was cancelled.`));
     reader.onload = e => {
       const img = new Image();
+      img.onerror = () => reject(new Error(`"${file.name}" is not a supported or valid image.`));
       img.onload = () => {
-        // Calculate new dimensions keeping aspect ratio
-        let { width, height } = img;
-        if (width > MAX_IMG_DIMENSION || height > MAX_IMG_DIMENSION) {
-          if (width > height) { height = Math.round(height * MAX_IMG_DIMENSION / width); width = MAX_IMG_DIMENSION; }
-          else { width = Math.round(width * MAX_IMG_DIMENSION / height); height = MAX_IMG_DIMENSION; }
-        }
-        const canvas = document.createElement('canvas');
-        canvas.width = width; canvas.height = height;
-        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-        // Use JPEG for photos, PNG only for tiny images or those with transparency
-        const isSmall = file.size < 50_000;
-        const mimeOut = (file.type === 'image/png' && isSmall) ? 'image/png' : 'image/jpeg';
-        const dataUrl = canvas.toDataURL(mimeOut, IMG_QUALITY);
-        // Estimate compressed size from base64 length
-        const compressedSize = Math.round((dataUrl.length - dataUrl.indexOf(',') - 1) * 0.75);
-        resolve({ dataUrl, size: compressedSize });
+        try {
+          let { width, height } = img;
+          if (!width || !height) throw new Error('Image dimensions are invalid.');
+          if (width > MAX_IMG_DIMENSION || height > MAX_IMG_DIMENSION) {
+            if (width > height) { height = Math.round(height * MAX_IMG_DIMENSION / width); width = MAX_IMG_DIMENSION; }
+            else { width = Math.round(width * MAX_IMG_DIMENSION / height); height = MAX_IMG_DIMENSION; }
+          }
+          const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) throw new Error('Image processing is not supported by this browser.');
+          ctx.drawImage(img, 0, 0, width, height);
+          const smallPng = file.type === 'image/png' && file.size < 50_000;
+          const dataUrl = canvas.toDataURL(smallPng ? 'image/png' : 'image/jpeg', IMG_QUALITY);
+          const b64 = dataUrl.slice(dataUrl.indexOf(',') + 1);
+          const size = Math.floor(b64.length * 3 / 4) - (b64.endsWith('==') ? 2 : b64.endsWith('=') ? 1 : 0);
+          resolve({ dataUrl, size });
+        } catch (err) { reject(err); }
       };
       img.src = e.target.result;
     };
@@ -1693,25 +1455,26 @@ function compressImage(file) {
 }
 
 async function handleImageFiles(files) {
-  const toProcess = Array.from(files).filter(f => f.type.startsWith('image/'));
-  if (toProcess.length === 0) return;
-
-  // Show loading state on button
-  const btn = document.getElementById('img-attach-btn');
-  const origHTML = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = `<div class="spinner" style="width:12px;height:12px;border-width:2px"></div> Processing…`;
-
-  // Compress all selected images in parallel
-  const results = await Promise.all(toProcess.map(file =>
-    compressImage(file).then(({ dataUrl, size }) => ({ name: file.name, dataUrl, size }))
-  ));
-
-  attachedImages.push(...results);
-  renderImagePreviews();
-
-  btn.disabled = false;
-  btn.innerHTML = origHTML;
+  const selected = Array.from(files || []);
+  const valid = selected.filter(f => f.type && f.type.startsWith('image/'));
+  if (!valid.length) { showImageError('Choose a valid image file.'); return; }
+  if (attachedImages.length + valid.length > MAX_IMAGES) { showImageError(`You can attach up to ${MAX_IMAGES} images per message.`); return; }
+  const btn = document.getElementById('img-attach-btn'), original = btn.innerHTML;
+  btn.disabled = true; btn.innerHTML = `<div class="spinner" style="width:12px;height:12px;border-width:2px"></div> Processing…`;
+  try {
+    const results = await Promise.all(valid.map(async file => {
+      const image = await compressImage(file); return { name:file.name, dataUrl:image.dataUrl, size:image.size };
+    }));
+    const total = attachedImages.reduce((n,x)=>n+x.size,0) + results.reduce((n,x)=>n+x.size,0);
+    if (total > MAX_TOTAL_IMAGE_BYTES) throw new Error('Compressed images must total 3 MB or less. Remove an image or choose smaller files.');
+    attachedImages.push(...results); showImageError(''); renderImagePreviews();
+  } catch (err) { showImageError(err?.message || 'Could not process one of the images. Please try another file.'); }
+  finally { btn.disabled = false; btn.innerHTML = original; }
+}
+function showImageError(message) {
+  const el = document.getElementById('compose-error');
+  if (el && message) el.textContent = message;
+  else if (el && !message) el.textContent = '';
 }
 
 function renderImagePreviews() {
@@ -1777,6 +1540,8 @@ async function createLink() {
     composeError.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg> ${t('enterMsg')}`;
     msgInput.focus(); return;
   }
+  if (text.length > MAX_MESSAGE_CHARS) { composeError.textContent = `Messages are limited to ${MAX_MESSAGE_CHARS.toLocaleString()} characters.`; msgInput.focus(); return; }
+  if (attachedImages.length > MAX_IMAGES) { composeError.textContent = `You can attach up to ${MAX_IMAGES} images.`; return; }
   const expiryMode = document.querySelector('input[name="expiry"]:checked').value;
   // Validate password if enabled
   if (pwEnabled) {
@@ -1793,41 +1558,28 @@ async function createLink() {
   try {
     const key = await generateKey();
     const keyB64 = await exportKey(key);
-
-    // If there are images, encrypt them and upload to Supabase Storage
     let imgRef = null;
     if (attachedImages.length > 0) {
       createBtn.innerHTML = `<div class="spinner"></div> Uploading ${attachedImages.length} image${attachedImages.length !== 1 ? 's' : ''}…`;
-      // Serialize images (name + dataUrl) → encrypt as binary blob
-      const imgJson = JSON.stringify(attachedImages.map(img => ({ name: img.name, dataUrl: img.dataUrl })));
+      const imgJson = JSON.stringify(attachedImages.map(img => ({ name:img.name, dataUrl:img.dataUrl })));
       const imgIv = crypto.getRandomValues(new Uint8Array(12));
-      const imgCt = new Uint8Array(await crypto.subtle.encrypt(
-        { name: 'AES-GCM', iv: imgIv }, key, new TextEncoder().encode(imgJson)
-      ));
-      // Pack: 12 bytes IV + ciphertext
-      const blob = new Uint8Array(12 + imgCt.length);
-      blob.set(imgIv, 0); blob.set(imgCt, 12);
-      // Short random ref (16 hex chars = 64-bit entropy) — safe as storage path
-      imgRef = Array.from(crypto.getRandomValues(new Uint8Array(8))).map(b => b.toString(16).padStart(2,'0')).join('');
-      await sbUploadImages(imgRef, blob);
-      createBtn.innerHTML = `<div class="spinner"></div> ${t('creatingLink')}`;
+      const imgCt = new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv:imgIv},key,new TextEncoder().encode(imgJson)));
+      const blob = new Uint8Array(12 + imgCt.length); blob.set(imgIv,0); blob.set(imgCt,12);
+      imgRef = Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b=>b.toString(16).padStart(2,'0')).join('');
+      await sbUploadImages(imgRef,blob);
     }
-
-    // Text-only payload — stays short in the URL
-    const payload = JSON.stringify({ v: 2, text, imgRef });
-    const { iv, ct } = await encryptMessage(payload, key);
-    let pwHashFrag = null;
-    if (pwEnabled) {
-      const pwVal = getPwValue();
-      const hash = await hashPassword(pwVal);
-      const typePrefix = pwType === 'pin' ? 'N' : 'P';
-      pwHashFrag = typePrefix + hash;
-    }
-    const fragment = buildFragment(keyB64, iv, ct, expiryMode, pwHashFrag);
+    createBtn.innerHTML = `<div class="spinner"></div> ${t('creatingLink')}`;
+    const payload = JSON.stringify({v:2,text,imgRef});
+    const {iv,ct} = await encryptMessage(payload,key);
+    let pwHash = null, passwordType = null;
+    if (pwEnabled) { pwHash = await hashPassword(getPwValue()); passwordType = pwType === 'pin' ? 'pin' : 'password'; }
+    const msgId = Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b=>b.toString(16).padStart(2,'0')).join('');
+    await sbCreateMessage(msgId,ct,iv,expiryMode,pwHash,passwordType);
+    const fragment = buildFragment(keyB64,msgId,expiryMode);
     const linkUrl = new URL(window.location.href);
     linkUrl.search = ''; linkUrl.hash = fragment;
     generatedLink = linkUrl.href;
-    resultLinkDisplay.innerHTML = `<strong>${window.location.hostname + window.location.pathname}</strong><span style="color:var(--text-muted)">#…${ct.substring(0,12)}…</span>`;
+    resultLinkDisplay.innerHTML = `<strong>${window.location.hostname + window.location.pathname}</strong><span style="color:var(--text-muted)">#…${msgId.substring(0,12)}…</span>`;
     resultLinkDisplay.title = generatedLink;
     document.getElementById('expiry-chip').textContent =
       expiryMode === '1h' ? 'expires after reading · 1h max' :
@@ -1837,7 +1589,7 @@ async function createLink() {
     restoreCreateButton();
   } catch(err) {
     console.error('Secure link creation failed:', err);
-    composeError.textContent = 'Could not create the secure link. Please try again.';
+    composeError.textContent = err?.message || 'Could not create the secure link. Check your connection and Supabase setup, then retry.';
     restoreCreateButton();
   }
 }
@@ -2067,85 +1819,37 @@ async function hashPassword(raw) {
 //  The current implementation still prevents casual snooping and
 //  enforces the 5-attempt lockout server-side (via pw_attempts table).
 // ═══════════════════════════════════════════════
-let gateType = 'password'; // set when link is parsed
-let correctHash = '';      // expected hash from fragment
+let gateType = 'password';
+let correctHash = '';
 let pwAttempts = 0;
-const MAX_ATTEMPTS = 5;
-let pendingParsed = null;  // parsed fragment held until password verified
-
-function toggleGateEye() {
-  const inp = document.getElementById('pw-gate-input');
-  const icon = document.getElementById('pw-gate-eye-icon');
-  const isText = inp.type === 'text';
-  inp.type = isText ? 'password' : 'text';
-  icon.innerHTML = isText
-    ? '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>'
-    : '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>';
-}
-
-function gatePinMove(el, idx) {
-  const val = el.value.toString().slice(-1);
-  el.value = val;
-  if (val && idx < 3) document.getElementById('gpin-' + (idx+1)).focus();
-}
-
+let pendingPasswordHash = null;
+let pendingParsed = null;
 function getGatePwValue() {
   if (gateType === 'pin') {
-    const digits = [0,1,2,3].map(i => document.getElementById('gpin-'+i).value).join('');
-    return digits.length === 4 ? 'PIN:' + digits : '';
+    const digits = [0,1,2,3].map(i=>document.getElementById('gpin-'+i).value).join('');
+    return digits.length === 4 ? 'PIN:'+digits : '';
   }
-  return 'PW:' + document.getElementById('pw-gate-input').value.trim();
+  const input = document.getElementById('pw-gate-input');
+  return input ? 'PW:'+input.value.trim() : '';
 }
-
 async function submitPassword() {
-  if (pwAttempts >= MAX_ATTEMPTS) return;
   const raw = getGatePwValue();
-  if (!raw || raw === 'PW:' || raw === 'PIN:') {
-    showGateError(gateType === 'pin' ? t('enterAllDigits') : t('enterPassword'));
-    return;
-  }
-  const btn = document.getElementById('pw-submit-btn');
-  btn.disabled = true;
-  btn.innerHTML = `<div class="spinner"></div> ${t('checking')}`;
-  let hash;
+  if (!raw || raw === 'PW:' || raw === 'PIN:') { showGateError(gateType === 'pin' ? t('enterAllDigits') : t('enterPassword')); return; }
+  const btn = document.getElementById('pw-submit-btn'); btn.disabled=true; btn.innerHTML=`<div class="spinner"></div> ${t('checking')}`;
   try {
-    hash = await hashPassword(raw);
-  } catch (err) {
-    console.error('Password verification failed:', err);
-    btn.disabled = false;
-    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> <span data-i18n="unlockBtn">${t('unlockBtn')}</span>`;
-    showGateError('Could not verify the password. Please try again.');
-    return;
-  }
-  if (hash === correctHash) {
-    // Password correct — now proceed to open
-    await proceedReveal();
-  } else {
-    // Increment attempt count on the server so it persists across refreshes
-    const burnId = getBurnId(currentFragRaw);
-    try {
-      pwAttempts = await sbIncrementAttempt(burnId);
-    } catch(e) {
-      pwAttempts++; // fallback to in-memory if DB write fails
-    }
-    btn.disabled = false;
-    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> <span data-i18n="unlockBtn">${t('unlockBtn')}</span>`;
-    const left = MAX_ATTEMPTS - pwAttempts;
-    if (left <= 0) {
-      // Burn the link immediately — too many wrong attempts
-      btn.disabled = true;
-      btn.innerHTML = `<div class="spinner"></div> ${t('destroyingLink')}`;
-      try { await sbSet(burnId); } catch(e) {}
-      try { await sbDeleteAttempts(burnId); } catch(e) {}
-      pendingParsed = null;
-      window.history.replaceState(null, '', window.location.pathname);
-      showState('burned');
-    } else {
-      showGateError(gateType === 'pin' ? t('incorrectPin') : t('incorrectPw'));
-      document.getElementById('pw-attempts').textContent = t('attemptsLeft')(left);
-      if (gateType === 'pin') { [0,1,2,3].forEach(i => { document.getElementById('gpin-'+i).value=''; }); document.getElementById('gpin-0').focus(); }
-      else { document.getElementById('pw-gate-input').value=''; document.getElementById('pw-gate-input').focus(); }
-    }
+    const hash = await hashPassword(raw);
+    const result = await sbCheckPassword(pendingParsed.msgId,hash);
+    pwAttempts = Number(result?.attempts || 0);
+    if (result?.ok) { pendingPasswordHash=hash; await proceedReveal(); return; }
+    if (result?.status === 'burned' || pwAttempts >= MAX_ATTEMPTS) { pendingParsed=null; window.history.replaceState(null,'',window.location.pathname); showState('burned'); return; }
+    btn.disabled=false; btn.innerHTML=`<span data-i18n="unlockBtn">${t('unlockBtn')}</span>`;
+    showGateError(gateType === 'pin' ? t('incorrectPin') : t('incorrectPw'));
+    document.getElementById('pw-attempts').textContent=t('attemptsLeft')(Math.max(0,MAX_ATTEMPTS-pwAttempts));
+    if (gateType === 'pin') { [0,1,2,3].forEach(i=>document.getElementById('gpin-'+i).value=''); document.getElementById('gpin-0').focus(); }
+    else { document.getElementById('pw-gate-input').value=''; document.getElementById('pw-gate-input').focus(); }
+  } catch(err) {
+    btn.disabled=false; btn.innerHTML=`<span data-i18n="unlockBtn">${t('unlockBtn')}</span>`;
+    showGateError('Could not verify the password because the service is unavailable. Please retry.');
   }
 }
 
@@ -2154,110 +1858,52 @@ function showGateError(msg) {
   el.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg> ${msg}`;
 }
 
-async function showPasswordGate(parsed, type, hash) {
-  pendingParsed = parsed;
-  gateType = type;
-  correctHash = hash;
-  document.getElementById('pw-gate-error').innerHTML = '';
-  document.getElementById('pw-attempts').textContent = '';
-  // Show correct input type
-  document.getElementById('pw-gate-password-wrap').style.display = type === 'password' ? 'block' : 'none';
-  document.getElementById('pw-gate-pin-wrap').style.display = type === 'pin' ? 'block' : 'none';
-  document.getElementById('pw-gate-body').textContent = type === 'pin'
-    ? t('pwGateBodyPin')
-    : t('pwGateBodyPw');
+async function showPasswordGate(parsed,type) {
+  pendingParsed=parsed; gateType=type||'password'; pendingPasswordHash=null;
+  document.getElementById('pw-gate-error').innerHTML=''; document.getElementById('pw-attempts').textContent='';
+  document.getElementById('pw-gate-password-wrap').style.display=gateType==='password'?'block':'none';
+  document.getElementById('pw-gate-pin-wrap').style.display=gateType==='pin'?'block':'none';
+  document.getElementById('pw-gate-body').textContent=gateType==='pin'?t('pwGateBodyPin'):t('pwGateBodyPw');
   showState('pwgate');
-  // Load server-side attempt count so refreshes don't reset the counter
-  try {
-    const burnId = getBurnId(currentFragRaw);
-    pwAttempts = await sbGetAttempts(burnId);
-    if (pwAttempts >= MAX_ATTEMPTS) {
-      // Already exhausted — burn immediately
-      try { await sbSet(burnId); } catch(e) {}
-      await sbDeleteAttempts(burnId);
-      pendingParsed = null;
-      window.history.replaceState(null, '', window.location.pathname);
-      showState('burned'); return;
-    }
-    if (pwAttempts > 0) {
-      const left = MAX_ATTEMPTS - pwAttempts;
-      document.getElementById('pw-attempts').textContent = t('attemptsLeft')(left);
-    }
-  } catch(e) {
-    pwAttempts = 0; // fallback to in-memory if DB unavailable
-  }
-  setTimeout(() => {
-    if (type === 'pin') document.getElementById('gpin-0').focus();
-    else document.getElementById('pw-gate-input').focus();
-  }, 100);
+  setTimeout(()=>{ if(gateType==='pin') document.getElementById('gpin-0').focus(); else document.getElementById('pw-gate-input').focus(); },100);
 }
 
 // ═══════════════════════════════════════════════
 //  INIT  — check server FIRST, then show state
 // ═══════════════════════════════════════════════
 async function initReveal() {
-  const fragRaw = window.location.hash.substring(1);
-  const parsed = parseFragment(fragRaw);
-
-  if (!parsed) { showState('invalid'); return; }
-  if (isExpired(parsed)) { showState('expired'); return; }
-
+  const parsed=parseFragment(window.location.hash.substring(1));
+  if(!parsed){showState('invalid');return;}
+  if(isExpired(parsed)){showState('expired');return;}
   showState('checking');
-
   try {
-    const burned = await sbGet(getBurnId(fragRaw));
-    if (burned) { showState('burned'); return; }
-    // If password protected, show gate — otherwise show ready
-    if (parsed.pwHash) {
-      showPasswordGate(parsed, parsed.pwHashType, parsed.pwHash);
-    } else {
-      showState('ready');
-    }
+    const status=await sbMessageStatus(parsed.msgId);
+    if(!status||['missing','burned','expired'].includes(status.status)){showState(status?.status==='expired'?'expired':'burned');return;}
+    if(status.password_required) showPasswordGate(parsed,status.password_type||'password');
+    else {pendingParsed=parsed;pendingPasswordHash=null;showState('ready');}
   } catch(err) {
-    // Distinguish network failure from a Supabase-specific error so the
-    // user sees a more helpful message.
-    const isOffline = !navigator.onLine || err instanceof TypeError;
-    const el = document.getElementById('dberror-detail');
-    if (el) {
-      el.textContent = isOffline
-        ? 'Your device appears to be offline. Check your internet connection and retry.'
-        : 'Our verification service could not be reached. This may be temporary — please retry in a moment.';
-    }
+    const offline=!navigator.onLine||err instanceof TypeError;
+    const el=document.getElementById('dberror-detail');
+    if(el) el.textContent=offline?'Your device appears to be offline. Check your internet connection, then retry.':'GhostLink could not verify this message with Supabase. Please retry; the message has not been opened.';
     showState('dberror');
   }
 }
 
 // Called after password is verified (or skipped if no password)
 async function proceedReveal() {
-  const parsed = pendingParsed || (() => {
-    // No password — triggered directly from revealMessage
-    const fragRaw = currentFragRaw;
-    return parseFragment(fragRaw);
-  })();
-  const fragRaw = currentFragRaw;
-  if (!parsed) { showState('invalid'); return; }
-
-  const btn = pendingParsed
-    ? document.getElementById('pw-submit-btn')
-    : document.getElementById('reveal-btn');
-  btn.disabled = true;
-  btn.innerHTML = `<div class="spinner"></div> ${t('openingMsg')}`;
-
+  const parsed=pendingParsed||parseFragment(currentFragRaw);
+  if(!parsed){showState('invalid');return;}
+  const btn=document.getElementById(pendingPasswordHash?'pw-submit-btn':'reveal-btn');
+  if(btn){btn.disabled=true;btn.innerHTML=`<div class="spinner"></div> ${t('openingMsg')}`;}
   try {
-    const burnId = getBurnId(fragRaw);
-    // sbSet throws {alreadyBurned:true} if another opener beat us (race condition).
-    let weWon = false;
-    try {
-      await sbSet(burnId);
-      weWon = true;
-    } catch(e) {
-      if (e && e.alreadyBurned) { showState('burned'); return; }
-      throw e; // real DB error — re-throw
+    const opened=await sbConsumeMessage(parsed.msgId,pendingPasswordHash);
+    if(!opened||opened.status!=='ok'||!opened.ciphertext||!opened.iv){
+      if(opened?.status==='expired'){showState('expired');return;}
+      if(opened?.status==='wrong_password'){showGateError(t('incorrectPw'));showState('pwgate');return;}
+      showState('burned');return;
     }
-    if (!weWon) { showState('burned'); return; }
-    try { await sbDeleteAttempts(burnId); } catch(e) {} // clean up attempt counter
-    const key = await importKey(parsed.keyB64);
-    const plaintext = await decryptMessage(parsed.ivB64, parsed.ctB64, key);
+    const key=await importKey(parsed.keyB64);
+    const plaintext=await decryptMessage(opened.iv,opened.ciphertext,key);
     // Parse payload — v2 = text + imgRef, v1 = text + inline images (legacy), plain = old links
     let msgText = plaintext;
     let msgImages = [];
@@ -2359,12 +2005,12 @@ const LANGS = {
     howTitle:'How it works',
     step1n:'01', step1l:'Write your message', step1d:'Type what you want to send. Everything stays in your browser until you\'re ready.',
     step2n:'02', step2l:'Secured automatically', step2d:'Your message is locked with strong encryption before it leaves your device. No one else can read it.',
-    step3n:'03', step3l:'Share the link', step3d:'You get a private link to send. The contents of your message never travel through our servers.',
+    step3n:'03', step3l:'Share the link', step3d:'You get a private link to send. Encrypted message data is stored on our servers; the decryption key stays in the link fragment.',
     step4n:'04', step4l:'Opens once, then gone', step4d:'The moment the recipient opens it, the link is permanently disabled — on every device, everywhere.',
     noLoophole:'<strong style="color:var(--text-dim)">No loopholes:</strong> Expiry is enforced on our servers, not just in the browser. Clearing cache, switching devices, or using a different network cannot reopen a message that has already been read.',
-    aboutText:'GhostLink — Private one-time messages\n\n• Messages are secured in your browser before sending\n• Each link works once — after that, it expires permanently\n• Expiry is enforced on our servers, not just in the browser\n• Your message content never passes through our servers',
+    aboutText:'GhostLink — Private one-time messages\n\n• Messages are encrypted in your browser before sending\n• Only encrypted message data is stored on our servers\n• The decryption key stays in the link fragment\n• Each link can be opened once, and password attempts are limited',
     attachImage:'Attach image',
-    imgSizeWarn:'Total image size is large. Keep it under 5 MB to stay within the free storage limit.',
+    imgSizeWarn:'Compressed images must total 3 MB or less.',
     creatingLink:'Creating link…',
     openingMsg:'Opening message…',
     destroyingLink:'Destroying link…',
