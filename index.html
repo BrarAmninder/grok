@@ -1295,9 +1295,14 @@ const SUPABASE_URL = 'https://mcjrockqqwgdzpruyyph.supabase.co';
 // restrict what it can do. NEVER place a service_role/secret key in this file.
 const SUPABASE_KEY = 'sb_publishable_GK_LjZa5ocQj3HviIGiJbw_YveHEJn-';
 function _sbHeaders(extra = {}) {
-  // Supabase sb_publishable_* keys belong in the apikey header. They are not
-  // JWTs, so do not send them as Authorization: Bearer tokens.
-  return { 'Content-Type': 'application/json', apikey: SUPABASE_KEY, ...extra };
+  // Supabase REST and Storage requests require both headers. Use the same
+  // project's publishable/anon key for apikey and Authorization.
+  return {
+    'Content-Type': 'application/json',
+    apikey: SUPABASE_KEY,
+    Authorization: `Bearer ${SUPABASE_KEY}`,
+    ...extra
+  };
 }
 const MAX_ATTEMPTS = 5;
 const MAX_MESSAGE_CHARS = Infinity; // no artificial app-side character cap
@@ -1312,7 +1317,7 @@ async function sbRpc(name, body) {
   if (!res.ok) {
     const detail = data?.message || data?.hint || data?.details || '';
     if (res.status === 401 || res.status === 403) {
-      throw new Error(`Supabase rejected the API key or RPC permission (${res.status}). Verify that SUPABASE_URL and SUPABASE_KEY are copied from the same Supabase project, and that the SQL functions/grants were installed. ${detail}`.trim());
+      throw new Error(`Supabase rejected the API key or RPC permission (${res.status}). First copy the current Publishable key (or legacy anon key) from this exact project's dashboard into SUPABASE_KEY. Ensure SUPABASE_URL is from the same project. If the error remains after the key is corrected, check the gl_create_message function grants. ${detail}`.trim());
     }
     throw new Error(detail || `Supabase request failed (${res.status}).`);
   }
