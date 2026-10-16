@@ -852,11 +852,11 @@
       <div class="lang-option" onclick="setLang('uz')" data-lang="uz" role="menuitem"><span class="lang-option-flag">🇺🇿</span> O'zbek</div>
     </div>
   </div>
-    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" title="Switch to dark mode" aria-pressed="false">
-      <svg class="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 15.1A8.5 8.5 0 0 1 8.9 3.8 8.6 8.6 0 1 0 20.2 15.1Z"/></svg>
-      <svg class="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
-    </button>
-  </div>
+  <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" title="Switch to dark mode" aria-pressed="false">
+    <svg class="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 15.1A8.5 8.5 0 0 1 8.9 3.8 8.6 8.6 0 1 0 20.2 15.1Z"/></svg>
+    <svg class="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
+  </button>
+</div>
 
 </header>
 
@@ -877,7 +877,7 @@
             <div class="message-icon" aria-hidden="true">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v12H9l-5 3V5Z"/></svg>
             </div>
-    <textarea id="msg-input" rows="1" placeholder="Enter your secret message…" autocomplete="off" spellcheck="true" aria-label="Message to encrypt" maxlength="3000"></textarea>
+    <textarea id="msg-input" rows="1" placeholder="Enter your secret message…" autocomplete="off" spellcheck="true" aria-label="Message to encrypt"></textarea>
             <div class="compose-toolbar">
             <div class="expiry-control">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
@@ -890,51 +890,53 @@
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
                 <span data-i18n="attachImage">Attach image</span>
               </button>
-            <div class="password-section">
-              <div class="password-toggle" onclick="togglePasswordSection(event)">
-                <div class="password-toggle-box" id="pw-toggle-box">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>
-                </div>
-                <svg class="password-key-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="15" r="4"/><path d="m10.85 12.15 7-7a2.12 2.12 0 0 1 3 3l-1.5 1.5 1.5 1.5-3 3-1.5-1.5-2 2"/></svg>
-                <span class="password-toggle-label" data-i18n="pwToggle">Password Lock</span>
-              </div>
-              <div class="password-fields" id="pw-fields">
-                <div class="pw-type-row">
-                  <button class="pw-type-btn active" id="btn-type-password" data-i18n="pwTypePw" onclick="setPwType('password')">🔑 Password</button>
-                  <button class="pw-type-btn" id="btn-type-pin" data-i18n="pwTypePin" onclick="setPwType('pin')">🔢 4-digit PIN</button>
-                </div>
-                <div id="pw-password-wrap" class="pw-input-wrap">
-                  <input class="pw-input" id="pw-password-input" type="password" placeholder="Enter a password…" data-i18n="pwPlaceholder" autocomplete="new-password" maxlength="128" onkeydown="if(event.key==='Enter'){event.preventDefault();closePasswordPanel()}">
-                  <button class="pw-eye" type="button" onclick="togglePwEye()" tabindex="-1">
-                    <svg id="pw-eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                  </button>
-                </div>
-                <div id="pw-pin-wrap" style="display:none">
-                  <div class="pin-grid">
-                    <input class="pin-box" id="pin-0" type="number" min="0" max="9" maxlength="1" placeholder="·" oninput="pinMove(this,0)">
-                    <input class="pin-box" id="pin-1" type="number" min="0" max="9" maxlength="1" placeholder="·" oninput="pinMove(this,1)">
-                    <input class="pin-box" id="pin-2" type="number" min="0" max="9" maxlength="1" placeholder="·" oninput="pinMove(this,2)">
-                    <input class="pin-box" id="pin-3" type="number" min="0" max="9" maxlength="1" placeholder="·" oninput="pinMove(this,3)" onkeydown="if(event.key==='Enter'){event.preventDefault();closePasswordPanel()}">
+              <div class="password-section" id="pw-section-toggle">
+                <div class="password-toggle" onclick="togglePasswordSection(event)">
+                  <div class="password-toggle-box" id="pw-toggle-box">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>
                   </div>
+                  <svg class="password-key-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="15" r="4"/><path d="m10.85 12.15 7-7a2.12 2.12 0 0 1 3 3l-1.5 1.5 1.5 1.5-3 3-1.5-1.5-2 2"/></svg>
+                  <span class="password-toggle-label" data-i18n="pwToggle">Password Lock</span>
                 </div>
-                <p class="pw-hint" id="pw-hint" data-i18n="pwHintPw">Share this password with the recipient separately — do not include it in the message.</p>
               </div>
-            </div>
-          <div id="img-count-label" style="display:none;align-items:center;gap:6px;margin-bottom:4px;margin-top:-4px">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
-              <span id="img-count-text"></span>
-          </div>
             </div>
             <div class="char-count" id="char-count">0</div>
           </div>
           <input type="file" id="img-file-input" accept="image/*" multiple style="display:none">
           <div class="img-preview-strip" id="img-preview-strip"></div>
+          <div id="img-count-label" style="display:none;align-items:center;gap:6px;margin-bottom:4px;margin-top:-4px">
+            <span style="display:inline-flex;align-items:center;gap:5px;background:var(--accent-glow);border:1px solid rgba(110,118,229,0.3);border-radius:20px;padding:3px 10px;font-size:11.5px;color:var(--accent);font-family:var(--mono);font-weight:600">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+              <span id="img-count-text"></span>
+            </span>
+          </div>
           <div id="img-size-warn" class="img-size-warn" style="display:none">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
             <span data-i18n="imgSizeWarn">Images are large — the link may be very long. Keep total images under 1 MB for best results.</span>
           </div>
 
           <div id="compose-error" class="inline-error" aria-live="polite"></div>
+          <div id="pw-fields" class="password-fields">
+            <div class="pw-type-row">
+              <button class="pw-type-btn active" id="btn-type-password" data-i18n="pwTypePw" onclick="setPwType('password')">🔑 Password</button>
+              <button class="pw-type-btn" id="btn-type-pin" data-i18n="pwTypePin" onclick="setPwType('pin')">🔢 4-digit PIN</button>
+            </div>
+            <div id="pw-password-wrap" class="pw-input-wrap">
+              <input class="pw-input" id="pw-password-input" type="password" placeholder="Enter a password…" data-i18n="pwPlaceholder" autocomplete="new-password" maxlength="128">
+              <button class="pw-eye" type="button" onclick="togglePwEye()" onmousedown="event.preventDefault()" tabindex="-1">
+                <svg id="pw-eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <div id="pw-pin-wrap" style="display:none">
+              <div class="pin-grid">
+                <input class="pin-box" id="pin-0" type="number" min="0" max="9" maxlength="1" placeholder="·" oninput="pinMove(this,0)">
+                <input class="pin-box" id="pin-1" type="number" min="0" max="9" maxlength="1" placeholder="·" oninput="pinMove(this,1)">
+                <input class="pin-box" id="pin-2" type="number" min="0" max="9" maxlength="1" placeholder="·" oninput="pinMove(this,2)">
+                <input class="pin-box" id="pin-3" type="number" min="0" max="9" maxlength="1" placeholder="·" oninput="pinMove(this,3)">
+              </div>
+            </div>
+            <p class="pw-hint" id="pw-hint" data-i18n="pwHintPw">Share this password with the recipient separately — do not include it in the message.</p>
+          </div>
           <div class="composer-actions">
 
             <div class="options-row" role="radiogroup" aria-label="Expiry options">
@@ -946,6 +948,7 @@
               <span data-i18n="createBtn">Create Link</span>
             </button>
           </div>
+
           <div id="result-card" class="result-card" style="display:none" aria-live="polite">
       <div class="result-header">
         <div class="result-icon">
@@ -1152,6 +1155,7 @@
       </div>
       <h1 class="reveal-title" data-i18n="dberrorTitle">Something went wrong</h1>
       <p class="reveal-body" data-i18n="dberrorBody">We were unable to verify this link right now. For your security, messages cannot be opened until our service is reachable. Please try again in a moment.</p>
+      <p id="dberror-detail" style="font-size:12px;color:var(--text-muted);font-family:var(--mono);margin-top:-0.75rem;margin-bottom:1.25rem;max-width:38ch;text-align:center"></p>
       <button class="reveal-btn" onclick="retryInit()" style="background:var(--amber)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
         <span data-i18n="retryBtn">Retry</span>
@@ -1218,9 +1222,7 @@
 </footer>
 
 <script>
-const languageSwitcher = document.getElementById('lang-switcher');
-const pageFooter = document.querySelector('.footer');
-if (languageSwitcher && pageFooter) pageFooter.appendChild(languageSwitcher);
+// lang-switcher stays in the header alongside the theme toggle
 const themeToggle = document.getElementById('theme-toggle');
 const themeColorMeta = document.getElementById('theme-color-meta');
 
@@ -1273,168 +1275,65 @@ if (brandGhost && brandLogo) {
 }
 
 // ═══════════════════════════════════════════════
-//  SUPABASE CONFIG  (your real credentials)
+//  SUPABASE CONFIG
+//
+//  ⚠️  IMPORTANT — DO NOT put a real API key in this file.
+//  This file is served to every browser; any key here is public.
+//
+//  Two safe options:
+//    A) Self-host: add a tiny backend (Cloudflare Worker / Vercel Edge Function)
+//       that forwards Supabase calls from the server side, where the key is hidden.
+//    B) Use Supabase Row-Level-Security (RLS) so that only the burn operations
+//       you need are reachable by the anon key, then the risk of the anon key
+//       leaking is minimal (it can only do what RLS allows).
+//
+//  For local / dev use you can paste a key below, but strip it before committing
+//  or publishing the file.
 // ═══════════════════════════════════════════════
 const SUPABASE_URL = 'https://mcjrockqqwgdzpruyyph.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_GK_LjZa5ocjQ3HviIGiJbw_YveHEJn-';
-const TABLE = 'burns';  // table name in your Supabase database
-
-// ═══════════════════════════════════════════════
-//  SUPABASE HELPERS  (direct REST API — no SDK needed)
-// ═══════════════════════════════════════════════
-
-// Upload encrypted image bytes to Supabase Storage bucket "ghostlink-images"
-// Returns the file path (= imgRef) stored in the URL fragment
+// This is a publishable/anon key, not a secret. RLS and the SQL RPCs below
+// restrict what it can do. NEVER place a service_role/secret key in this file.
+const SUPABASE_KEY = 'sb_publishable_GK_LjZa5ocQj3HviIGiJbw_YveHEJn-';
+function _sbHeaders(extra = {}) {
+  return { 'Content-Type': 'application/json', apikey: SUPABASE_KEY,
+    Authorization: `Bearer ${SUPABASE_KEY}`, ...extra };
+}
+const MAX_ATTEMPTS = 5;
+const MAX_MESSAGE_CHARS = 3000;
+const MAX_IMAGES = 3;
+const MAX_TOTAL_IMAGE_BYTES = 3_000_000;
+async function sbRpc(name, body) {
+  let res;
+  try { res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`, { method:'POST', headers:_sbHeaders(), body:JSON.stringify(body) }); }
+  catch (_) { throw new Error('Network unavailable. Check your connection and retry.'); }
+  const raw = await res.text(); let data = null;
+  try { data = raw ? JSON.parse(raw) : null; } catch (_) {}
+  if (!res.ok) throw new Error(data?.message || data?.hint || `Supabase request failed (${res.status}).`);
+  return data;
+}
 async function sbUploadImages(imgRef, encryptedBytes) {
-  const res = await fetch(
-    `${SUPABASE_URL}/storage/v1/object/ghostlink/${imgRef}`,
-    {
-      method: 'POST',
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/octet-stream',
-        'x-upsert': 'true'
-      },
-      body: encryptedBytes
-    }
-  );
-  if (!res.ok) throw new Error('img_upload_failed');
+  let res;
+  try { res = await fetch(`${SUPABASE_URL}/storage/v1/object/ghostlink/${imgRef}`, { method:'POST', headers:{..._sbHeaders(),'Content-Type':'application/octet-stream','x-upsert':'false'}, body:encryptedBytes }); }
+  catch (_) { throw new Error('Storage is unreachable. Check your connection and retry.'); }
+  if (!res.ok) throw new Error(res.status === 413 ? 'The attached images are too large.' : 'Image upload failed. Check the existing ghostlink bucket permissions and file-size limit.');
   return imgRef;
 }
-
-// Download encrypted image bytes from Supabase Storage
 async function sbDownloadImages(imgRef) {
-  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/ghostlink/${encodeURIComponent(imgRef)}`, { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } });
-  if (!res.ok) throw new Error('img_download_failed');
+  let res;
+  try { res = await fetch(`${SUPABASE_URL}/storage/v1/object/ghostlink/${encodeURIComponent(imgRef)}`, {headers:_sbHeaders()}); }
+  catch (_) { throw new Error('Storage is unreachable. Check your connection and retry.'); }
+  if (!res.ok) throw new Error(res.status === 404 ? 'The attached image is no longer available.' : 'Could not download the attached image. Please retry.');
   return new Uint8Array(await res.arrayBuffer());
 }
-async function sbDeleteImages(imgRef) {
-  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/ghostlink/${encodeURIComponent(imgRef)}`, { method: 'DELETE', headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } });
-  if (!res.ok && res.status !== 404) throw new Error('img_delete_failed');
-}
-
-async function sbGet(burnId) {
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/${TABLE}?burn_id=eq.${encodeURIComponent(burnId)}&select=burn_id`,
-    { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
-  );
-  if (!res.ok) throw new Error('db_read_failed');
-  const rows = await res.json();
-  return rows.length > 0; // true = already burned
-}
-
-async function sbSet(burnId) {
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/${TABLE}`,
-    {
-      method: 'POST',
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-        Prefer: 'return=minimal'
-      },
-      body: JSON.stringify({ burn_id: burnId, burned_at: new Date().toISOString() })
-    }
-  );
-  // 201 = inserted, 409 = already exists (duplicate — still burned)
-  if (!res.ok && res.status !== 409) throw new Error('db_write_failed');
-  return true;
-}
-
-// ── Password attempt tracking (stored in Supabase table: pw_attempts) ──
-// Schema: burn_id text PK, attempts int default 0
-// RLS: insert/update/select with anon key (same policy as burns table)
-
-async function sbGetAttempts(burnId) {
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/pw_attempts?burn_id=eq.${encodeURIComponent(burnId)}&select=attempts`,
-    { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
-  );
-  if (!res.ok) throw new Error('attempts_read_failed');
-  const rows = await res.json();
-  return rows.length > 0 ? rows[0].attempts : 0;
-}
-
-async function sbIncrementAttempt(burnId) {
-  // Use a database-side RPC so the increment is atomic (no read-then-write race).
-  // The RPC should do: INSERT … ON CONFLICT (burn_id) DO UPDATE SET attempts = attempts + 1 RETURNING attempts
-  // If the project doesn't have that RPC yet, fall back to a best-effort PATCH (minor race acceptable for legacy links).
-  try {
-    const rows = await sbRpc('gl_increment_pw_attempt', { p_burn_id: burnId });
-    if (rows && rows[0] && typeof rows[0].attempts === 'number') return rows[0].attempts;
-  } catch (rpcErr) {
-    // RPC not available — use best-effort PATCH for legacy links
-  }
-  // Best-effort fallback: read then patch (legacy links only; v2 uses sbAtomicIncrementAttempt)
-  const cur = await sbGetAttempts(burnId);
-  const next = cur + 1;
-  await fetch(
-    `${SUPABASE_URL}/rest/v1/pw_attempts?burn_id=eq.${encodeURIComponent(burnId)}`,
-    {
-      method: 'PATCH',
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-        Prefer: 'return=minimal'
-      },
-      body: JSON.stringify({ attempts: next })
-    }
-  );
-  return next;
-}
-
-async function sbDeleteAttempts(burnId) {
-  // Clean up attempt row when link is burned (success or exhausted)
-  await fetch(
-    `${SUPABASE_URL}/rest/v1/pw_attempts?burn_id=eq.${encodeURIComponent(burnId)}`,
-    {
-      method: 'DELETE',
-      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
-    }
-  );
-}
-
-// Derive a stable, short burn_id from the fragment
-function getBurnId(fragmentRaw) {
-  // Use first 64 chars — unique per link, safe for DB primary key
-  return fragmentRaw.substring(0, 64).replace(/[^a-zA-Z0-9_-]/g, 'X');
-}
-
-
-// Short-link message storage. All counters/claims are performed atomically by SQL RPCs.
-async function sbRpc(name, args) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`, {
-    method: 'POST', headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(args)
-  });
-  if (!res.ok) throw new Error(`backend_${name}_failed_${res.status}`);
-  return res.json();
-}
-async function sbSaveMessage(msgId, ciphertext, iv, createdAt, expiryMode) {
-  return sbRpc('gl_save_message', { p_msg_id: msgId, p_ciphertext: ciphertext, p_iv: iv, p_created_at: createdAt, p_expiry_mode: expiryMode });
-}
-async function sbFetchMessage(msgId) {
-  const rows = await sbRpc('gl_get_message', { p_msg_id: msgId });
-  if (!rows || !rows.length) throw new Error('message_missing_or_expired');
-  return rows[0];
-}
-async function sbClaimMessage(msgId) {
-  return sbRpc('gl_claim_message', { p_msg_id: msgId });
-}
-async function sbAtomicIncrementAttempt(msgId) {
-  return sbRpc('gl_increment_attempt', { p_msg_id: msgId });
-}
-async function sbDeleteMessage(msgId) {
-  return sbRpc('gl_delete_message', { p_msg_id: msgId });
-}
+async function sbCreateMessage(msgId,ciphertext,iv,expiryMode,passwordHash,passwordType) { return sbRpc('gl_create_message',{p_msg_id:msgId,p_ciphertext:ciphertext,p_iv:iv,p_expiry_mode:expiryMode,p_password_hash:passwordHash,p_password_type:passwordType}); }
+async function sbMessageStatus(msgId) { return sbRpc('gl_message_status',{p_msg_id:msgId}); }
+async function sbCheckPassword(msgId,passwordHash) { return sbRpc('gl_check_password',{p_msg_id:msgId,p_password_hash:passwordHash}); }
+async function sbConsumeMessage(msgId,passwordHash) { return sbRpc('gl_consume_message',{p_msg_id:msgId,p_password_hash:passwordHash}); }
 
 // ═══════════════════════════════════════════════
 //  CRYPTO HELPERS  (unchanged from original)
 // ═══════════════════════════════════════════════
-const VERSION = 'gl1';
+const VERSION = 'gl2';
 
 function bytesToBase64url(bytes) {
   let b = '';
@@ -1462,42 +1361,20 @@ async function decryptMessage(ivB64, ctB64, key) {
   const plain = await crypto.subtle.decrypt({name:'AES-GCM',iv:base64urlToBytes(ivB64)},key,base64urlToBytes(ctB64));
   return new TextDecoder().decode(plain);
 }
-async function derivePasswordKey(rawPassword, saltB64) {
-  const material = await crypto.subtle.importKey('raw', new TextEncoder().encode(rawPassword), 'PBKDF2', false, ['deriveKey']);
-  return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: base64urlToBytes(saltB64), iterations: 310000, hash: 'SHA-256' }, material, { name: 'AES-GCM', length: 256 }, false, ['encrypt','decrypt']);
-}
-function buildFragmentV2(msgId, expiryMode, protection, material) {
-  // protection = 'k' for random URL key, 'p' for password-derived key, 'n' for PIN-derived key
-  return `${VERSION2}.${expiryMode}.${Math.floor(Date.now()/1000)}.${msgId}.${protection}.${material}`;
-}
-const VERSION2 = 'gl2';
-function buildFragment(keyB64, ivB64, ctB64, expiryMode, pwHash) {
-  // Kept only for creating/recognizing older links during migration.
-  const base = `${VERSION}.${expiryMode}.${Math.floor(Date.now()/1000)}.${keyB64}.${ivB64}.${ctB64}`;
-  return pwHash ? base + '~' + pwHash : base;
+function buildFragment(keyB64, msgId, expiryMode) {
+  // The encryption key stays in the URL fragment for end-to-end decryption.
+  // Ciphertext and password hashes are stored server-side, not in the URL.
+  return `${VERSION}.${expiryMode}.${Math.floor(Date.now()/1000)}.${keyB64}.${msgId}`;
 }
 function parseFragment(frag) {
   if (!frag || frag.startsWith('#')) frag = frag ? frag.slice(1) : '';
-  const v2 = frag.split('.');
-  if (v2[0] === VERSION2) {
-    if (v2.length !== 6) return null;
-    const [, expiryMode, createdAt, msgId, protection, material] = v2;
-    if (!['read-once','24h','1h'].includes(expiryMode) || !/^\d+$/.test(createdAt) || !/^[a-f0-9]{32}$/.test(msgId) || !['k','p','n'].includes(protection) || !material) return null;
-    return { version: VERSION2, expiryMode, createdAt: Number(createdAt), msgId, protection, material, pwHash: null, pwHashType: protection === 'n' ? 'pin' : 'password' };
-  }
-  // Backward compatibility for existing gl1 links.
-  let pwHash = null, pwHashType = null;
-  const tildeIdx = frag.indexOf('~');
-  if (tildeIdx !== -1) {
-    pwHash = frag.substring(tildeIdx + 1); frag = frag.substring(0, tildeIdx);
-    pwHashType = pwHash.startsWith('P') ? 'password' : 'pin'; pwHash = pwHash.substring(1);
-  }
   const parts = frag.split('.');
-  if (parts.length < 6) return null;
-  const [version, expiryMode, createdAt, keyB64, ivB64, ...ctParts] = parts;
-  const ctB64 = ctParts.join('.');
-  if (version !== VERSION || !['read-once','24h','1h'].includes(expiryMode) || !/^\d+$/.test(createdAt) || !keyB64 || !ivB64 || !ctB64) return null;
-  return { version, expiryMode, createdAt: Number(createdAt), keyB64, ivB64, ctB64, pwHash, pwHashType };
+  if (parts.length !== 5) return null;
+  const [version, expiryMode, createdAt, keyB64, msgId] = parts;
+  if (version !== VERSION || !['read-once','24h','1h'].includes(expiryMode)) return null;
+  if (!/^\d+$/.test(createdAt) || !/^[a-f0-9]{32}$/.test(msgId) || !keyB64) return null;
+  try { if (base64urlToBytes(keyB64).length !== 32) return null; } catch (_) { return null; }
+  return { version, expiryMode, createdAt:Number(createdAt), keyB64, msgId, pwHash:null, pwHashType:null };
 }
 function isExpired(parsed) {
   const age = Math.floor(Date.now()/1000) - parsed.createdAt;
@@ -1530,7 +1407,7 @@ function restoreCreateButton() {
 let attachedImages = []; // [{name, dataUrl, size}]
 const MAX_IMG_DIMENSION = 1280; // px — resize larger images down
 const IMG_QUALITY = 0.75;       // JPEG quality for compression
-const WARN_TOTAL_BYTES = 5_000_000; // warn above 5 MB total
+const WARN_TOTAL_BYTES = MAX_TOTAL_IMAGE_BYTES; // enforce a conservative 3 MB compressed total
 
 // Wire up button → file input → handler
 const imgFileInput = document.getElementById('img-file-input');
@@ -1544,27 +1421,32 @@ imgFileInput.addEventListener('change', function() {
 
 // Compress + resize an image file → returns a data URL (JPEG)
 function compressImage(file) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
+    if (!file || !file.type || !file.type.startsWith('image/')) return reject(new Error('Choose a valid image file.'));
     const reader = new FileReader();
+    reader.onerror = () => reject(new Error(`Could not read "${file.name}". The file may be damaged.`));
+    reader.onabort = () => reject(new Error(`Reading "${file.name}" was cancelled.`));
     reader.onload = e => {
       const img = new Image();
+      img.onerror = () => reject(new Error(`"${file.name}" is not a supported or valid image.`));
       img.onload = () => {
-        // Calculate new dimensions keeping aspect ratio
-        let { width, height } = img;
-        if (width > MAX_IMG_DIMENSION || height > MAX_IMG_DIMENSION) {
-          if (width > height) { height = Math.round(height * MAX_IMG_DIMENSION / width); width = MAX_IMG_DIMENSION; }
-          else { width = Math.round(width * MAX_IMG_DIMENSION / height); height = MAX_IMG_DIMENSION; }
-        }
-        const canvas = document.createElement('canvas');
-        canvas.width = width; canvas.height = height;
-        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-        // Use JPEG for photos, PNG only for tiny images or those with transparency
-        const isSmall = file.size < 50_000;
-        const mimeOut = (file.type === 'image/png' && isSmall) ? 'image/png' : 'image/jpeg';
-        const dataUrl = canvas.toDataURL(mimeOut, IMG_QUALITY);
-        // Estimate compressed size from base64 length
-        const compressedSize = Math.round((dataUrl.length - dataUrl.indexOf(',') - 1) * 0.75);
-        resolve({ dataUrl, size: compressedSize });
+        try {
+          let { width, height } = img;
+          if (!width || !height) throw new Error('Image dimensions are invalid.');
+          if (width > MAX_IMG_DIMENSION || height > MAX_IMG_DIMENSION) {
+            if (width > height) { height = Math.round(height * MAX_IMG_DIMENSION / width); width = MAX_IMG_DIMENSION; }
+            else { width = Math.round(width * MAX_IMG_DIMENSION / height); height = MAX_IMG_DIMENSION; }
+          }
+          const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) throw new Error('Image processing is not supported by this browser.');
+          ctx.drawImage(img, 0, 0, width, height);
+          const smallPng = file.type === 'image/png' && file.size < 50_000;
+          const dataUrl = canvas.toDataURL(smallPng ? 'image/png' : 'image/jpeg', IMG_QUALITY);
+          const b64 = dataUrl.slice(dataUrl.indexOf(',') + 1);
+          const size = Math.floor(b64.length * 3 / 4) - (b64.endsWith('==') ? 2 : b64.endsWith('=') ? 1 : 0);
+          resolve({ dataUrl, size });
+        } catch (err) { reject(err); }
       };
       img.src = e.target.result;
     };
@@ -1573,25 +1455,26 @@ function compressImage(file) {
 }
 
 async function handleImageFiles(files) {
-  const toProcess = Array.from(files).filter(f => f.type.startsWith('image/'));
-  if (toProcess.length === 0) return;
-
-  // Show loading state on button
-  const btn = document.getElementById('img-attach-btn');
-  const origHTML = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = `<div class="spinner" style="width:12px;height:12px;border-width:2px"></div> Processing…`;
-
-  // Compress all selected images in parallel
-  const results = await Promise.all(toProcess.map(file =>
-    compressImage(file).then(({ dataUrl, size }) => ({ name: file.name, dataUrl, size }))
-  ));
-
-  attachedImages.push(...results);
-  renderImagePreviews();
-
-  btn.disabled = false;
-  btn.innerHTML = origHTML;
+  const selected = Array.from(files || []);
+  const valid = selected.filter(f => f.type && f.type.startsWith('image/'));
+  if (!valid.length) { showImageError('Choose a valid image file.'); return; }
+  if (attachedImages.length + valid.length > MAX_IMAGES) { showImageError(`You can attach up to ${MAX_IMAGES} images per message.`); return; }
+  const btn = document.getElementById('img-attach-btn'), original = btn.innerHTML;
+  btn.disabled = true; btn.innerHTML = `<div class="spinner" style="width:12px;height:12px;border-width:2px"></div> Processing…`;
+  try {
+    const results = await Promise.all(valid.map(async file => {
+      const image = await compressImage(file); return { name:file.name, dataUrl:image.dataUrl, size:image.size };
+    }));
+    const total = attachedImages.reduce((n,x)=>n+x.size,0) + results.reduce((n,x)=>n+x.size,0);
+    if (total > MAX_TOTAL_IMAGE_BYTES) throw new Error('Compressed images must total 3 MB or less. Remove an image or choose smaller files.');
+    attachedImages.push(...results); showImageError(''); renderImagePreviews();
+  } catch (err) { showImageError(err?.message || 'Could not process one of the images. Please try another file.'); }
+  finally { btn.disabled = false; btn.innerHTML = original; }
+}
+function showImageError(message) {
+  const el = document.getElementById('compose-error');
+  if (el && message) el.textContent = message;
+  else if (el && !message) el.textContent = '';
 }
 
 function renderImagePreviews() {
@@ -1639,12 +1522,10 @@ function renderImagePreviews() {
   warn.style.display = totalBytes > WARN_TOTAL_BYTES ? 'flex' : 'none';
 }
 
-const MAX_MSG_LENGTH = 3000;
 msgInput.addEventListener('input', () => {
   const len = msgInput.value.length;
-  const remaining = MAX_MSG_LENGTH - len;
-  charCount.textContent = remaining < 200 ? remaining + ' left' : len.toLocaleString();
-  charCount.className = 'char-count' + (len >= MAX_MSG_LENGTH ? ' over' : len >= 2700 ? ' warn' : '');
+  charCount.textContent = len.toLocaleString();
+  charCount.className = 'char-count';
   if (composeError.textContent) composeError.textContent = '';
 });
 
@@ -1659,61 +1540,58 @@ async function createLink() {
     composeError.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg> ${t('enterMsg')}`;
     msgInput.focus(); return;
   }
-  if (text.length > MAX_MSG_LENGTH) { composeError.textContent = `Messages are limited to ${MAX_MSG_LENGTH.toLocaleString()} characters.`; return; }
+  if (text.length > MAX_MESSAGE_CHARS) { composeError.textContent = `Messages are limited to ${MAX_MESSAGE_CHARS.toLocaleString()} characters.`; msgInput.focus(); return; }
+  if (attachedImages.length > MAX_IMAGES) { composeError.textContent = `You can attach up to ${MAX_IMAGES} images.`; return; }
   const expiryMode = document.querySelector('input[name="expiry"]:checked').value;
-  let pwVal = '';
+  // Validate password if enabled
   if (pwEnabled) {
-    pwVal = getPwValue();
-    if (!pwVal || pwVal === 'PW:' || pwVal === 'PIN:') {
-      composeError.textContent = pwType === 'pin' ? t('enterPin') : t('enterPw');
-      (pwType === 'pin' ? document.getElementById('pin-0') : document.getElementById('pw-password-input')).focus();
+    const pwVal = getPwValue();
+    if (!pwVal) {
+      composeError.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg> ${pwType === 'pin' ? t('enterPin') : t('enterPw')}`;
+      if (pwType === 'pin') document.getElementById('pin-0').focus();
+      else document.getElementById('pw-password-input').focus();
       return;
     }
-    if (pwType === 'pin' && !/^PIN:\d{4}$/.test(pwVal)) { composeError.textContent = 'Enter all 4 PIN digits.'; return; }
   }
   createBtn.disabled = true;
-  composeError.textContent = '';
   createBtn.innerHTML = `<div class="spinner"></div> ${t('creatingLink')}`;
-  let imgRef = null;
   try {
-    const protection = pwEnabled ? (pwType === 'pin' ? 'n' : 'p') : 'k';
-    let key, material;
-    if (pwEnabled) {
-      const salt = crypto.getRandomValues(new Uint8Array(16));
-      material = bytesToBase64url(salt);
-      key = await derivePasswordKey(pwVal, material);
-    } else {
-      key = await generateKey();
-      material = await exportKey(key);
-    }
-    if (attachedImages.length) {
+    const key = await generateKey();
+    const keyB64 = await exportKey(key);
+    let imgRef = null;
+    if (attachedImages.length > 0) {
       createBtn.innerHTML = `<div class="spinner"></div> Uploading ${attachedImages.length} image${attachedImages.length !== 1 ? 's' : ''}…`;
-      const imgJson = JSON.stringify(attachedImages.map(img => ({ name: img.name, dataUrl: img.dataUrl })));
+      const imgJson = JSON.stringify(attachedImages.map(img => ({ name:img.name, dataUrl:img.dataUrl })));
       const imgIv = crypto.getRandomValues(new Uint8Array(12));
-      const imgCt = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv: imgIv }, key, new TextEncoder().encode(imgJson)));
-      const blob = new Uint8Array(12 + imgCt.length); blob.set(imgIv, 0); blob.set(imgCt, 12);
-      imgRef = Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2,'0')).join('');
-      await sbUploadImages(imgRef, blob);
+      const imgCt = new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv:imgIv},key,new TextEncoder().encode(imgJson)));
+      const blob = new Uint8Array(12 + imgCt.length); blob.set(imgIv,0); blob.set(imgCt,12);
+      imgRef = Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b=>b.toString(16).padStart(2,'0')).join('');
+      await sbUploadImages(imgRef,blob);
     }
-    const payload = JSON.stringify({ v: 2, text, imgRef });
-    const { iv, ct } = await encryptMessage(payload, key);
-    const msgId = Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2,'0')).join('');
-    const createdAt = Math.floor(Date.now()/1000);
-    await sbSaveMessage(msgId, ct, iv, createdAt, expiryMode);
-    const fragment = buildFragmentV2(msgId, expiryMode, protection, material);
+    createBtn.innerHTML = `<div class="spinner"></div> ${t('creatingLink')}`;
+    const payload = JSON.stringify({v:2,text,imgRef});
+    const {iv,ct} = await encryptMessage(payload,key);
+    let pwHash = null, passwordType = null;
+    if (pwEnabled) { pwHash = await hashPassword(getPwValue()); passwordType = pwType === 'pin' ? 'pin' : 'password'; }
+    const msgId = Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b=>b.toString(16).padStart(2,'0')).join('');
+    await sbCreateMessage(msgId,ct,iv,expiryMode,pwHash,passwordType);
+    const fragment = buildFragment(keyB64,msgId,expiryMode);
     const linkUrl = new URL(window.location.href);
     linkUrl.search = ''; linkUrl.hash = fragment;
     generatedLink = linkUrl.href;
-    resultLinkDisplay.innerHTML = `<strong>${window.location.hostname + window.location.pathname}</strong><span style="color:var(--text-muted)">#…${msgId.slice(0,8)}…</span>`;
+    resultLinkDisplay.innerHTML = `<strong>${window.location.hostname + window.location.pathname}</strong><span style="color:var(--text-muted)">#…${msgId.substring(0,12)}…</span>`;
     resultLinkDisplay.title = generatedLink;
-    document.getElementById('expiry-chip').textContent = expiryMode === '1h' ? 'expires after reading · 1h max' : expiryMode === '24h' ? 'expires after reading · 24h max' : 'expires after reading';
+    document.getElementById('expiry-chip').textContent =
+      expiryMode === '1h' ? 'expires after reading · 1h max' :
+      expiryMode === '24h' ? 'expires after reading · 24h max' : 'expires after reading';
     resultCard.style.display = 'block';
     resultCard.scrollIntoView({behavior:'smooth',block:'nearest'});
-  } catch (err) {
+    restoreCreateButton();
+  } catch(err) {
     console.error('Secure link creation failed:', err);
-    composeError.textContent = /image|storage/i.test(String(err)) ? 'Could not upload the encrypted image. Check your Supabase Storage bucket and permissions, then try again.' : 'Could not create the secure link. Check your Supabase connection and SQL setup, then try again.';
-    if (imgRef) { /* Orphaned encrypted uploads are harmless; storage cleanup can remove them later. */ }
-  } finally { restoreCreateButton(); }
+    composeError.textContent = err?.message || 'Could not create the secure link. Check your connection and Supabase setup, then retry.';
+    restoreCreateButton();
+  }
 }
 
 async function copyLink() {
@@ -1747,6 +1625,8 @@ function resetCompose() {
   document.getElementById('pw-fields').classList.remove('visible');
   document.getElementById('pw-password-input').value = '';
   [0,1,2,3].forEach(i => { document.getElementById('pin-'+i).value=''; });
+  const lbl = document.querySelector('.password-toggle-label');
+  if (lbl) { lbl.style.color = ''; lbl.style.fontWeight = ''; lbl.removeAttribute('data-pw-set'); }
   setPwType('password');
   msgInput.focus();
 }
@@ -1817,26 +1697,64 @@ function togglePasswordSection(event) {
   if (pwEnabled) {
     setTimeout(() => {
       if (!fields.classList.contains('visible')) return;
-      document.getElementById(pwType === 'pin' ? 'pin-0' : 'pw-password-input').focus();
+      const inputEl = document.getElementById(pwType === 'pin' ? 'pin-0' : 'pw-password-input');
+      inputEl.focus();
     }, 50);
+  } else {
+    // Clear password fields when disabled
+    document.getElementById('pw-password-input').value = '';
+    [0,1,2,3].forEach(i => { document.getElementById('pin-'+i).value = ''; });
+    // Reset label style
+    const lbl = document.querySelector('.password-toggle-label');
+    if (lbl) { lbl.style.color = ''; lbl.style.fontWeight = ''; lbl.removeAttribute('data-pw-set'); }
   }
 }
+
+// Auto-collapse password panel when user finishes entering password/PIN
+function collapsePwPanelIfFilled() {
+  if (!pwEnabled) return;
+  const filled = getPwValue();
+  if (filled) {
+    const fields = document.getElementById('pw-fields');
+    fields.classList.remove('visible');
+    // Update toggle label to show it's set
+    const lbl = document.querySelector('.password-toggle-label');
+    if (lbl) {
+      lbl.setAttribute('data-pw-set', 'true');
+      lbl.style.color = 'var(--accent)';
+      lbl.style.fontWeight = '600';
+    }
+    const box = document.getElementById('pw-toggle-box');
+    if (box) box.classList.add('checked');
+  }
+}
+
+// Collapse password panel only when focus truly leaves the entire panel
+document.addEventListener('DOMContentLoaded', function() {
+  const panel = document.getElementById('pw-fields');
+  if (panel) {
+    // focusout bubbles up from any child — check if new focus is still inside panel
+    panel.addEventListener('focusout', (e) => {
+      setTimeout(() => {
+        // relatedTarget = element receiving focus; if it's inside panel, don't collapse
+        if (panel.contains(document.activeElement)) return;
+        collapsePwPanelIfFilled();
+      }, 0);
+    });
+  }
+  // Enter key on password input also collapses
+  const pwIn = document.getElementById('pw-password-input');
+  if (pwIn) {
+    pwIn.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); collapsePwPanelIfFilled(); } });
+  }
+  // PIN last digit auto-collapse
+  const pin3 = document.getElementById('pin-3');
+  if (pin3) pin3.addEventListener('input', () => { if (pin3.value) setTimeout(collapsePwPanelIfFilled, 300); });
+});
 
 function closePasswordPanel() {
-  const fields = document.getElementById('pw-fields');
-  fields.classList.remove('visible');
-  if (fields.contains(document.activeElement)) document.activeElement.blur();
+  // No-op for inline layout — panel stays open until checkbox is unchecked
 }
-
-document.addEventListener('click', event => {
-  if (!event.target.closest('.password-section')) closePasswordPanel();
-});
-
-document.getElementById('pw-fields').addEventListener('focusout', event => {
-  if (!event.relatedTarget || !event.currentTarget.contains(event.relatedTarget)) {
-    closePasswordPanel();
-  }
-});
 
 function setPwType(type) {
   pwType = type;
@@ -1857,6 +1775,8 @@ function togglePwEye() {
   icon.innerHTML = isText
     ? '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>'
     : '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>';
+  // Keep focus on the input so panel doesn't collapse
+  requestAnimationFrame(() => inp.focus());
 }
 
 function pinMove(el, idx) {
@@ -1883,115 +1803,53 @@ async function hashPassword(raw) {
 
 // ═══════════════════════════════════════════════
 //  PASSWORD / PIN — RECIPIENT SIDE
+//
+//  ⚠️  Security note — browser-side password check:
+//  The SHA-256 hash of the password lives in the URL fragment.
+//  A determined user who opens DevTools can inspect `correctHash`
+//  and `pendingParsed` and skip the gate.  This is an inherent
+//  limitation of a 100% client-side architecture.
+//
+//  To eliminate this:  move the hash check and decryption key
+//  delivery to a server-side endpoint.  The recipient POSTs their
+//  password hash to your server; the server verifies it, marks the
+//  link burned, and returns the decryption key only on success.
+//  The key never travels in the URL.
+//
+//  The current implementation still prevents casual snooping and
+//  enforces the 5-attempt lockout server-side (via pw_attempts table).
 // ═══════════════════════════════════════════════
-let gateType = 'password'; // set when link is parsed
-let correctHash = '';      // expected hash from fragment
+let gateType = 'password';
+let correctHash = '';
 let pwAttempts = 0;
-const MAX_ATTEMPTS = 5;
-let pendingParsed = null;  // parsed fragment held until password verified
-let pendingKey = null;
-
-function toggleGateEye() {
-  const inp = document.getElementById('pw-gate-input');
-  const icon = document.getElementById('pw-gate-eye-icon');
-  const isText = inp.type === 'text';
-  inp.type = isText ? 'password' : 'text';
-  icon.innerHTML = isText
-    ? '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>'
-    : '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>';
-}
-
-function gatePinMove(el, idx) {
-  const val = el.value.toString().slice(-1);
-  el.value = val;
-  if (val && idx < 3) document.getElementById('gpin-' + (idx+1)).focus();
-}
-
+let pendingPasswordHash = null;
+let pendingParsed = null;
 function getGatePwValue() {
   if (gateType === 'pin') {
-    const digits = [0,1,2,3].map(i => document.getElementById('gpin-'+i).value).join('');
-    return digits.length === 4 ? 'PIN:' + digits : '';
+    const digits = [0,1,2,3].map(i=>document.getElementById('gpin-'+i).value).join('');
+    return digits.length === 4 ? 'PIN:'+digits : '';
   }
-  return 'PW:' + document.getElementById('pw-gate-input').value.trim();
+  const input = document.getElementById('pw-gate-input');
+  return input ? 'PW:'+input.value.trim() : '';
 }
-
 async function submitPassword() {
-  if (pwAttempts >= MAX_ATTEMPTS) return;
   const raw = getGatePwValue();
-  if (!raw || raw === 'PW:' || raw === 'PIN:') {
-    showGateError(gateType === 'pin' ? t('enterAllDigits') : t('enterPassword'));
-    return;
-  }
-  const btn = document.getElementById('pw-submit-btn');
-  btn.disabled = true;
-  btn.innerHTML = `<div class="spinner"></div> ${t('checking')}`;
-  let hash;
+  if (!raw || raw === 'PW:' || raw === 'PIN:') { showGateError(gateType === 'pin' ? t('enterAllDigits') : t('enterPassword')); return; }
+  const btn = document.getElementById('pw-submit-btn'); btn.disabled=true; btn.innerHTML=`<div class="spinner"></div> ${t('checking')}`;
   try {
-    hash = await hashPassword(raw);
-  } catch (err) {
-    console.error('Password verification failed:', err);
-    btn.disabled = false;
-    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> <span data-i18n="unlockBtn">${t('unlockBtn')}</span>`;
-    showGateError('Could not verify the password. Please try again.');
-    return;
-  }
-  if (pendingParsed && pendingParsed.version === VERSION2) {
-    try {
-      const rawPassword = getGatePwValue();
-      const derived = await derivePasswordKey(rawPassword, pendingParsed.material);
-      const row = await sbFetchMessage(pendingParsed.msgId);
-      await decryptMessage(row.iv, row.ciphertext, derived); // GCM authentication verifies the password
-      pendingKey = derived;
-      await proceedReveal();
-      return;
-    } catch (verifyErr) {
-      if (String(verifyErr).includes('backend_gl_get_message_failed') || String(verifyErr).includes('message_missing_or_expired')) {
-        btn.disabled = false; btn.innerHTML = `<span data-i18n="unlockBtn">${t('unlockBtn')}</span>`;
-        showGateError('The message is unavailable or the server cannot be reached. Please retry.'); return;
-      }
-      const burnId = pendingParsed.msgId;
-      try { pwAttempts = Number(await sbAtomicIncrementAttempt(burnId)); }
-      catch (e) { btn.disabled = false; btn.innerHTML = `<span data-i18n="unlockBtn">${t('unlockBtn')}</span>`; showGateError('Could not check this password because the server is unavailable. Please retry.'); return; }
-      const left = MAX_ATTEMPTS - pwAttempts;
-      if (left <= 0) { btn.disabled = true; showState('burned'); }
-      else {
-        btn.disabled = false; btn.innerHTML = `<span data-i18n="unlockBtn">${t('unlockBtn')}</span>`;
-        showGateError(gateType === 'pin' ? t('incorrectPin') : t('incorrectPw'));
-        document.getElementById('pw-attempts').textContent = t('attemptsLeft')(left);
-        if (gateType === 'pin') { [0,1,2,3].forEach(i => document.getElementById('gpin-'+i).value=''); document.getElementById('gpin-0').focus(); }
-        else { document.getElementById('pw-gate-input').value=''; document.getElementById('pw-gate-input').focus(); }
-      }
-      return;
-    }
-  }
-  if (hash === correctHash) {
-    await proceedReveal();
-  } else {
-    // Increment attempt count on the server so it persists across refreshes
-    const burnId = getBurnId(currentFragRaw);
-    try {
-      pwAttempts = await sbIncrementAttempt(burnId);
-    } catch(e) {
-      pwAttempts++; // fallback to in-memory if DB write fails
-    }
-    btn.disabled = false;
-    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> <span data-i18n="unlockBtn">${t('unlockBtn')}</span>`;
-    const left = MAX_ATTEMPTS - pwAttempts;
-    if (left <= 0) {
-      // Burn the link immediately — too many wrong attempts
-      btn.disabled = true;
-      btn.innerHTML = `<div class="spinner"></div> ${t('destroyingLink')}`;
-      try { await sbSet(burnId); } catch(e) {}
-      try { await sbDeleteAttempts(burnId); } catch(e) {}
-      pendingParsed = null;
-      window.history.replaceState(null, '', window.location.pathname);
-      showState('burned');
-    } else {
-      showGateError(gateType === 'pin' ? t('incorrectPin') : t('incorrectPw'));
-      document.getElementById('pw-attempts').textContent = t('attemptsLeft')(left);
-      if (gateType === 'pin') { [0,1,2,3].forEach(i => { document.getElementById('gpin-'+i).value=''; }); document.getElementById('gpin-0').focus(); }
-      else { document.getElementById('pw-gate-input').value=''; document.getElementById('pw-gate-input').focus(); }
-    }
+    const hash = await hashPassword(raw);
+    const result = await sbCheckPassword(pendingParsed.msgId,hash);
+    pwAttempts = Number(result?.attempts || 0);
+    if (result?.ok) { pendingPasswordHash=hash; await proceedReveal(); return; }
+    if (result?.status === 'burned' || pwAttempts >= MAX_ATTEMPTS) { pendingParsed=null; window.history.replaceState(null,'',window.location.pathname); showState('burned'); return; }
+    btn.disabled=false; btn.innerHTML=`<span data-i18n="unlockBtn">${t('unlockBtn')}</span>`;
+    showGateError(gateType === 'pin' ? t('incorrectPin') : t('incorrectPw'));
+    document.getElementById('pw-attempts').textContent=t('attemptsLeft')(Math.max(0,MAX_ATTEMPTS-pwAttempts));
+    if (gateType === 'pin') { [0,1,2,3].forEach(i=>document.getElementById('gpin-'+i).value=''); document.getElementById('gpin-0').focus(); }
+    else { document.getElementById('pw-gate-input').value=''; document.getElementById('pw-gate-input').focus(); }
+  } catch(err) {
+    btn.disabled=false; btn.innerHTML=`<span data-i18n="unlockBtn">${t('unlockBtn')}</span>`;
+    showGateError('Could not verify the password because the service is unavailable. Please retry.');
   }
 }
 
@@ -2000,111 +1858,52 @@ function showGateError(msg) {
   el.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg> ${msg}`;
 }
 
-async function showPasswordGate(parsed, type, hash) {
-  pendingParsed = parsed;
-  gateType = type;
-  correctHash = hash;
-  document.getElementById('pw-gate-error').innerHTML = '';
-  document.getElementById('pw-attempts').textContent = '';
-  // Show correct input type
-  document.getElementById('pw-gate-password-wrap').style.display = type === 'password' ? 'block' : 'none';
-  document.getElementById('pw-gate-pin-wrap').style.display = type === 'pin' ? 'block' : 'none';
-  document.getElementById('pw-gate-body').textContent = type === 'pin'
-    ? t('pwGateBodyPin')
-    : t('pwGateBodyPw');
+async function showPasswordGate(parsed,type) {
+  pendingParsed=parsed; gateType=type||'password'; pendingPasswordHash=null;
+  document.getElementById('pw-gate-error').innerHTML=''; document.getElementById('pw-attempts').textContent='';
+  document.getElementById('pw-gate-password-wrap').style.display=gateType==='password'?'block':'none';
+  document.getElementById('pw-gate-pin-wrap').style.display=gateType==='pin'?'block':'none';
+  document.getElementById('pw-gate-body').textContent=gateType==='pin'?t('pwGateBodyPin'):t('pwGateBodyPw');
   showState('pwgate');
-  // Load the atomic server-side attempt count for new links; legacy links use the old table.
-  try {
-    if (parsed.version === VERSION2) {
-      const row = await sbFetchMessage(parsed.msgId);
-      pwAttempts = Number(row.attempts || 0);
-    } else {
-      const burnId = getBurnId(currentFragRaw);
-      pwAttempts = await sbGetAttempts(burnId);
-    }
-    if (pwAttempts >= MAX_ATTEMPTS) {
-      // Already exhausted — burn immediately
-      try { await sbSet(burnId); } catch(e) {}
-      await sbDeleteAttempts(burnId);
-      pendingParsed = null;
-      window.history.replaceState(null, '', window.location.pathname);
-      showState('burned'); return;
-    }
-    if (pwAttempts > 0) {
-      const left = MAX_ATTEMPTS - pwAttempts;
-      document.getElementById('pw-attempts').textContent = t('attemptsLeft')(left);
-    }
-  } catch(e) {
-    pwAttempts = 0; // fallback to in-memory if DB unavailable
-  }
-  setTimeout(() => {
-    if (type === 'pin') document.getElementById('gpin-0').focus();
-    else document.getElementById('pw-gate-input').focus();
-  }, 100);
+  setTimeout(()=>{ if(gateType==='pin') document.getElementById('gpin-0').focus(); else document.getElementById('pw-gate-input').focus(); },100);
 }
 
 // ═══════════════════════════════════════════════
 //  INIT  — check server FIRST, then show state
 // ═══════════════════════════════════════════════
 async function initReveal() {
-  const fragRaw = window.location.hash.substring(1);
-  const parsed = parseFragment(fragRaw);
-
-  if (!parsed) { showState('invalid'); return; }
-  if (isExpired(parsed)) { showState('expired'); return; }
-
+  const parsed=parseFragment(window.location.hash.substring(1));
+  if(!parsed){showState('invalid');return;}
+  if(isExpired(parsed)){showState('expired');return;}
   showState('checking');
-
   try {
-    if (parsed.version === VERSION2) {
-      const row = await sbFetchMessage(parsed.msgId);
-      if (row.burned_at) { showState('burned'); return; }
-      const age = Math.floor(Date.now()/1000) - Number(row.created_at || parsed.createdAt);
-      if ((parsed.expiryMode === '1h' && age > 3600) || (parsed.expiryMode === '24h' && age > 86400)) { showState('expired'); return; }
-      if (parsed.protection === 'p' || parsed.protection === 'n') showPasswordGate(parsed, parsed.protection === 'n' ? 'pin' : 'password', null);
-      else showState('ready');
-      return;
-    }
-    const burned = await sbGet(getBurnId(fragRaw));
-    if (burned) { showState('burned'); return; }
-    if (parsed.pwHash) showPasswordGate(parsed, parsed.pwHashType, parsed.pwHash); else showState('ready');
+    const status=await sbMessageStatus(parsed.msgId);
+    if(!status||['missing','burned','expired'].includes(status.status)){showState(status?.status==='expired'?'expired':'burned');return;}
+    if(status.password_required) showPasswordGate(parsed,status.password_type||'password');
+    else {pendingParsed=parsed;pendingPasswordHash=null;showState('ready');}
   } catch(err) {
+    const offline=!navigator.onLine||err instanceof TypeError;
+    const el=document.getElementById('dberror-detail');
+    if(el) el.textContent=offline?'Your device appears to be offline. Check your internet connection, then retry.':'GhostLink could not verify this message with Supabase. Please retry; the message has not been opened.';
     showState('dberror');
   }
 }
 
 // Called after password is verified (or skipped if no password)
 async function proceedReveal() {
-  const parsed = pendingParsed || (() => {
-    // No password — triggered directly from revealMessage
-    const fragRaw = currentFragRaw;
-    return parseFragment(fragRaw);
-  })();
-  const fragRaw = currentFragRaw;
-  if (!parsed) { showState('invalid'); return; }
-
-  const btn = pendingParsed
-    ? document.getElementById('pw-submit-btn')
-    : document.getElementById('reveal-btn');
-  btn.disabled = true;
-  btn.innerHTML = `<div class="spinner"></div> ${t('openingMsg')}`;
-
+  const parsed=pendingParsed||parseFragment(currentFragRaw);
+  if(!parsed){showState('invalid');return;}
+  const btn=document.getElementById(pendingPasswordHash?'pw-submit-btn':'reveal-btn');
+  if(btn){btn.disabled=true;btn.innerHTML=`<div class="spinner"></div> ${t('openingMsg')}`;}
   try {
-    let key, plaintext;
-    if (parsed.version === VERSION2) {
-      key = pendingKey || (parsed.protection === 'k' ? await importKey(parsed.material) : null);
-      if (!key) throw new Error('password_required');
-      const claimRows = await sbRpc('gl_claim_message', { p_msg_id: parsed.msgId });
-      if (!claimRows || !claimRows[0] || !claimRows[0].claimed) { showState('burned'); return; }
-      plaintext = await decryptMessage(claimRows[0].iv, claimRows[0].ciphertext, key);
-      pendingKey = null;
-    } else {
-      const burnId = getBurnId(fragRaw);
-      await sbSet(burnId);
-      try { await sbDeleteAttempts(burnId); } catch(e) {}
-      key = await importKey(parsed.keyB64);
-      plaintext = await decryptMessage(parsed.ivB64, parsed.ctB64, key);
+    const opened=await sbConsumeMessage(parsed.msgId,pendingPasswordHash);
+    if(!opened||opened.status!=='ok'||!opened.ciphertext||!opened.iv){
+      if(opened?.status==='expired'){showState('expired');return;}
+      if(opened?.status==='wrong_password'){showGateError(t('incorrectPw'));showState('pwgate');return;}
+      showState('burned');return;
     }
+    const key=await importKey(parsed.keyB64);
+    const plaintext=await decryptMessage(opened.iv,opened.ciphertext,key);
     // Parse payload — v2 = text + imgRef, v1 = text + inline images (legacy), plain = old links
     let msgText = plaintext;
     let msgImages = [];
@@ -2121,7 +1920,6 @@ async function proceedReveal() {
             await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct)
           );
           msgImages = JSON.parse(imgJson);
-          try { await sbDeleteImages(obj.imgRef); } catch(cleanupErr) { console.warn('Encrypted image cleanup deferred', cleanupErr); }
         }
       } else if (obj && obj.v === 1) {
         msgText = obj.text || ''; msgImages = obj.images || [];
@@ -2207,12 +2005,12 @@ const LANGS = {
     howTitle:'How it works',
     step1n:'01', step1l:'Write your message', step1d:'Type what you want to send. Everything stays in your browser until you\'re ready.',
     step2n:'02', step2l:'Secured automatically', step2d:'Your message is locked with strong encryption before it leaves your device. No one else can read it.',
-    step3n:'03', step3l:'Share the link', step3d:'You get a private link to send. The contents of your message never travel through our servers.',
+    step3n:'03', step3l:'Share the link', step3d:'You get a private link to send. Encrypted message data is stored on our servers; the decryption key stays in the link fragment.',
     step4n:'04', step4l:'Opens once, then gone', step4d:'The moment the recipient opens it, the link is permanently disabled — on every device, everywhere.',
     noLoophole:'<strong style="color:var(--text-dim)">No loopholes:</strong> Expiry is enforced on our servers, not just in the browser. Clearing cache, switching devices, or using a different network cannot reopen a message that has already been read.',
-    aboutText:'GhostLink — Private one-time messages\n\n• Messages are secured in your browser before sending\n• Each link works once — after that, it expires permanently\n• Expiry is enforced on our servers, not just in the browser\n• Your message content never passes through our servers',
+    aboutText:'GhostLink — Private one-time messages\n\n• Messages are encrypted in your browser before sending\n• Only encrypted message data is stored on our servers\n• The decryption key stays in the link fragment\n• Each link can be opened once, and password attempts are limited',
     attachImage:'Attach image',
-    imgSizeWarn:'Total image size is large. Keep it under 5 MB to stay within the free storage limit.',
+    imgSizeWarn:'Compressed images must total 3 MB or less.',
     creatingLink:'Creating link…',
     openingMsg:'Opening message…',
     destroyingLink:'Destroying link…',
