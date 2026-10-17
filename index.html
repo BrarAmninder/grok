@@ -159,6 +159,7 @@
   .img-thumb-remove:hover{background:var(--red-bg);border-color:rgba(248,81,73,.4);color:var(--red)}
   .img-size-warn{font-size:11.5px;color:var(--amber);font-family:var(--mono);display:flex;align-items:center;gap:5px;margin-bottom:.5rem}
   /* ── Language switcher ── */
+  .header-right-controls{display:flex;align-items:center;gap:6px;margin-left:auto}
   .lang-switcher{position:relative;display:flex;align-items:center}
   .lang-btn{display:flex;align-items:center;gap:6px;background:var(--bg-2);border:1px solid var(--border);border-radius:20px;padding:4px 11px 4px 9px;font-size:12px;color:var(--text-dim);cursor:pointer;transition:border-color .12s,color .12s,background .12s;font-family:var(--sans);font-weight:500;outline:none;user-select:none;white-space:nowrap}
   .lang-btn:hover{border-color:var(--border-bright);color:var(--text);background:var(--bg-3)}
@@ -761,14 +762,11 @@
       Create Link
     </a>
   </nav>
-  <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" title="Switch to dark mode" aria-pressed="false">
-    <svg class="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 15.1A8.5 8.5 0 0 1 8.9 3.8 8.6 8.6 0 1 0 20.2 15.1Z"/></svg>
-    <svg class="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
-  </button>
   <div class="header-spacer"></div>
   <div class="header-badge" id="badge-encrypted">end-to-end encrypted</div>
 
-  <!-- Language Switcher -->
+  <!-- Language + Theme grouped together on the right -->
+  <div class="header-right-controls">
   <div class="lang-switcher" id="lang-switcher">
     <button class="lang-btn" onclick="toggleLangMenu()" aria-label="Select language" aria-expanded="false" id="lang-btn">
       <span class="lang-flag" id="lang-current-flag">🇬🇧</span>
@@ -832,6 +830,11 @@
       <div class="lang-option" onclick="setLang('uz')" data-lang="uz" role="menuitem"><span class="lang-option-flag">🇺🇿</span> O'zbek</div>
     </div>
   </div>
+  <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" title="Switch to dark mode" aria-pressed="false">
+    <svg class="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 15.1A8.5 8.5 0 0 1 8.9 3.8 8.6 8.6 0 1 0 20.2 15.1Z"/></svg>
+    <svg class="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
+  </button>
+</div>
 
 </header>
 
@@ -852,7 +855,7 @@
             <div class="message-icon" aria-hidden="true">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v12H9l-5 3V5Z"/></svg>
             </div>
-    <textarea id="msg-input" rows="1" placeholder="Enter your secret message…" autocomplete="off" spellcheck="true" aria-label="Message to encrypt" maxlength="3000"></textarea>
+    <textarea id="msg-input" rows="1" placeholder="Enter your secret message…" autocomplete="off" spellcheck="true" aria-label="Message to encrypt"></textarea>
             <div class="compose-toolbar">
             <div class="expiry-control">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
@@ -880,7 +883,7 @@
                 </div>
                 <div id="pw-password-wrap" class="pw-input-wrap">
                   <input class="pw-input" id="pw-password-input" type="password" placeholder="Enter a password…" data-i18n="pwPlaceholder" autocomplete="new-password" maxlength="128" onkeydown="if(event.key==='Enter'){event.preventDefault();closePasswordPanel()}">
-                  <button class="pw-eye" type="button" onclick="togglePwEye()" tabindex="-1">
+                  <button class="pw-eye" type="button" onclick="togglePwEye()" onmousedown="event.preventDefault()" tabindex="-1">
                     <svg id="pw-eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
                   </button>
                 </div>
@@ -1013,7 +1016,7 @@
       <!-- Password field (shown for password type) -->
       <div id="pw-gate-password-wrap" style="width:100%;max-width:280px;position:relative;margin-bottom:6px">
         <input class="pw-gate-input" id="pw-gate-input" type="password" placeholder="Enter password…" autocomplete="off" onkeydown="if(event.key==='Enter')submitPassword()">
-        <button class="pw-eye" type="button" onclick="toggleGateEye()" tabindex="-1" style="right:12px">
+        <button class="pw-eye" type="button" onclick="toggleGateEye()" onmousedown="event.preventDefault()" tabindex="-1" style="right:12px">
           <svg id="pw-gate-eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
         </button>
       </div>
@@ -1503,8 +1506,8 @@ let attachedImages = []; // [{name, dataUrl, size}]
 const MAX_IMG_DIMENSION = 1280; // px — resize larger images down
 const IMG_QUALITY = 0.75;       // JPEG quality for compression
 const WARN_TOTAL_BYTES = 2_000_000; // warn at 2 MB compressed total; storage limits vary by project
-const MAX_IMAGE_COUNT = 4;
-const MAX_IMAGE_BYTES = 4_000_000;
+const MAX_IMAGE_COUNT = 9999; // no practical limit
+const MAX_IMAGE_BYTES = Infinity; // no size limit
 
 // Wire up button → file input → handler
 const imgFileInput = document.getElementById('img-file-input');
@@ -1563,9 +1566,7 @@ function compressImage(file) {
 async function handleImageFiles(files) {
   const selected = Array.from(files).filter(f => f.type && f.type.startsWith('image/'));
   if (!selected.length) { composeError.textContent = 'Please choose a supported image file.'; return; }
-  const room = MAX_IMAGE_COUNT - attachedImages.length;
-  if (room <= 0) { composeError.textContent = `You can attach up to ${MAX_IMAGE_COUNT} images.`; return; }
-  const toProcess = selected.slice(0, room);
+  const toProcess = selected;
   const btn = document.getElementById('img-attach-btn');
   const origHTML = btn.innerHTML;
   btn.disabled = true;
@@ -1576,10 +1577,7 @@ async function handleImageFiles(files) {
       const img = await compressImage(file);
       return { name: file.name, dataUrl: img.dataUrl, size: img.size };
     }));
-    const total = attachedImages.reduce((sum, img) => sum + img.size, 0) + results.reduce((sum, img) => sum + img.size, 0);
-    if (total > MAX_IMAGE_BYTES) throw new Error('image_size_limit');
     attachedImages.push(...results);
-    if (selected.length > room) composeError.textContent = `Only ${MAX_IMAGE_COUNT} images are allowed. Extra images were not added.`;
     renderImagePreviews();
   } catch (err) {
     console.error('Image processing failed:', err);
@@ -1634,12 +1632,10 @@ function renderImagePreviews() {
   warn.style.display = totalBytes > WARN_TOTAL_BYTES ? 'flex' : 'none';
 }
 
-const MAX_MSG_LENGTH = 3000;
 msgInput.addEventListener('input', () => {
   const len = msgInput.value.length;
-  const remaining = MAX_MSG_LENGTH - len;
-  charCount.textContent = remaining < 200 ? remaining + ' left' : len.toLocaleString();
-  charCount.className = 'char-count' + (len >= MAX_MSG_LENGTH ? ' over' : len >= 2700 ? ' warn' : '');
+  charCount.textContent = len.toLocaleString();
+  charCount.className = 'char-count';
   if (composeError.textContent) composeError.textContent = '';
 });
 
@@ -1654,8 +1650,6 @@ async function createLink() {
     composeError.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg> ${t('enterMsg')}`;
     msgInput.focus(); return;
   }
-  if (text.length > MAX_MSG_LENGTH) { composeError.textContent = `Messages are limited to ${MAX_MSG_LENGTH.toLocaleString()} characters.`; return; }
-  if (attachedImages.length > MAX_IMAGE_COUNT) { composeError.textContent = `You can attach up to ${MAX_IMAGE_COUNT} images.`; return; }
   const expiryMode = document.querySelector('input[name="expiry"]:checked').value;
   let pwVal = '';
   if (pwEnabled) {
@@ -3014,11 +3008,32 @@ function t(key) {
 function toggleLangMenu() {
   const sw = document.getElementById('lang-switcher');
   const btn = document.getElementById('lang-btn');
+  const dropdown = sw.querySelector('.lang-dropdown');
   const isOpen = sw.classList.toggle('open');
   btn.setAttribute('aria-expanded', isOpen);
   if (isOpen) {
+    // On mobile, use fixed positioning anchored to the button's screen position
+    if (window.innerWidth <= 680) {
+      const rect = btn.getBoundingClientRect();
+      dropdown.style.top = (rect.bottom + 6) + 'px';
+      dropdown.style.right = (window.innerWidth - rect.right) + 'px';
+      dropdown.style.left = 'auto';
+      // Ensure it doesn't overflow the bottom of the screen
+      const maxH = window.innerHeight - rect.bottom - 16;
+      dropdown.style.maxHeight = Math.min(maxH, window.innerHeight * 0.7) + 'px';
+    } else {
+      dropdown.style.top = '';
+      dropdown.style.right = '';
+      dropdown.style.left = '';
+      dropdown.style.maxHeight = '';
+    }
     const close = e => { if (!sw.contains(e.target)) { sw.classList.remove('open'); btn.setAttribute('aria-expanded','false'); document.removeEventListener('click', close); } };
     setTimeout(() => document.addEventListener('click', close), 0);
+  } else {
+    dropdown.style.top = '';
+    dropdown.style.right = '';
+    dropdown.style.left = '';
+    dropdown.style.maxHeight = '';
   }
 }
 
