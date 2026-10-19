@@ -1222,9 +1222,7 @@
 </footer>
 
 <script>
-const languageSwitcher = document.getElementById('lang-switcher');
-const pageFooter = document.querySelector('.footer');
-if (languageSwitcher && pageFooter) pageFooter.appendChild(languageSwitcher);
+// lang-switcher stays in the header alongside the theme toggle
 const themeToggle = document.getElementById('theme-toggle');
 const themeColorMeta = document.getElementById('theme-color-meta');
 
@@ -1277,188 +1275,127 @@ if (brandGhost && brandLogo) {
 }
 
 // ═══════════════════════════════════════════════
-//  SUPABASE CONFIG  (your real credentials)
+//  SUPABASE CONFIG
+//
+//  Architecture: SHORT-URL mode
+//  ─────────────────────────────────────────────
+//  The ciphertext is stored in Supabase (gl_messages table).
+//  The URL fragment carries ONLY: version · expiry · timestamp · AES key · msg_id
+//  Result: links are always ~110 chars regardless of message length.
+//
+//  ⚠️  The anon key is safe here because Supabase RLS only allows
+//  the gl_* RPC functions — direct table access is blocked.
+//  Do not put a service-role key here.
 // ═══════════════════════════════════════════════
 const SUPABASE_URL = 'https://mcjrockqqwgdzpruyyph.supabase.co';
+
 let SUPABASE_KEY = (() => {
-  try {
-    const stored = sessionStorage.getItem('gl_sbkey');
-    if (stored) return stored;
-  } catch(e) {}
+  try { const s = sessionStorage.getItem('gl_sbkey'); if (s) return s; } catch(e) {}
   return '';
 })();
-const TABLE = 'burns';  // table name in your Supabase database
+
+function _sbHeaders(extra = {}) {
+  const h = { 'Content-Type': 'application/json', ...extra };
+  if (SUPABASE_KEY) { h['apikey'] = SUPABASE_KEY; h['Authorization'] = `Bearer ${SUPABASE_KEY}`; }
+  return h;
+}
 
 // ═══════════════════════════════════════════════
-//  SUPABASE HELPERS  (direct REST API — no SDK needed)
+//  SUPABASE HELPERS — use gl_* RPCs from your SQL
 // ═══════════════════════════════════════════════
 
-// Upload encrypted image bytes to Supabase Storage bucket "ghostlink-images"
-// Returns the file path (= imgRef) stored in the URL fragment
+// Save ciphertext + iv to gl_messages via RPC
+async function sbSaveMessage(msgId, ciphertext, iv, createdAt, expiryMode) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/gl_save_message`, {
+    method: 'POST',
+    headers: _sbHeaders(),
+    body: JSON.stringify({
+      p_msg_id: msgId,
+      p_ciphertext: ciphertext,
+      p_iv: iv,
+      p_created_at: createdAt,
+      p_expiry_mode: expiryMode
+    })
+  });
+  if (!res.ok) {
+    const txt = await res.text().catch(()=>'');
+    throw new Error('save_failed: ' + txt);
+  }
+}
+
+// Atomically claim (burn) a message — returns {claimed, ciphertext, iv}
+// ciphertext/iv are nulled in DB after this call (one-shot).
+async function sbClaimMessage(msgId) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/gl_claim_message`, {
+    method: 'POST',
+    headers: _sbHeaders(),
+    body: JSON.stringify({ p_msg_id: msgId })
+  });
+  if (!res.ok) throw new Error('claim_failed');
+  const rows = await res.json();
+  // RPC returns a set — take first row
+  const row = Array.isArray(rows) ? rows[0] : rows;
+  return row || { claimed: false, ciphertext: null, iv: null };
+}
+
+// Peek at a message (for pre-reveal check — does it exist and is it live?)
+async function sbGetMessage(msgId) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/gl_get_message`, {
+    method: 'POST',
+    headers: _sbHeaders(),
+    body: JSON.stringify({ p_msg_id: msgId })
+  });
+  if (!res.ok) throw new Error('db_read_failed');
+  const rows = await res.json();
+  return Array.isArray(rows) ? rows[0] : rows; // null if not found / expired / burned
+}
+
+// Increment wrong-password attempt counter; burns after 5 failures
+async function sbIncrementAttempt(msgId) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/gl_increment_pw_attempt`, {
+    method: 'POST',
+    headers: _sbHeaders(),
+    body: JSON.stringify({ p_burn_id: msgId })
+  });
+  if (!res.ok) {
+    const txt = await res.text().catch(()=>'');
+    if (txt.includes('message_unavailable')) throw Object.assign(new Error('message_unavailable'), { burned: true });
+    throw new Error('increment_failed');
+  }
+  const rows = await res.json();
+  const row = Array.isArray(rows) ? rows[0] : rows;
+  return row ? row.attempts : 1;
+}
+
+// Upload encrypted image bytes to Supabase Storage bucket "ghostlink"
 async function sbUploadImages(imgRef, encryptedBytes) {
-  const res = await fetch(
-    `${SUPABASE_URL}/storage/v1/object/ghostlink/${imgRef}`,
-    {
-      method: 'POST',
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/octet-stream',
-        'x-upsert': 'true'
-      },
-      body: encryptedBytes
-    }
-  );
+  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/ghostlink/${imgRef}`, {
+    method: 'POST',
+    headers: { ..._sbHeaders(), 'Content-Type': 'application/octet-stream', 'x-upsert': 'true' },
+    body: encryptedBytes
+  });
   if (!res.ok) throw new Error('img_upload_failed');
   return imgRef;
 }
 
 // Download encrypted image bytes from Supabase Storage
 async function sbDownloadImages(imgRef) {
-  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/ghostlink/${encodeURIComponent(imgRef)}`, { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } });
+  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/ghostlink/${imgRef}`, {
+    headers: _sbHeaders()
+  });
   if (!res.ok) throw new Error('img_download_failed');
   return new Uint8Array(await res.arrayBuffer());
 }
-async function sbDeleteImages(imgRef) {
-  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/ghostlink/${encodeURIComponent(imgRef)}`, { method: 'DELETE', headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } });
-  if (!res.ok && res.status !== 404) throw new Error('img_delete_failed');
-}
 
-async function sbGet(burnId) {
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/${TABLE}?burn_id=eq.${encodeURIComponent(burnId)}&select=burn_id`,
-    { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
-  );
-  if (!res.ok) throw new Error('db_read_failed');
-  const rows = await res.json();
-  return rows.length > 0; // true = already burned
-}
-
-async function sbSet(burnId) {
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/${TABLE}`,
-    {
-      method: 'POST',
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-        Prefer: 'return=minimal'
-      },
-      body: JSON.stringify({ burn_id: burnId, burned_at: new Date().toISOString() })
-    }
-  );
-  // 201 = inserted, 409 = already exists (duplicate — still burned)
-  if (!res.ok && res.status !== 409) throw new Error('db_write_failed');
-  return true;
-}
-
-// ── Password attempt tracking (stored in Supabase table: pw_attempts) ──
-// Schema: burn_id text PK, attempts int default 0
-// RLS: insert/update/select with anon key (same policy as burns table)
-
-async function sbGetAttempts(burnId) {
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/pw_attempts?burn_id=eq.${encodeURIComponent(burnId)}&select=attempts`,
-    { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
-  );
-  if (!res.ok) throw new Error('attempts_read_failed');
-  const rows = await res.json();
-  return rows.length > 0 ? rows[0].attempts : 0;
-}
-
-async function sbIncrementAttempt(burnId) {
-  // Upsert: insert with attempts=1, or increment existing row by 1
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/pw_attempts`,
-    {
-      method: 'POST',
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-        Prefer: 'resolution=merge-duplicates,return=representation'
-      },
-      // Insert attempts=1; on conflict (burn_id already exists) merge — but Supabase
-      // merge-duplicates replaces, so we use an RPC instead if available.
-      // Fallback: read current count, then patch.
-      body: JSON.stringify({ burn_id: burnId, attempts: 1 })
-    }
-  );
-  if (res.status === 201 || res.status === 200) {
-    const rows = await res.json();
-    // If merge returned the row, check if we need to patch (count was already >0)
-    if (rows && rows[0] && rows[0].attempts === 1) return 1; // freshly inserted
-    // Row existed but merge replaced with 1 — fix by patching the real value
-  }
-  // Fallback: read current, then PATCH with count+1
-  const cur = await sbGetAttempts(burnId);
-  const next = cur + 1;
-  await fetch(
-    `${SUPABASE_URL}/rest/v1/pw_attempts?burn_id=eq.${encodeURIComponent(burnId)}`,
-    {
-      method: 'PATCH',
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-        Prefer: 'return=minimal'
-      },
-      body: JSON.stringify({ attempts: next })
-    }
-  );
-  return next;
-}
-
-async function sbDeleteAttempts(burnId) {
-  // Clean up attempt row when link is burned (success or exhausted)
-  await fetch(
-    `${SUPABASE_URL}/rest/v1/pw_attempts?burn_id=eq.${encodeURIComponent(burnId)}`,
-    {
-      method: 'DELETE',
-      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
-    }
-  );
-}
-
-// Derive a stable, short burn_id from the fragment
-function getBurnId(fragmentRaw) {
-  // Use first 64 chars — unique per link, safe for DB primary key
-  return fragmentRaw.substring(0, 64).replace(/[^a-zA-Z0-9_-]/g, 'X');
-}
-
-
-// Short-link message storage. All counters/claims are performed atomically by SQL RPCs.
-async function sbRpc(name, args) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`, {
-    method: 'POST', headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(args)
-  });
-  if (!res.ok) throw new Error(`backend_${name}_failed_${res.status}`);
-  return res.json();
-}
-async function sbSaveMessage(msgId, ciphertext, iv, createdAt, expiryMode) {
-  return sbRpc('gl_save_message', { p_msg_id: msgId, p_ciphertext: ciphertext, p_iv: iv, p_created_at: createdAt, p_expiry_mode: expiryMode });
-}
-async function sbFetchMessage(msgId) {
-  const rows = await sbRpc('gl_get_message', { p_msg_id: msgId });
-  if (!rows || !rows.length) throw new Error('message_missing_or_expired');
-  return rows[0];
-}
-async function sbClaimMessage(msgId) {
-  return sbRpc('gl_claim_message', { p_msg_id: msgId });
-}
-async function sbAtomicIncrementAttempt(msgId) {
-  return sbRpc('gl_increment_attempt', { p_msg_id: msgId });
-}
-async function sbDeleteMessage(msgId) {
-  return sbRpc('gl_delete_message', { p_msg_id: msgId });
+// Generate a short random msg_id (16 hex chars = 64-bit entropy, URL-safe)
+function generateMsgId() {
+  return Array.from(crypto.getRandomValues(new Uint8Array(8)))
+    .map(b => b.toString(16).padStart(2,'0')).join('');
 }
 
 // ═══════════════════════════════════════════════
-//  CRYPTO HELPERS  (unchanged from original)
+//  CRYPTO HELPERS
 // ═══════════════════════════════════════════════
-const VERSION = 'gl1';
 
 function bytesToBase64url(bytes) {
   let b = '';
@@ -1486,42 +1423,56 @@ async function decryptMessage(ivB64, ctB64, key) {
   const plain = await crypto.subtle.decrypt({name:'AES-GCM',iv:base64urlToBytes(ivB64)},key,base64urlToBytes(ctB64));
   return new TextDecoder().decode(plain);
 }
-async function derivePasswordKey(rawPassword, saltB64) {
-  const material = await crypto.subtle.importKey('raw', new TextEncoder().encode(rawPassword), 'PBKDF2', false, ['deriveKey']);
-  return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: base64urlToBytes(saltB64), iterations: 310000, hash: 'SHA-256' }, material, { name: 'AES-GCM', length: 256 }, false, ['encrypt','decrypt']);
-}
-function buildFragmentV2(msgId, expiryMode, protection, material) {
-  // protection = 'k' for random URL key, 'p' for password-derived key, 'n' for PIN-derived key
-  return `${VERSION2}.${expiryMode}.${Math.floor(Date.now()/1000)}.${msgId}.${protection}.${material}`;
-}
-const VERSION2 = 'gl2';
-function buildFragment(keyB64, ivB64, ctB64, expiryMode, pwHash) {
-  // Kept only for creating/recognizing older links during migration.
-  const base = `${VERSION}.${expiryMode}.${Math.floor(Date.now()/1000)}.${keyB64}.${ivB64}.${ctB64}`;
+// ── Short-URL fragment format (gl2) ──────────────────────────────
+//  gl2.<expiry>.<ts>.<keyB64>.<msgId>[~<P|N><pwHash>]
+//  keyB64 = 43 chars (AES-256), msgId = 16 hex chars
+//  Total fragment ≈ 80 chars — constant regardless of message length.
+//
+//  Legacy format (gl1) is still parsed for backward-compat:
+//  gl1.<expiry>.<ts>.<keyB64>.<ivB64>.<ctB64>[~<pwHash>]
+// ─────────────────────────────────────────────────────────────────
+const VERSION   = 'gl2';
+const VERSION_L = 'gl1'; // legacy
+
+function buildFragment(keyB64, msgId, expiryMode, pwHash) {
+  const base = `${VERSION}.${expiryMode}.${Math.floor(Date.now()/1000)}.${keyB64}.${msgId}`;
   return pwHash ? base + '~' + pwHash : base;
 }
+
 function parseFragment(frag) {
   if (!frag || frag.startsWith('#')) frag = frag ? frag.slice(1) : '';
-  const v2 = frag.split('.');
-  if (v2[0] === VERSION2) {
-    if (v2.length !== 6) return null;
-    const [, expiryMode, createdAt, msgId, protection, material] = v2;
-    if (!['read-once','24h','1h'].includes(expiryMode) || !/^\d+$/.test(createdAt) || !/^[a-f0-9]{32}$/.test(msgId) || !['k','p','n'].includes(protection) || !material) return null;
-    return { version: VERSION2, expiryMode, createdAt: Number(createdAt), msgId, protection, material, pwHash: null, pwHashType: protection === 'n' ? 'pin' : 'password' };
-  }
-  // Backward compatibility for existing gl1 links.
   let pwHash = null, pwHashType = null;
   const tildeIdx = frag.indexOf('~');
   if (tildeIdx !== -1) {
-    pwHash = frag.substring(tildeIdx + 1); frag = frag.substring(0, tildeIdx);
-    pwHashType = pwHash.startsWith('P') ? 'password' : 'pin'; pwHash = pwHash.substring(1);
+    pwHash = frag.substring(tildeIdx + 1);
+    frag   = frag.substring(0, tildeIdx);
+    pwHashType = pwHash.startsWith('P') ? 'password' : 'pin';
+    pwHash = pwHash.substring(1);
   }
   const parts = frag.split('.');
-  if (parts.length < 6) return null;
-  const [version, expiryMode, createdAt, keyB64, ivB64, ...ctParts] = parts;
-  const ctB64 = ctParts.join('.');
-  if (version !== VERSION || !['read-once','24h','1h'].includes(expiryMode) || !/^\d+$/.test(createdAt) || !keyB64 || !ivB64 || !ctB64) return null;
-  return { version, expiryMode, createdAt: Number(createdAt), keyB64, ivB64, ctB64, pwHash, pwHashType };
+  if (parts.length < 5) return null;
+  const [version, expiryMode, createdAt, keyB64, ...rest] = parts;
+
+  if (!['read-once','24h','1h'].includes(expiryMode)) return null;
+  if (!/^\d+$/.test(createdAt)) return null;
+  if (!keyB64) return null;
+
+  if (version === VERSION) {
+    // gl2: rest[0] is msgId (no iv/ct in URL)
+    const msgId = rest[0];
+    if (!msgId) return null;
+    return { version, expiryMode, createdAt: Number(createdAt), keyB64, msgId, pwHash, pwHashType };
+  }
+
+  if (version === VERSION_L) {
+    // gl1 legacy: rest = [ivB64, ...ctParts]
+    const ivB64 = rest[0];
+    const ctB64 = rest.slice(1).join('.');
+    if (!ivB64 || !ctB64) return null;
+    return { version, expiryMode, createdAt: Number(createdAt), keyB64, ivB64, ctB64, pwHash, pwHashType };
+  }
+
+  return null;
 }
 function isExpired(parsed) {
   const age = Math.floor(Date.now()/1000) - parsed.createdAt;
@@ -1554,9 +1505,7 @@ function restoreCreateButton() {
 let attachedImages = []; // [{name, dataUrl, size}]
 const MAX_IMG_DIMENSION = 1280; // px — resize larger images down
 const IMG_QUALITY = 0.75;       // JPEG quality for compression
-const WARN_TOTAL_BYTES = 2_000_000; // warn at 2 MB compressed total; storage limits vary by project
-const MAX_IMAGE_COUNT = 4;
-const MAX_IMAGE_BYTES = 4_000_000;
+const WARN_TOTAL_BYTES = 5_000_000; // warn above 5 MB total
 
 // Wire up button → file input → handler
 const imgFileInput = document.getElementById('img-file-input');
@@ -1570,14 +1519,10 @@ imgFileInput.addEventListener('change', function() {
 
 // Compress + resize an image file → returns a data URL (JPEG)
 function compressImage(file) {
-  return new Promise((resolve, reject) => {
-    if (!file.type || !file.type.startsWith('image/')) return reject(new Error('unsupported_image_type'));
+  return new Promise((resolve) => {
     const reader = new FileReader();
-    reader.onerror = () => reject(new Error('image_read_failed'));
-    reader.onabort = () => reject(new Error('image_read_aborted'));
     reader.onload = e => {
       const img = new Image();
-      img.onerror = () => reject(new Error('image_decode_failed'));
       img.onload = () => {
         // Calculate new dimensions keeping aspect ratio
         let { width, height } = img;
@@ -1587,9 +1532,7 @@ function compressImage(file) {
         }
         const canvas = document.createElement('canvas');
         canvas.width = width; canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return reject(new Error('image_canvas_unavailable'));
-        ctx.drawImage(img, 0, 0, width, height);
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
         // Use JPEG for photos, PNG only for tiny images or those with transparency
         const isSmall = file.size < 50_000;
         const mimeOut = (file.type === 'image/png' && isSmall) ? 'image/png' : 'image/jpeg';
@@ -1605,33 +1548,25 @@ function compressImage(file) {
 }
 
 async function handleImageFiles(files) {
-  const selected = Array.from(files).filter(f => f.type && f.type.startsWith('image/'));
-  if (!selected.length) { composeError.textContent = 'Please choose a supported image file.'; return; }
-  const room = MAX_IMAGE_COUNT - attachedImages.length;
-  if (room <= 0) { composeError.textContent = `You can attach up to ${MAX_IMAGE_COUNT} images.`; return; }
-  const toProcess = selected.slice(0, room);
+  const toProcess = Array.from(files).filter(f => f.type.startsWith('image/'));
+  if (toProcess.length === 0) return;
+
+  // Show loading state on button
   const btn = document.getElementById('img-attach-btn');
   const origHTML = btn.innerHTML;
   btn.disabled = true;
   btn.innerHTML = `<div class="spinner" style="width:12px;height:12px;border-width:2px"></div> Processing…`;
-  composeError.textContent = '';
-  try {
-    const results = await Promise.all(toProcess.map(async file => {
-      const img = await compressImage(file);
-      return { name: file.name, dataUrl: img.dataUrl, size: img.size };
-    }));
-    const total = attachedImages.reduce((sum, img) => sum + img.size, 0) + results.reduce((sum, img) => sum + img.size, 0);
-    if (total > MAX_IMAGE_BYTES) throw new Error('image_size_limit');
-    attachedImages.push(...results);
-    if (selected.length > room) composeError.textContent = `Only ${MAX_IMAGE_COUNT} images are allowed. Extra images were not added.`;
-    renderImagePreviews();
-  } catch (err) {
-    console.error('Image processing failed:', err);
-    composeError.textContent = err.message === 'image_size_limit' ? 'Images are too large together. Remove an image or choose smaller images (4 MB total maximum).' : 'One of the images could not be processed. Try another image.';
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = origHTML;
-  }
+
+  // Compress all selected images in parallel
+  const results = await Promise.all(toProcess.map(file =>
+    compressImage(file).then(({ dataUrl, size }) => ({ name: file.name, dataUrl, size }))
+  ));
+
+  attachedImages.push(...results);
+  renderImagePreviews();
+
+  btn.disabled = false;
+  btn.innerHTML = origHTML;
 }
 
 function renderImagePreviews() {
@@ -1661,10 +1596,11 @@ function renderImagePreviews() {
     strip.appendChild(wrap);
   });
 
-  // Counter label
+  // Counter label — shown below strip as a pill badge
   if (attachedImages.length > 0) {
-    countLabel.style.display = '';
-    countLabel.textContent = attachedImages.length + ' image' + (attachedImages.length !== 1 ? 's' : '');
+    countLabel.style.display = 'flex';
+    const textSpan = document.getElementById('img-count-text');
+    if (textSpan) textSpan.textContent = attachedImages.length + ' image' + (attachedImages.length !== 1 ? 's' : '') + ' attached';
   } else {
     countLabel.style.display = 'none';
   }
@@ -1696,62 +1632,73 @@ async function createLink() {
     composeError.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg> ${t('enterMsg')}`;
     msgInput.focus(); return;
   }
-  if (text.length > 3000) { composeError.textContent = 'Messages are limited to 3,000 characters.'; return; }
-  if (attachedImages.length > MAX_IMAGE_COUNT) { composeError.textContent = `You can attach up to ${MAX_IMAGE_COUNT} images.`; return; }
   const expiryMode = document.querySelector('input[name="expiry"]:checked').value;
-  let pwVal = '';
+  // Validate password if enabled
   if (pwEnabled) {
-    pwVal = getPwValue();
-    if (!pwVal || pwVal === 'PW:' || pwVal === 'PIN:') {
-      composeError.textContent = pwType === 'pin' ? t('enterPin') : t('enterPw');
-      (pwType === 'pin' ? document.getElementById('pin-0') : document.getElementById('pw-password-input')).focus();
+    const pwVal = getPwValue();
+    if (!pwVal) {
+      composeError.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg> ${pwType === 'pin' ? t('enterPin') : t('enterPw')}`;
+      if (pwType === 'pin') document.getElementById('pin-0').focus();
+      else document.getElementById('pw-password-input').focus();
       return;
     }
-    if (pwType === 'pin' && !/^PIN:\d{4}$/.test(pwVal)) { composeError.textContent = 'Enter all 4 PIN digits.'; return; }
   }
   createBtn.disabled = true;
-  composeError.textContent = '';
   createBtn.innerHTML = `<div class="spinner"></div> ${t('creatingLink')}`;
-  let imgRef = null;
   try {
-    const protection = pwEnabled ? (pwType === 'pin' ? 'n' : 'p') : 'k';
-    let key, material;
-    if (pwEnabled) {
-      const salt = crypto.getRandomValues(new Uint8Array(16));
-      material = bytesToBase64url(salt);
-      key = await derivePasswordKey(pwVal, material);
-    } else {
-      key = await generateKey();
-      material = await exportKey(key);
-    }
-    if (attachedImages.length) {
+    const key    = await generateKey();
+    const keyB64 = await exportKey(key);
+    const msgId  = generateMsgId();
+    const createdAt = Math.floor(Date.now() / 1000);
+
+    // ── 1. Upload images to Storage (if any) ────────────────────
+    let imgRef = null;
+    if (attachedImages.length > 0) {
       createBtn.innerHTML = `<div class="spinner"></div> Uploading ${attachedImages.length} image${attachedImages.length !== 1 ? 's' : ''}…`;
       const imgJson = JSON.stringify(attachedImages.map(img => ({ name: img.name, dataUrl: img.dataUrl })));
-      const imgIv = crypto.getRandomValues(new Uint8Array(12));
-      const imgCt = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv: imgIv }, key, new TextEncoder().encode(imgJson)));
-      const blob = new Uint8Array(12 + imgCt.length); blob.set(imgIv, 0); blob.set(imgCt, 12);
-      imgRef = Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2,'0')).join('');
+      const imgIv  = crypto.getRandomValues(new Uint8Array(12));
+      const imgCt  = new Uint8Array(await crypto.subtle.encrypt({ name:'AES-GCM', iv:imgIv }, key, new TextEncoder().encode(imgJson)));
+      const blob   = new Uint8Array(12 + imgCt.length);
+      blob.set(imgIv, 0); blob.set(imgCt, 12);
+      imgRef = generateMsgId();
       await sbUploadImages(imgRef, blob);
+      createBtn.innerHTML = `<div class="spinner"></div> ${t('creatingLink')}`;
     }
+
+    // ── 2. Encrypt the text payload ─────────────────────────────
     const payload = JSON.stringify({ v: 2, text, imgRef });
     const { iv, ct } = await encryptMessage(payload, key);
-    const msgId = Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2,'0')).join('');
-    const createdAt = Math.floor(Date.now()/1000);
+
+    // ── 3. Save ciphertext + iv to Supabase (NOT in the URL) ────
+    createBtn.innerHTML = `<div class="spinner"></div> Saving…`;
     await sbSaveMessage(msgId, ct, iv, createdAt, expiryMode);
-    const fragment = buildFragmentV2(msgId, expiryMode, protection, material);
-    const linkUrl = new URL(window.location.href);
+
+    // ── 4. Build SHORT fragment — key + msgId only ───────────────
+    let pwHashFrag = null;
+    if (pwEnabled) {
+      const pwVal = getPwValue();
+      const hash  = await hashPassword(pwVal);
+      pwHashFrag  = (pwType === 'pin' ? 'N' : 'P') + hash;
+    }
+    const fragment = buildFragment(keyB64, msgId, expiryMode, pwHashFrag);
+    const linkUrl  = new URL(window.location.href);
     linkUrl.search = ''; linkUrl.hash = fragment;
-    generatedLink = linkUrl.href;
-    resultLinkDisplay.innerHTML = `<strong>${window.location.hostname + window.location.pathname}</strong><span style="color:var(--text-muted)">#…${msgId.slice(0,8)}…</span>`;
+    generatedLink  = linkUrl.href;
+
+    // ── 5. Show result ───────────────────────────────────────────
+    resultLinkDisplay.innerHTML = `<strong>${window.location.hostname + window.location.pathname}</strong><span style="color:var(--text-muted)">#…${msgId}</span>`;
     resultLinkDisplay.title = generatedLink;
-    document.getElementById('expiry-chip').textContent = expiryMode === '1h' ? 'expires after reading · 1h max' : expiryMode === '24h' ? 'expires after reading · 24h max' : 'expires after reading';
+    document.getElementById('expiry-chip').textContent =
+      expiryMode === '1h'  ? 'expires after reading · 1h max' :
+      expiryMode === '24h' ? 'expires after reading · 24h max' : 'expires after reading';
     resultCard.style.display = 'block';
-    resultCard.scrollIntoView({behavior:'smooth',block:'nearest'});
-  } catch (err) {
+    resultCard.scrollIntoView({ behavior:'smooth', block:'nearest' });
+    restoreCreateButton();
+  } catch(err) {
     console.error('Secure link creation failed:', err);
-    composeError.textContent = /image|storage/i.test(String(err)) ? 'Could not upload the encrypted image. Check your Supabase Storage bucket and permissions, then try again.' : 'Could not create the secure link. Check your Supabase connection and SQL setup, then try again.';
-    if (imgRef) { /* Orphaned encrypted uploads are harmless; storage cleanup can remove them later. */ }
-  } finally { restoreCreateButton(); }
+    composeError.textContent = 'Could not create the secure link. Please try again.';
+    restoreCreateButton();
+  }
 }
 
 async function copyLink() {
@@ -1785,6 +1732,8 @@ function resetCompose() {
   document.getElementById('pw-fields').classList.remove('visible');
   document.getElementById('pw-password-input').value = '';
   [0,1,2,3].forEach(i => { document.getElementById('pin-'+i).value=''; });
+  const lbl = document.querySelector('.password-toggle-label');
+  if (lbl) { lbl.style.color = ''; lbl.style.fontWeight = ''; lbl.removeAttribute('data-pw-set'); }
   setPwType('password');
   msgInput.focus();
 }
@@ -1855,8 +1804,16 @@ function togglePasswordSection(event) {
   if (pwEnabled) {
     setTimeout(() => {
       if (!fields.classList.contains('visible')) return;
-      document.getElementById(pwType === 'pin' ? 'pin-0' : 'pw-password-input').focus();
+      const inputEl = document.getElementById(pwType === 'pin' ? 'pin-0' : 'pw-password-input');
+      inputEl.focus();
     }, 50);
+  } else {
+    // Clear password fields when disabled
+    document.getElementById('pw-password-input').value = '';
+    [0,1,2,3].forEach(i => { document.getElementById('pin-'+i).value = ''; });
+    // Reset label style
+    const lbl = document.querySelector('.password-toggle-label');
+    if (lbl) { lbl.style.color = ''; lbl.style.fontWeight = ''; lbl.removeAttribute('data-pw-set'); }
   }
 }
 
@@ -1902,22 +1859,9 @@ document.addEventListener('DOMContentLoaded', function() {
   if (pin3) pin3.addEventListener('input', () => { if (pin3.value) setTimeout(collapsePwPanelIfFilled, 300); });
 });
 
-
 function closePasswordPanel() {
-  const fields = document.getElementById('pw-fields');
-  fields.classList.remove('visible');
-  if (fields.contains(document.activeElement)) document.activeElement.blur();
+  // No-op for inline layout — panel stays open until checkbox is unchecked
 }
-
-document.addEventListener('click', event => {
-  if (!event.target.closest('.password-section')) closePasswordPanel();
-});
-
-document.getElementById('pw-fields').addEventListener('focusout', event => {
-  if (!event.relatedTarget || !event.currentTarget.contains(event.relatedTarget)) {
-    closePasswordPanel();
-  }
-});
 
 function setPwType(type) {
   pwType = type;
@@ -1938,6 +1882,8 @@ function togglePwEye() {
   icon.innerHTML = isText
     ? '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>'
     : '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>';
+  // Keep focus on the input so panel doesn't collapse
+  requestAnimationFrame(() => inp.focus());
 }
 
 function pinMove(el, idx) {
@@ -1964,13 +1910,27 @@ async function hashPassword(raw) {
 
 // ═══════════════════════════════════════════════
 //  PASSWORD / PIN — RECIPIENT SIDE
+//
+//  ⚠️  Security note — browser-side password check:
+//  The SHA-256 hash of the password lives in the URL fragment.
+//  A determined user who opens DevTools can inspect `correctHash`
+//  and `pendingParsed` and skip the gate.  This is an inherent
+//  limitation of a 100% client-side architecture.
+//
+//  To eliminate this:  move the hash check and decryption key
+//  delivery to a server-side endpoint.  The recipient POSTs their
+//  password hash to your server; the server verifies it, marks the
+//  link burned, and returns the decryption key only on success.
+//  The key never travels in the URL.
+//
+//  The current implementation still prevents casual snooping and
+//  enforces the 5-attempt lockout server-side (via pw_attempts table).
 // ═══════════════════════════════════════════════
 let gateType = 'password'; // set when link is parsed
 let correctHash = '';      // expected hash from fragment
 let pwAttempts = 0;
 const MAX_ATTEMPTS = 5;
 let pendingParsed = null;  // parsed fragment held until password verified
-let pendingKey = null;
 
 function toggleGateEye() {
   const inp = document.getElementById('pw-gate-input');
@@ -2016,54 +1976,25 @@ async function submitPassword() {
     showGateError('Could not verify the password. Please try again.');
     return;
   }
-  if (pendingParsed && pendingParsed.version === VERSION2) {
-    try {
-      const rawPassword = getGatePwValue();
-      const derived = await derivePasswordKey(rawPassword, pendingParsed.material);
-      const row = await sbFetchMessage(pendingParsed.msgId);
-      await decryptMessage(row.iv, row.ciphertext, derived); // GCM authentication verifies the password
-      pendingKey = derived;
-      await proceedReveal();
-      return;
-    } catch (verifyErr) {
-      if (String(verifyErr).includes('backend_gl_get_message_failed') || String(verifyErr).includes('message_missing_or_expired')) {
-        btn.disabled = false; btn.innerHTML = `<span data-i18n="unlockBtn">${t('unlockBtn')}</span>`;
-        showGateError('The message is unavailable or the server cannot be reached. Please retry.'); return;
-      }
-      const burnId = pendingParsed.msgId;
-      try { pwAttempts = Number(await sbAtomicIncrementAttempt(burnId)); }
-      catch (e) { btn.disabled = false; btn.innerHTML = `<span data-i18n="unlockBtn">${t('unlockBtn')}</span>`; showGateError('Could not check this password because the server is unavailable. Please retry.'); return; }
-      const left = MAX_ATTEMPTS - pwAttempts;
-      if (left <= 0) { btn.disabled = true; showState('burned'); }
-      else {
-        btn.disabled = false; btn.innerHTML = `<span data-i18n="unlockBtn">${t('unlockBtn')}</span>`;
-        showGateError(gateType === 'pin' ? t('incorrectPin') : t('incorrectPw'));
-        document.getElementById('pw-attempts').textContent = t('attemptsLeft')(left);
-        if (gateType === 'pin') { [0,1,2,3].forEach(i => document.getElementById('gpin-'+i).value=''); document.getElementById('gpin-0').focus(); }
-        else { document.getElementById('pw-gate-input').value=''; document.getElementById('pw-gate-input').focus(); }
-      }
-      return;
-    }
-  }
   if (hash === correctHash) {
+    // Password correct — now proceed to open
     await proceedReveal();
   } else {
     // Increment attempt count on the server so it persists across refreshes
-    const burnId = getBurnId(currentFragRaw);
+    const fragParsed = pendingParsed || parseFragment(currentFragRaw);
+    const attemptId  = (fragParsed && fragParsed.msgId) ? fragParsed.msgId : currentFragRaw.substring(0, 16);
     try {
-      pwAttempts = await sbIncrementAttempt(burnId);
+      pwAttempts = await sbIncrementAttempt(attemptId);
     } catch(e) {
+      if (e && e.burned) { showState('burned'); return; }
       pwAttempts++; // fallback to in-memory if DB write fails
     }
     btn.disabled = false;
     btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> <span data-i18n="unlockBtn">${t('unlockBtn')}</span>`;
     const left = MAX_ATTEMPTS - pwAttempts;
     if (left <= 0) {
-      // Burn the link immediately — too many wrong attempts
+      // gl_increment_pw_attempt already burned the link at attempt 5
       btn.disabled = true;
-      btn.innerHTML = `<div class="spinner"></div> ${t('destroyingLink')}`;
-      try { await sbSet(burnId); } catch(e) {}
-      try { await sbDeleteAttempts(burnId); } catch(e) {}
       pendingParsed = null;
       window.history.replaceState(null, '', window.location.pathname);
       showState('burned');
@@ -2094,19 +2025,21 @@ async function showPasswordGate(parsed, type, hash) {
     ? t('pwGateBodyPin')
     : t('pwGateBodyPw');
   showState('pwgate');
-  // Load the atomic server-side attempt count for new links; legacy links use the old table.
+  // Load server-side attempt count so refreshes don't reset the counter
   try {
-    if (parsed.version === VERSION2) {
-      const row = await sbFetchMessage(parsed.msgId);
-      pwAttempts = Number(row.attempts || 0);
+    const parsedLocal = parsed; // capture for async use
+    if (parsedLocal.version === VERSION && parsedLocal.msgId) {
+      const row = await sbGetMessage(parsedLocal.msgId);
+      if (!row || row.burned_at) {
+        pendingParsed = null;
+        window.history.replaceState(null, '', window.location.pathname);
+        showState('burned'); return;
+      }
+      pwAttempts = row.attempts || 0;
     } else {
-      const burnId = getBurnId(currentFragRaw);
-      pwAttempts = await sbGetAttempts(burnId);
+      pwAttempts = 0;
     }
     if (pwAttempts >= MAX_ATTEMPTS) {
-      // Already exhausted — burn immediately
-      try { await sbSet(burnId); } catch(e) {}
-      await sbDeleteAttempts(burnId);
       pendingParsed = null;
       window.history.replaceState(null, '', window.location.pathname);
       showState('burned'); return;
@@ -2129,7 +2062,7 @@ async function showPasswordGate(parsed, type, hash) {
 // ═══════════════════════════════════════════════
 async function initReveal() {
   const fragRaw = window.location.hash.substring(1);
-  const parsed = parseFragment(fragRaw);
+  const parsed  = parseFragment(fragRaw);
 
   if (!parsed) { showState('invalid'); return; }
   if (isExpired(parsed)) { showState('expired'); return; }
@@ -2137,31 +2070,41 @@ async function initReveal() {
   showState('checking');
 
   try {
-    if (parsed.version === VERSION2) {
-      const row = await sbFetchMessage(parsed.msgId);
+    if (parsed.version === VERSION) {
+      // ── gl2 short-URL path ──────────────────────────────────
+      // Peek at the message: does it exist, is it un-burned, is it within expiry?
+      const row = await sbGetMessage(parsed.msgId);
+      if (!row) {
+        // Could be expired, burned, or never existed
+        // Distinguish: if burned_at is set → burned; else → expired / invalid
+        showState('burned');
+        return;
+      }
       if (row.burned_at) { showState('burned'); return; }
-      const age = Math.floor(Date.now()/1000) - Number(row.created_at || parsed.createdAt);
-      if ((parsed.expiryMode === '1h' && age > 3600) || (parsed.expiryMode === '24h' && age > 86400)) { showState('expired'); return; }
-      if (parsed.protection === 'p' || parsed.protection === 'n') showPasswordGate(parsed, parsed.protection === 'n' ? 'pin' : 'password', null);
-      else showState('ready');
-      return;
+      // Message is live
     }
-    const burned = await sbGet(getBurnId(fragRaw));
-    if (burned) { showState('burned'); return; }
-    if (parsed.pwHash) showPasswordGate(parsed, parsed.pwHashType, parsed.pwHash); else showState('ready');
+    // For legacy gl1 links, no server peek needed — the ct is in the URL.
+    // Show gate or ready state:
+    if (parsed.pwHash) {
+      showPasswordGate(parsed, parsed.pwHashType, parsed.pwHash);
+    } else {
+      showState('ready');
+    }
   } catch(err) {
+    const isOffline = !navigator.onLine || err instanceof TypeError;
+    const el = document.getElementById('dberror-detail');
+    if (el) {
+      el.textContent = isOffline
+        ? 'Your device appears to be offline. Check your internet connection and retry.'
+        : 'Our verification service could not be reached. This may be temporary — please retry in a moment.';
+    }
     showState('dberror');
   }
 }
 
 // Called after password is verified (or skipped if no password)
 async function proceedReveal() {
-  const parsed = pendingParsed || (() => {
-    // No password — triggered directly from revealMessage
-    const fragRaw = currentFragRaw;
-    return parseFragment(fragRaw);
-  })();
-  const fragRaw = currentFragRaw;
+  const parsed = pendingParsed || parseFragment(currentFragRaw);
   if (!parsed) { showState('invalid'); return; }
 
   const btn = pendingParsed
@@ -2171,23 +2114,25 @@ async function proceedReveal() {
   btn.innerHTML = `<div class="spinner"></div> ${t('openingMsg')}`;
 
   try {
-    let key, plaintext;
-    if (parsed.version === VERSION2) {
-      key = pendingKey || (parsed.protection === 'k' ? await importKey(parsed.material) : null);
-      if (!key) throw new Error('password_required');
-      const row = await sbFetchMessage(parsed.msgId);
-      plaintext = await decryptMessage(row.iv, row.ciphertext, key);
-      const claimed = await sbClaimMessage(parsed.msgId);
-      if (claimed !== true) { showState('burned'); return; }
-      pendingKey = null;
+    const key = await importKey(parsed.keyB64);
+    let ivB64, ctB64;
+
+    if (parsed.version === VERSION) {
+      // ── gl2: atomically claim (burn) the message from Supabase ──
+      const result = await sbClaimMessage(parsed.msgId);
+      if (!result.claimed) { showState('burned'); return; }
+      ivB64 = result.iv;
+      ctB64 = result.ciphertext;
     } else {
-      const burnId = getBurnId(fragRaw);
-      await sbSet(burnId);
-      try { await sbDeleteAttempts(burnId); } catch(e) {}
-      key = await importKey(parsed.keyB64);
-      plaintext = await decryptMessage(parsed.ivB64, parsed.ctB64, key);
+      // ── gl1 legacy: ct+iv are in the URL itself ──────────────────
+      ivB64 = parsed.ivB64;
+      ctB64 = parsed.ctB64;
     }
-    // Parse payload — v2 = text + imgRef, v1 = text + inline images (legacy), plain = old links
+
+    // Decrypt
+    const plaintext = await decryptMessage(ivB64, ctB64, key);
+
+    // Parse payload — v2 = {text, imgRef}, v1 = {text, images}, plain = raw text
     let msgText = plaintext;
     let msgImages = [];
     try {
@@ -2195,42 +2140,39 @@ async function proceedReveal() {
       if (obj && obj.v === 2) {
         msgText = obj.text || '';
         if (obj.imgRef) {
-          // Fetch encrypted image blob from Supabase, decrypt it
-          const blob = await sbDownloadImages(obj.imgRef);
-          const iv = blob.slice(0, 12);
-          const ct = blob.slice(12);
+          const blob    = await sbDownloadImages(obj.imgRef);
+          const imgIv   = blob.slice(0, 12);
+          const imgCt   = blob.slice(12);
           const imgJson = new TextDecoder().decode(
-            await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct)
+            await crypto.subtle.decrypt({ name:'AES-GCM', iv: imgIv }, key, imgCt)
           );
           msgImages = JSON.parse(imgJson);
-          try { await sbDeleteImages(obj.imgRef); } catch(cleanupErr) { console.warn('Encrypted image cleanup deferred', cleanupErr); }
         }
       } else if (obj && obj.v === 1) {
         msgText = obj.text || ''; msgImages = obj.images || [];
       }
     } catch(e) { /* plain-text link */ }
+
     document.getElementById('decrypted-text').textContent = msgText;
-    // Render images
     const imgContainer = document.getElementById('decrypted-images');
     imgContainer.innerHTML = '';
     msgImages.forEach(img => {
       const wrap = document.createElement('div');
       wrap.style.cssText = 'margin-top:12px;border-radius:8px;overflow:hidden;border:1px solid var(--border);background:var(--bg-3)';
       const im = document.createElement('img');
-      im.src = img.dataUrl;
-      im.alt = img.name || 'image';
+      im.src = img.dataUrl; im.alt = img.name || 'image';
       im.style.cssText = 'max-width:100%;display:block;border-radius:7px';
       im.oncontextmenu = e => e.preventDefault();
-      wrap.appendChild(im);
-      imgContainer.appendChild(wrap);
+      wrap.appendChild(im); imgContainer.appendChild(wrap);
     });
     document.getElementById('decrypted-time').textContent =
-      new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+      new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
     showState('decrypted');
     document.getElementById('how-section').style.display = 'none';
     window.history.replaceState(null, '', window.location.pathname);
     pendingParsed = null;
   } catch(err) {
+    console.error('proceedReveal error:', err);
     document.getElementById('invalid-reason').textContent =
       'We were unable to open this message. The link may be incomplete or corrupted. It has been disabled for your security.';
     showState('invalid');
