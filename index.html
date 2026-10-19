@@ -1222,10 +1222,7 @@
 </footer>
 
 <script>
-const languageSwitcher = document.getElementById('lang-switcher');
-const pageFooter = document.querySelector('.footer');
-if (languageSwitcher && pageFooter) pageFooter.appendChild(languageSwitcher);
-
+// lang-switcher stays in the header alongside the theme toggle
 const themeToggle = document.getElementById('theme-toggle');
 const themeColorMeta = document.getElementById('theme-color-meta');
 
@@ -1278,7 +1275,20 @@ if (brandGhost && brandLogo) {
 }
 
 // ═══════════════════════════════════════════════
-//  SUPABASE CONFIG  (your real credentials)
+//  SUPABASE CONFIG
+//
+//  ⚠️  IMPORTANT — DO NOT put a real API key in this file.
+//  This file is served to every browser; any key here is public.
+//
+//  Two safe options:
+//    A) Self-host: add a tiny backend (Cloudflare Worker / Vercel Edge Function)
+//       that forwards Supabase calls from the server side, where the key is hidden.
+//    B) Use Supabase Row-Level-Security (RLS) so that only the burn operations
+//       you need are reachable by the anon key, then the risk of the anon key
+//       leaking is minimal (it can only do what RLS allows).
+//
+//  For local / dev use you can paste a key below, but strip it before committing
+//  or publishing the file.
 // ═══════════════════════════════════════════════
 const SUPABASE_URL = 'https://mcjrockqqwgdzpruyyph.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_GK_LjZa5ocjQ3HviIGiJbw_YveHEJn-';
@@ -1300,15 +1310,10 @@ const TABLE = 'burns';  // table name in your Supabase database
 // Returns the file path (= imgRef) stored in the URL fragment
 async function sbUploadImages(imgRef, encryptedBytes) {
   const res = await fetch(
-    `${SUPABASE_URL}/storage/v1/object/ghostlink/${imgRef}`,
+    `${SUPABASE_URL}/storage/v1/object/ghostlink/${encodeURIComponent(imgRef)}`,
     {
       method: 'POST',
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/octet-stream',
-        'x-upsert': 'true'
-      },
+      headers: { ..._sbHeaders(), 'Content-Type': 'application/octet-stream', 'x-upsert': 'true' },
       body: encryptedBytes
     }
   );
@@ -1327,7 +1332,10 @@ async function sbDownloadImages(imgRef) {
 }
 
 async function sbDeleteImages(imgRef) {
-  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/ghostlink/${encodeURIComponent(imgRef)}`, { method: 'DELETE', headers: _sbHeaders() });
+  const res = await fetch(
+    `${SUPABASE_URL}/storage/v1/object/ghostlink/${encodeURIComponent(imgRef)}`,
+    { method: 'DELETE', headers: _sbHeaders() }
+  );
   if (!res.ok && res.status !== 404) throw new Error('img_delete_failed');
 }
 
@@ -1342,22 +1350,31 @@ async function sbGet(burnId) {
 }
 
 async function sbSet(burnId) {
+  // We use "resolution=ignore-duplicates" so Supabase issues an
+  // INSERT … ON CONFLICT DO NOTHING internally.
+  // • 201 → we inserted the row — we are the first (and only) opener.
+  // • 200/204 with empty body → conflict ignored — someone else already
+  //   burned this link (race condition caught).
+  // • 409 → same as above on older Supabase versions.
   const res = await fetch(
     `${SUPABASE_URL}/rest/v1/${TABLE}`,
     {
       method: 'POST',
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-        Prefer: 'return=minimal'
-      },
+      headers: { ..._sbHeaders(), Prefer: 'resolution=ignore-duplicates,return=representation' },
       body: JSON.stringify({ burn_id: burnId, burned_at: new Date().toISOString() })
     }
   );
-  // 201 = inserted, 409 = already exists (duplicate — still burned)
-  if (!res.ok && res.status !== 409) throw new Error('db_write_failed');
-  return true;
+
+  if (res.status === 201) {
+    // We won the race — row is freshly inserted.
+    return true;
+  }
+  if (res.status === 200 || res.status === 204 || res.status === 409) {
+    // Row already existed — another opener beat us.
+    // Signal this to the caller so it can show "already burned".
+    throw new Object({ alreadyBurned: true });
+  }
+  throw new Error('db_write_failed');
 }
 
 // ── Password attempt tracking (stored in Supabase table: pw_attempts) ──
@@ -1375,26 +1392,59 @@ async function sbGetAttempts(burnId) {
 }
 
 async function sbIncrementAttempt(burnId) {
-  // Use a database-side RPC so the increment is atomic (no read-then-write race).
+  // ── Preferred path: call a Postgres function that does an atomic
+  //    INSERT … ON CONFLICT DO UPDATE attempts = attempts + 1
+  //    and returns the new count.  Create the RPC in Supabase SQL editor:
+  //
+  //    CREATE OR REPLACE FUNCTION increment_attempt(p_burn_id text)
+  //    RETURNS int LANGUAGE plpgsql AS $$
+  //    DECLARE new_count int;
+  //    BEGIN
+  //      INSERT INTO pw_attempts(burn_id, attempts) VALUES(p_burn_id, 1)
+  //        ON CONFLICT (burn_id) DO UPDATE SET attempts = pw_attempts.attempts + 1;
+  //      SELECT attempts INTO new_count FROM pw_attempts WHERE burn_id = p_burn_id;
+  //      RETURN new_count;
+  //    END;$$;
+  //
   try {
-    const rows = await sbRpc('gl_increment_pw_attempt', { p_burn_id: burnId });
-    if (rows && rows[0] && typeof rows[0].attempts === 'number') return rows[0].attempts;
-  } catch (rpcErr) {
-    // RPC not available — use best-effort PATCH for legacy links
+    const rpcRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/rpc/increment_attempt`,
+      {
+        method: 'POST',
+        headers: _sbHeaders(),
+        body: JSON.stringify({ p_burn_id: burnId })
+      }
+    );
+    if (rpcRes.ok) {
+      const count = await rpcRes.json();
+      if (typeof count === 'number') return count;
+    }
+  } catch(e) { /* fall through */ }
+
+  // ── Fallback: INSERT first (handles the no-row case atomically),
+  //    then PATCH only if the row already existed (status 409 / 200).
+  //    This is still slightly racy under extreme concurrency, but the RPC
+  //    above removes the race entirely once you add the Postgres function.
+  const insRes = await fetch(
+    `${SUPABASE_URL}/rest/v1/pw_attempts`,
+    {
+      method: 'POST',
+      headers: { ..._sbHeaders(), Prefer: 'return=representation' },
+      body: JSON.stringify({ burn_id: burnId, attempts: 1 })
+    }
+  );
+  if (insRes.status === 201) {
+    // Fresh row — count is exactly 1
+    return 1;
   }
-  // Best-effort fallback: read then patch
+  // Row already existed — read current value then PATCH to current+1
   const cur = await sbGetAttempts(burnId);
   const next = cur + 1;
   await fetch(
     `${SUPABASE_URL}/rest/v1/pw_attempts?burn_id=eq.${encodeURIComponent(burnId)}`,
     {
       method: 'PATCH',
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-        Prefer: 'return=minimal'
-      },
+      headers: { ..._sbHeaders(), Prefer: 'return=minimal' },
       body: JSON.stringify({ attempts: next })
     }
   );
@@ -1413,33 +1463,6 @@ async function sbDeleteAttempts(burnId) {
 function getBurnId(fragmentRaw) {
   // Use first 64 chars — unique per link, safe for DB primary key
   return fragmentRaw.substring(0, 64).replace(/[^a-zA-Z0-9_-]/g, 'X');
-}
-
-// Short-link message storage. All counters/claims are performed atomically by SQL RPCs.
-async function sbRpc(name, args) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`, {
-    method: 'POST', headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(args)
-  });
-  if (!res.ok) throw new Error(`backend_${name}_failed_${res.status}`);
-  return res.json();
-}
-async function sbSaveMessage(msgId, ciphertext, iv, createdAt, expiryMode) {
-  return sbRpc('gl_save_message', { p_msg_id: msgId, p_ciphertext: ciphertext, p_iv: iv, p_created_at: createdAt, p_expiry_mode: expiryMode });
-}
-async function sbFetchMessage(msgId) {
-  const rows = await sbRpc('gl_get_message', { p_msg_id: msgId });
-  if (!rows || !rows.length) throw new Error('message_missing_or_expired');
-  return rows[0];
-}
-async function sbClaimMessage(msgId) {
-  return sbRpc('gl_claim_message', { p_msg_id: msgId });
-}
-async function sbAtomicIncrementAttempt(msgId) {
-  return sbRpc('gl_increment_attempt', { p_msg_id: msgId });
-}
-async function sbDeleteMessage(msgId) {
-  return sbRpc('gl_delete_message', { p_msg_id: msgId });
 }
 
 // ═══════════════════════════════════════════════
@@ -1473,40 +1496,30 @@ async function decryptMessage(ivB64, ctB64, key) {
   const plain = await crypto.subtle.decrypt({name:'AES-GCM',iv:base64urlToBytes(ivB64)},key,base64urlToBytes(ctB64));
   return new TextDecoder().decode(plain);
 }
-async function derivePasswordKey(rawPassword, saltB64) {
-  const material = await crypto.subtle.importKey('raw', new TextEncoder().encode(rawPassword), 'PBKDF2', false, ['deriveKey']);
-  return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: base64urlToBytes(saltB64), iterations: 310000, hash: 'SHA-256' }, material, { name: 'AES-GCM', length: 256 }, false, ['encrypt','decrypt']);
-}
-const VERSION2 = 'gl2';
-function buildFragmentV2(msgId, expiryMode, protection, material) {
-  return `${VERSION2}.${expiryMode}.${Math.floor(Date.now()/1000)}.${msgId}.${protection}.${material}`;
-}
 function buildFragment(keyB64, ivB64, ctB64, expiryMode, pwHash) {
-  // Kept only for creating/recognizing older links during migration.
   const base = `${VERSION}.${expiryMode}.${Math.floor(Date.now()/1000)}.${keyB64}.${ivB64}.${ctB64}`;
   return pwHash ? base + '~' + pwHash : base;
 }
 function parseFragment(frag) {
   if (!frag || frag.startsWith('#')) frag = frag ? frag.slice(1) : '';
-  const v2 = frag.split('.');
-  if (v2[0] === VERSION2) {
-    if (v2.length !== 6) return null;
-    const [, expiryMode, createdAt, msgId, protection, material] = v2;
-    if (!['read-once','24h','1h'].includes(expiryMode) || !/^\d+$/.test(createdAt) || !/^[a-f0-9]{32}$/.test(msgId) || !['k','p','n'].includes(protection) || !material) return null;
-    return { version: VERSION2, expiryMode, createdAt: Number(createdAt), msgId, protection, material, pwHash: null, pwHashType: protection === 'n' ? 'pin' : 'password' };
-  }
-  // Backward compatibility for existing gl1 links.
+  // Split off password hash suffix if present
   let pwHash = null, pwHashType = null;
   const tildeIdx = frag.indexOf('~');
   if (tildeIdx !== -1) {
-    pwHash = frag.substring(tildeIdx + 1); frag = frag.substring(0, tildeIdx);
-    pwHashType = pwHash.startsWith('P') ? 'password' : 'pin'; pwHash = pwHash.substring(1);
+    pwHash = frag.substring(tildeIdx + 1);
+    frag = frag.substring(0, tildeIdx);
+    // hash is prefixed with 'P' (password) or 'N' (piN) to distinguish type
+    pwHashType = pwHash.startsWith('P') ? 'password' : 'pin';
+    pwHash = pwHash.substring(1);
   }
   const parts = frag.split('.');
   if (parts.length < 6) return null;
   const [version, expiryMode, createdAt, keyB64, ivB64, ...ctParts] = parts;
   const ctB64 = ctParts.join('.');
-  if (version !== VERSION || !['read-once','24h','1h'].includes(expiryMode) || !/^\d+$/.test(createdAt) || !keyB64 || !ivB64 || !ctB64) return null;
+  if (version !== VERSION) return null;
+  if (!['read-once','24h','1h'].includes(expiryMode)) return null;
+  if (!/^\d+$/.test(createdAt)) return null;
+  if (!keyB64 || !ivB64 || !ctB64) return null;
   return { version, expiryMode, createdAt: Number(createdAt), keyB64, ivB64, ctB64, pwHash, pwHashType };
 }
 function isExpired(parsed) {
@@ -1540,7 +1553,7 @@ function restoreCreateButton() {
 let attachedImages = []; // [{name, dataUrl, size}]
 const MAX_IMG_DIMENSION = 1280; // px — resize larger images down
 const IMG_QUALITY = 0.75;       // JPEG quality for compression
-const WARN_TOTAL_BYTES = 5_000_000; // warn above 5 MB total
+const WARN_TOTAL_BYTES = 2_000_000; // warn at 2 MB compressed total
 
 // Wire up button → file input → handler
 const imgFileInput = document.getElementById('img-file-input');
@@ -1848,21 +1861,51 @@ function togglePasswordSection(event) {
   }
 }
 
-function closePasswordPanel() {
-  const fields = document.getElementById('pw-fields');
-  fields.classList.remove('visible');
-  if (fields.contains(document.activeElement)) document.activeElement.blur();
+// Auto-collapse password panel when user finishes entering password/PIN
+function collapsePwPanelIfFilled() {
+  if (!pwEnabled) return;
+  const filled = getPwValue();
+  if (filled) {
+    const fields = document.getElementById('pw-fields');
+    fields.classList.remove('visible');
+    // Update toggle label to show it's set
+    const lbl = document.querySelector('.password-toggle-label');
+    if (lbl) {
+      lbl.setAttribute('data-pw-set', 'true');
+      lbl.style.color = 'var(--accent)';
+      lbl.style.fontWeight = '600';
+    }
+    const box = document.getElementById('pw-toggle-box');
+    if (box) box.classList.add('checked');
+  }
 }
 
-document.addEventListener('click', event => {
-  if (!event.target.closest('.password-section')) closePasswordPanel();
+// Collapse password panel only when focus truly leaves the entire panel
+document.addEventListener('DOMContentLoaded', function() {
+  const panel = document.getElementById('pw-fields');
+  if (panel) {
+    // focusout bubbles up from any child — check if new focus is still inside panel
+    panel.addEventListener('focusout', (e) => {
+      setTimeout(() => {
+        // relatedTarget = element receiving focus; if it's inside panel, don't collapse
+        if (panel.contains(document.activeElement)) return;
+        collapsePwPanelIfFilled();
+      }, 0);
+    });
+  }
+  // Enter key on password input also collapses
+  const pwIn = document.getElementById('pw-password-input');
+  if (pwIn) {
+    pwIn.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); collapsePwPanelIfFilled(); } });
+  }
+  // PIN last digit auto-collapse
+  const pin3 = document.getElementById('pin-3');
+  if (pin3) pin3.addEventListener('input', () => { if (pin3.value) setTimeout(collapsePwPanelIfFilled, 300); });
 });
 
-document.getElementById('pw-fields').addEventListener('focusout', event => {
-  if (!event.relatedTarget || !event.currentTarget.contains(event.relatedTarget)) {
-    closePasswordPanel();
-  }
-});
+function closePasswordPanel() {
+  // No-op for inline layout — panel stays open until checkbox is unchecked
+}
 
 function setPwType(type) {
   pwType = type;
@@ -1932,7 +1975,6 @@ let correctHash = '';      // expected hash from fragment
 let pwAttempts = 0;
 const MAX_ATTEMPTS = 5;
 let pendingParsed = null;  // parsed fragment held until password verified
-let pendingKey = null;
 
 function toggleGateEye() {
   const inp = document.getElementById('pw-gate-input');
@@ -1978,36 +2020,8 @@ async function submitPassword() {
     showGateError('Could not verify the password. Please try again.');
     return;
   }
-  if (pendingParsed && pendingParsed.version === VERSION2) {
-    try {
-      const rawPassword = getGatePwValue();
-      const derived = await derivePasswordKey(rawPassword, pendingParsed.material);
-      const row = await sbFetchMessage(pendingParsed.msgId);
-      await decryptMessage(row.iv, row.ciphertext, derived); // GCM authentication verifies the password
-      pendingKey = derived;
-      await proceedReveal();
-      return;
-    } catch (verifyErr) {
-      if (String(verifyErr).includes('backend_gl_get_message_failed') || String(verifyErr).includes('message_missing_or_expired')) {
-        btn.disabled = false; btn.innerHTML = `<span data-i18n="unlockBtn">${t('unlockBtn')}</span>`;
-        showGateError('The message is unavailable or the server cannot be reached. Please retry.'); return;
-      }
-      const burnId = pendingParsed.msgId;
-      try { pwAttempts = Number(await sbAtomicIncrementAttempt(burnId)); }
-      catch (e) { btn.disabled = false; btn.innerHTML = `<span data-i18n="unlockBtn">${t('unlockBtn')}</span>`; showGateError('Could not check this password because the server is unavailable. Please retry.'); return; }
-      const left = MAX_ATTEMPTS - pwAttempts;
-      if (left <= 0) { btn.disabled = true; showState('burned'); }
-      else {
-        btn.disabled = false; btn.innerHTML = `<span data-i18n="unlockBtn">${t('unlockBtn')}</span>`;
-        showGateError(gateType === 'pin' ? t('incorrectPin') : t('incorrectPw'));
-        document.getElementById('pw-attempts').textContent = t('attemptsLeft')(left);
-        if (gateType === 'pin') { [0,1,2,3].forEach(i => document.getElementById('gpin-'+i).value=''); document.getElementById('gpin-0').focus(); }
-        else { document.getElementById('pw-gate-input').value=''; document.getElementById('pw-gate-input').focus(); }
-      }
-      return;
-    }
-  }
   if (hash === correctHash) {
+    // Password correct — now proceed to open
     await proceedReveal();
   } else {
     // Increment attempt count on the server so it persists across refreshes
@@ -2056,15 +2070,10 @@ async function showPasswordGate(parsed, type, hash) {
     ? t('pwGateBodyPin')
     : t('pwGateBodyPw');
   showState('pwgate');
-  // Load the atomic server-side attempt count for new links; legacy links use the old table.
+  // Load server-side attempt count so refreshes don't reset the counter
   try {
-    if (parsed.version === VERSION2) {
-      const row = await sbFetchMessage(parsed.msgId);
-      pwAttempts = Number(row.attempts || 0);
-    } else {
-      const burnId = getBurnId(currentFragRaw);
-      pwAttempts = await sbGetAttempts(burnId);
-    }
+    const burnId = getBurnId(currentFragRaw);
+    pwAttempts = await sbGetAttempts(burnId);
     if (pwAttempts >= MAX_ATTEMPTS) {
       // Already exhausted — burn immediately
       try { await sbSet(burnId); } catch(e) {}
@@ -2099,19 +2108,24 @@ async function initReveal() {
   showState('checking');
 
   try {
-    if (parsed.version === VERSION2) {
-      const row = await sbFetchMessage(parsed.msgId);
-      if (row.burned_at) { showState('burned'); return; }
-      const age = Math.floor(Date.now()/1000) - Number(row.created_at || parsed.createdAt);
-      if ((parsed.expiryMode === '1h' && age > 3600) || (parsed.expiryMode === '24h' && age > 86400)) { showState('expired'); return; }
-      if (parsed.protection === 'p' || parsed.protection === 'n') showPasswordGate(parsed, parsed.protection === 'n' ? 'pin' : 'password', null);
-      else showState('ready');
-      return;
-    }
     const burned = await sbGet(getBurnId(fragRaw));
     if (burned) { showState('burned'); return; }
-    if (parsed.pwHash) showPasswordGate(parsed, parsed.pwHashType, parsed.pwHash); else showState('ready');
+    // If password protected, show gate — otherwise show ready
+    if (parsed.pwHash) {
+      showPasswordGate(parsed, parsed.pwHashType, parsed.pwHash);
+    } else {
+      showState('ready');
+    }
   } catch(err) {
+    // Distinguish network failure from a Supabase-specific error so the
+    // user sees a more helpful message.
+    const isOffline = !navigator.onLine || err instanceof TypeError;
+    const el = document.getElementById('dberror-detail');
+    if (el) {
+      el.textContent = isOffline
+        ? 'Your device appears to be offline. Check your internet connection and retry.'
+        : 'Our verification service could not be reached. This may be temporary — please retry in a moment.';
+    }
     showState('dberror');
   }
 }
@@ -2133,21 +2147,20 @@ async function proceedReveal() {
   btn.innerHTML = `<div class="spinner"></div> ${t('openingMsg')}`;
 
   try {
-    let key, plaintext;
-    if (parsed.version === VERSION2) {
-      key = pendingKey || (parsed.protection === 'k' ? await importKey(parsed.material) : null);
-      if (!key) throw new Error('password_required');
-      const claimRows = await sbRpc('gl_claim_message', { p_msg_id: parsed.msgId });
-      if (!claimRows || !claimRows[0] || !claimRows[0].claimed) { showState('burned'); return; }
-      plaintext = await decryptMessage(claimRows[0].iv, claimRows[0].ciphertext, key);
-      pendingKey = null;
-    } else {
-      const burnId = getBurnId(fragRaw);
+    const burnId = getBurnId(fragRaw);
+    // sbSet throws {alreadyBurned:true} if another opener beat us (race condition).
+    let weWon = false;
+    try {
       await sbSet(burnId);
-      try { await sbDeleteAttempts(burnId); } catch(e) {}
-      key = await importKey(parsed.keyB64);
-      plaintext = await decryptMessage(parsed.ivB64, parsed.ctB64, key);
+      weWon = true;
+    } catch(e) {
+      if (e && e.alreadyBurned) { showState('burned'); return; }
+      throw e; // real DB error — re-throw
     }
+    if (!weWon) { showState('burned'); return; }
+    try { await sbDeleteAttempts(burnId); } catch(e) {} // clean up attempt counter
+    const key = await importKey(parsed.keyB64);
+    const plaintext = await decryptMessage(parsed.ivB64, parsed.ctB64, key);
     // Parse payload — v2 = text + imgRef, v1 = text + inline images (legacy), plain = old links
     let msgText = plaintext;
     let msgImages = [];
@@ -2164,8 +2177,7 @@ async function proceedReveal() {
             await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct)
           );
           msgImages = JSON.parse(imgJson);
-          // Delete the image file from storage now that we have it
-          try { await sbDeleteImages(obj.imgRef); } catch(cleanupErr) { console.warn('Encrypted image cleanup deferred', cleanupErr); }
+          try { await sbDeleteImages(obj.imgRef); } catch(e) {}
         }
       } else if (obj && obj.v === 1) {
         msgText = obj.text || ''; msgImages = obj.images || [];
