@@ -1289,15 +1289,19 @@ if (brandGhost && brandLogo) {
 // ═══════════════════════════════════════════════
 const SUPABASE_URL = 'https://mcjrockqqwgdzpruyyph.supabase.co';
 
-let SUPABASE_KEY = (() => {
-  try { const s = sessionStorage.getItem('gl_sbkey'); if (s) return s; } catch(e) {}
-  return '';
-})();
+// ── Paste your Supabase anon key here ──────────────────────────
+// The anon key is safe to include because your Supabase RLS only
+// exposes the gl_* RPC functions — direct table reads/writes are
+// blocked for the anon role.  Never put the service-role key here.
+const SUPABASE_KEY = 'PASTE_YOUR_ANON_KEY_HERE';
 
 function _sbHeaders(extra = {}) {
-  const h = { 'Content-Type': 'application/json', ...extra };
-  if (SUPABASE_KEY) { h['apikey'] = SUPABASE_KEY; h['Authorization'] = `Bearer ${SUPABASE_KEY}`; }
-  return h;
+  return {
+    'Content-Type': 'application/json',
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${SUPABASE_KEY}`,
+    ...extra
+  };
 }
 
 // ═══════════════════════════════════════════════
@@ -1306,6 +1310,9 @@ function _sbHeaders(extra = {}) {
 
 // Save ciphertext + iv to gl_messages via RPC
 async function sbSaveMessage(msgId, ciphertext, iv, createdAt, expiryMode) {
+  if (!SUPABASE_KEY || SUPABASE_KEY === 'PASTE_YOUR_ANON_KEY_HERE') {
+    throw new Error('Supabase anon key not set. Open yo3.html and replace PASTE_YOUR_ANON_KEY_HERE with your key from Supabase → Project Settings → API.');
+  }
   const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/gl_save_message`, {
     method: 'POST',
     headers: _sbHeaders(),
@@ -1319,7 +1326,7 @@ async function sbSaveMessage(msgId, ciphertext, iv, createdAt, expiryMode) {
   });
   if (!res.ok) {
     const txt = await res.text().catch(()=>'');
-    throw new Error('save_failed: ' + txt);
+    throw new Error('Supabase save failed (' + res.status + '): ' + txt);
   }
 }
 
@@ -1696,7 +1703,7 @@ async function createLink() {
     restoreCreateButton();
   } catch(err) {
     console.error('Secure link creation failed:', err);
-    composeError.textContent = 'Could not create the secure link. Please try again.';
+    composeError.textContent = err.message || 'Could not create the secure link. Please try again.';
     restoreCreateButton();
   }
 }
@@ -2072,16 +2079,17 @@ async function initReveal() {
   try {
     if (parsed.version === VERSION) {
       // ── gl2 short-URL path ──────────────────────────────────
-      // Peek at the message: does it exist, is it un-burned, is it within expiry?
+      // gl_get_message returns a row only if the message is live and un-expired.
+      // It returns nothing (empty set) if burned, expired, or never existed.
       const row = await sbGetMessage(parsed.msgId);
       if (!row) {
-        // Could be expired, burned, or never existed
-        // Distinguish: if burned_at is set → burned; else → expired / invalid
+        // No row = burned OR expired OR never existed.
+        // Since we already checked client-side expiry above, treat as burned/invalid.
         showState('burned');
         return;
       }
       if (row.burned_at) { showState('burned'); return; }
-      // Message is live
+      // Message is live — fall through to show gate or ready state
     }
     // For legacy gl1 links, no server peek needed — the ct is in the URL.
     // Show gate or ready state:
