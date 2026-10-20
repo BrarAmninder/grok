@@ -1480,7 +1480,11 @@ async function sbClaimMessage(msgId) {
   return sbRpc('gl_claim_message', { p_msg_id: msgId });
 }
 async function sbAtomicIncrementAttempt(msgId) {
-  return sbRpc('gl_increment_attempt', { p_msg_id: msgId });
+  const rows = await sbRpc('gl_increment_attempt', { p_msg_id: msgId });
+  // RPC returns array of rows e.g. [{attempts: 3}]
+  if (Array.isArray(rows) && rows.length > 0) return Number(rows[0].attempts);
+  if (rows && typeof rows.attempts !== 'undefined') return Number(rows.attempts);
+  throw new Error('increment_attempt_no_result');
 }
 async function sbDeleteMessage(msgId) {
   return sbRpc('gl_delete_message', { p_msg_id: msgId });
@@ -2061,7 +2065,7 @@ async function submitPassword() {
         showGateError('The message is unavailable or the server cannot be reached. Please retry.'); return;
       }
       const burnId = pendingParsed.msgId;
-      try { pwAttempts = Number(await sbAtomicIncrementAttempt(burnId)); }
+      try { pwAttempts = await sbAtomicIncrementAttempt(burnId); }
       catch (e) { btn.disabled = false; btn.innerHTML = `<span data-i18n="unlockBtn">${t('unlockBtn')}</span>`; showGateError('Could not check this password because the server is unavailable. Please retry.'); return; }
       const left = MAX_ATTEMPTS - pwAttempts;
       if (left <= 0) {
@@ -2134,7 +2138,7 @@ async function showPasswordGate(parsed, type, hash) {
   try {
     if (parsed.version === VERSION2) {
       const row = await sbFetchMessage(parsed.msgId);
-      pwAttempts = Number(row.attempts || 0);
+      pwAttempts = parseInt(row.attempts, 10) || 0;
     } else {
       const burnId = getBurnId(currentFragRaw);
       pwAttempts = await sbGetAttempts(burnId);
