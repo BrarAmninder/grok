@@ -380,6 +380,12 @@
   .trust-item strong{font-size:11.5px;color:#333a50;font-weight:700}
   .trust-icon{width:23px;height:23px;display:grid;place-items:center;flex:0 0 23px;color:#9250e7}
   .trust-icon svg{width:17px;height:17px}
+  .trust-item:nth-child(1) .trust-icon{color:#4384ed;background:#e8f1ff;border:1px solid rgba(67,132,237,.12);border-radius:9px}
+  .trust-item:nth-child(2) .trust-icon{color:#a148df;background:#f3e8ff;border:1px solid rgba(161,72,223,.12);border-radius:9px}
+  .trust-item:nth-child(3) .trust-icon{color:#17b68e;background:#e3f8f1;border:1px solid rgba(23,182,142,.12);border-radius:9px}
+  .trust-item:nth-child(4) .trust-icon{color:#eb5b89;background:#fdeaf0;border:1px solid rgba(235,91,137,.12);border-radius:9px}
+  .trust-icon{transition:transform .18s ease,box-shadow .18s ease}
+  .trust-item:hover .trust-icon{transform:translateY(-1px) scale(1.05);box-shadow:0 4px 10px rgba(74,77,125,.12)}
   .how-section{width:100%;max-width:1200px;margin:72px auto 0;padding-bottom:0}
   .how-section-title{font-family:inherit;color:#21283b;font-size:25px;font-weight:750;letter-spacing:-.035em;text-transform:none;margin-bottom:18px}
   .steps-grid{gap:13px;background:transparent;border:0;border-radius:0;overflow:visible}
@@ -511,8 +517,9 @@
     .hero-caption{display:none}
     .hero-trustbar{width:390px;flex-wrap:nowrap;gap:12px;margin:32px 0 0}
     .trust-item{flex:1 1 0;min-width:0;min-height:41px;padding:5px 7px;gap:6px;border-radius:8px;font-size:10px;line-height:1.18}
+    .trust-item:nth-child(4) strong{white-space:nowrap}
     .trust-item strong{font-size:10px}
-    .trust-icon{width:16px;height:16px;flex-basis:16px}
+    .trust-icon{width:22px;height:22px;flex-basis:22px;border-radius:8px}
     .trust-icon svg{width:14px;height:14px}
     .how-section{margin:68px auto 0}
     .faq-section{margin:66px auto 54px}
@@ -691,6 +698,10 @@
   html[data-theme="dark"] .step-label{color:var(--text)}
   html[data-theme="dark"] .trust-icon,
   html[data-theme="dark"] .step-num{color:#b69cff}
+  html[data-theme="dark"] .trust-item:nth-child(1) .trust-icon{color:#8bb9ff;background:rgba(67,132,237,.16);border-color:rgba(113,166,255,.22)}
+  html[data-theme="dark"] .trust-item:nth-child(2) .trust-icon{color:#d0a0ff;background:rgba(161,72,223,.16);border-color:rgba(192,132,255,.22)}
+  html[data-theme="dark"] .trust-item:nth-child(3) .trust-icon{color:#68dfbd;background:rgba(23,182,142,.15);border-color:rgba(80,220,179,.2)}
+  html[data-theme="dark"] .trust-item:nth-child(4) .trust-icon{color:#ff9fbd;background:rgba(235,91,137,.15);border-color:rgba(255,132,170,.2)}
   html[data-theme="dark"] .step-detail,
   html[data-theme="dark"] .faq-item p{color:var(--text-dim)}
   html[data-theme="dark"] .faq-item h3{color:var(--text)}
@@ -913,16 +924,16 @@
     font-size:12px;line-height:1.5;
   }
   .faq-layout{
-    display:grid;grid-template-columns:minmax(100px,1fr) minmax(0,500px) minmax(100px,1fr);
-    align-items:center;gap:14px;
+    display:grid;grid-template-columns:minmax(0,1fr);
+    justify-items:center;align-items:center;
   }
   .faq-art{
     display:block;width:100%;max-width:145px;height:auto;overflow:visible;
     justify-self:center;pointer-events:none;user-select:none;
   }
   .faq-list{
-    display:flex;width:100%;flex-direction:column;gap:5px;
-    margin:0;padding:9px;border:1px solid rgba(74,91,145,.07);
+    display:flex;width:100%;max-width:500px;flex-direction:column;gap:5px;
+    margin:0 auto;padding:9px;border:1px solid rgba(74,91,145,.07);
     border-radius:21px;background:rgba(255,255,255,.68);
     box-shadow:0 12px 34px rgba(71,77,131,.08);
     backdrop-filter:blur(10px);
@@ -1077,6 +1088,8 @@
     .footer-help{max-width:none}
     .footer-link{font-size:9px}
   }
+  #msg-input::placeholder{transition:opacity .18s ease}
+  #msg-input.placeholder-shifting::placeholder{opacity:0}
 </style>
 <script>
   try {
@@ -1575,17 +1588,6 @@
   <h2 class="faq-title" id="faq-title">Got <span>Questions?</span></h2>
   <p class="faq-subtitle">Here are the most common questions about GhostLink.</p>
   <div class="faq-layout">
-    <svg class="faq-art faq-art-question" viewBox="0 0 180 180" aria-hidden="true">
-      <circle cx="82" cy="91" r="59" fill="#e9eaff"/>
-      <circle cx="69" cy="77" r="48" fill="#dfe2ff" opacity=".72"/>
-      <g transform="rotate(-10 83 95)">
-        <path d="M45 67c0-10 8-18 18-18h43c10 0 18 8 18 18v37c0 10-8 18-18 18H83l-17 15c-4 3-9 0-9-5v-11c-7-3-12-10-12-18z" fill="#5260e8"/>
-        <path d="M61 63h48c7 0 13 6 13 13v27c0 7-6 13-13 13H81l-15 12v-13c-7-2-12-7-12-14V76c0-7 3-11 7-13z" fill="url(#faqBubbleGradient)"/>
-        <text x="84" y="103" fill="#fff" font-family="ui-sans-serif, sans-serif" font-size="48" font-weight="800" text-anchor="middle">?</text>
-      </g>
-      <path d="m139 55 11-13M147 68l15-5" fill="none" stroke="#8b75ef" stroke-linecap="round" stroke-width="4"/>
-      <defs><linearGradient id="faqBubbleGradient" x1="61" y1="60" x2="121" y2="119" gradientUnits="userSpaceOnUse"><stop stop-color="#6977f4"/><stop offset="1" stop-color="#514be0"/></linearGradient></defs>
-    </svg>
     <div class="faq-list">
       <details class="faq-item">
         <summary><span class="faq-number">1</span><span class="faq-question">Is my message really encrypted?</span><svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
@@ -1608,14 +1610,6 @@
         <p>There’s no password reset. Ask the sender for the password; if it can’t be recovered, they’ll need to create and share a new message.</p>
       </details>
     </div>
-    <svg class="faq-art faq-art-plane" viewBox="0 0 180 180" aria-hidden="true">
-      <circle cx="122" cy="74" r="55" fill="#f0edff" opacity=".56"/>
-      <path d="M21 139c22 3 39-6 51-20 12-15 8-27-2-26-9 1-9 15 0 17 13 3 30-4 44-17" fill="none" stroke="#b6a9f1" stroke-dasharray="3 7" stroke-linecap="round" stroke-width="2"/>
-      <path d="m75 60 67-24c5-2 9 2 7 7l-26 63c-2 5-7 5-9 1l-12-22-25-15c-5-3-4-8 1-10z" fill="#6657ed"/>
-      <path d="m79 61 59-19-39 37z" fill="#8e7bf7"/>
-      <path d="m99 79 24-18-13 35z" fill="#4c43d8"/>
-      <path d="m102 83 10 17" fill="none" stroke="#d8d2ff" stroke-linecap="round" stroke-width="2"/>
-    </svg>
   </div>
 </section>
 
@@ -2287,6 +2281,7 @@ function goHome() {
   document.getElementById('faq').style.display = 'block';
   document.querySelector('.top-nav').style.display = '';
   resetCompose();
+  resetMessagePlaceholderRotation();
 }
 
 function showAbout() {
@@ -3645,6 +3640,7 @@ function setLang(lang) {
   document.documentElement.dir = L.dir;
   // Update all UI strings
   applyTranslations();
+  refreshMessagePlaceholder();
 }
 
 function applyTranslations() {
@@ -3680,13 +3676,159 @@ function applyTranslations() {
   if (noLoophole) noLoophole.innerHTML = L.noLoophole;
 }
 
+const MESSAGE_PLACEHOLDER_PROMPTS = {
+  en: [
+    'Need to send a love letter? 💌',
+    'Need to share a login password? 🔐',
+    'Need to share an API key securely? 🔑',
+    'Need to send a secret message? 🤫',
+    'Need to share Wi-Fi details? 📶',
+    'Need to send a private note? 📝'
+  ],
+  es: [
+    '¿Necesitas enviar una carta de amor? 💌',
+    '¿Necesitas compartir una contraseña? 🔐',
+    '¿Necesitas compartir una clave API de forma segura? 🔑',
+    '¿Necesitas enviar un mensaje secreto? 🤫',
+    '¿Necesitas compartir los datos del Wi-Fi? 📶',
+    '¿Necesitas enviar una nota privada? 📝'
+  ],
+  fr: [
+    'Besoin d’envoyer une lettre d’amour ? 💌',
+    'Besoin de partager un mot de passe ? 🔐',
+    'Besoin de partager une clé API en toute sécurité ? 🔑',
+    'Besoin d’envoyer un message secret ? 🤫',
+    'Besoin de partager les infos du Wi-Fi ? 📶',
+    'Besoin d’envoyer une note privée ? 📝'
+  ],
+  de: [
+    'Einen Liebesbrief verschicken? 💌',
+    'Ein Passwort sicher teilen? 🔐',
+    'Einen API-Schlüssel sicher teilen? 🔑',
+    'Eine geheime Nachricht senden? 🤫',
+    'WLAN-Zugangsdaten teilen? 📶',
+    'Eine private Notiz senden? 📝'
+  ],
+  hi: [
+    'प्यार भरा पत्र भेजना है? 💌',
+    'लॉगिन पासवर्ड साझा करना है? 🔐',
+    'API key सुरक्षित रूप से साझा करना है? 🔑',
+    'गुप्त संदेश भेजना है? 🤫',
+    'Wi-Fi की जानकारी साझा करनी है? 📶',
+    'निजी नोट भेजना है? 📝'
+  ],
+  pt: [
+    'Precisa enviar uma carta de amor? 💌',
+    'Precisa compartilhar uma senha? 🔐',
+    'Precisa compartilhar uma chave de API com segurança? 🔑',
+    'Precisa enviar uma mensagem secreta? 🤫',
+    'Precisa compartilhar dados do Wi-Fi? 📶',
+    'Precisa enviar uma nota privada? 📝'
+  ],
+  it: [
+    'Vuoi inviare una lettera d’amore? 💌',
+    'Vuoi condividere una password? 🔐',
+    'Vuoi condividere una chiave API in sicurezza? 🔑',
+    'Vuoi inviare un messaggio segreto? 🤫',
+    'Vuoi condividere i dati del Wi-Fi? 📶',
+    'Vuoi inviare una nota privata? 📝'
+  ],
+  ja: [
+    'ラブレターを送りたい？ 💌',
+    'ログインパスワードを共有したい？ 🔐',
+    'APIキーを安全に共有したい？ 🔑',
+    '秘密のメッセージを送りたい？ 🤫',
+    'Wi-Fi情報を共有したい？ 📶',
+    'プライベートなメモを送りたい？ 📝'
+  ],
+  zh: [
+    '想发送一封情书吗？ 💌',
+    '想分享登录密码吗？ 🔐',
+    '想安全地分享 API 密钥吗？ 🔑',
+    '想发送一条秘密消息吗？ 🤫',
+    '想分享 Wi-Fi 信息吗？ 📶',
+    '想发送一条私人便笺吗？ 📝'
+  ],
+  ar: [
+    'هل تريد إرسال رسالة حب؟ 💌',
+    'هل تريد مشاركة كلمة مرور؟ 🔐',
+    'هل تريد مشاركة مفتاح API بأمان؟ 🔑',
+    'هل تريد إرسال رسالة سرية؟ 🤫',
+    'هل تريد مشاركة بيانات Wi-Fi؟ 📶',
+    'هل تريد إرسال ملاحظة خاصة؟ 📝'
+  ]
+};
+let messagePlaceholderTimer = null;
+let messagePlaceholderSwapTimer = null;
+let messagePlaceholderIndex = 0;
+let messagePlaceholderDismissed = false;
+let messagePlaceholderListenersAdded = false;
+
+function stopMessagePlaceholderRotation(dismiss = false) {
+  if (messagePlaceholderTimer) clearInterval(messagePlaceholderTimer);
+  if (messagePlaceholderSwapTimer) clearTimeout(messagePlaceholderSwapTimer);
+  messagePlaceholderTimer = null;
+  messagePlaceholderSwapTimer = null;
+  if (dismiss) messagePlaceholderDismissed = true;
+  const input = document.getElementById('msg-input');
+  if (input) input.classList.remove('placeholder-shifting');
+}
+
+function refreshMessagePlaceholder() {
+  const input = document.getElementById('msg-input');
+  if (!input) return;
+  stopMessagePlaceholderRotation();
+  const prompts = MESSAGE_PLACEHOLDER_PROMPTS[currentLang] || MESSAGE_PLACEHOLDER_PROMPTS.en;
+  messagePlaceholderIndex = 0;
+  if (!input.value) input.placeholder = prompts[0];
+  const composeView = document.getElementById('view-compose');
+  const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (input.value || messagePlaceholderDismissed || document.activeElement === input ||
+      !composeView?.classList.contains('active') || reducedMotion) return;
+
+  messagePlaceholderTimer = setInterval(() => {
+    if (messagePlaceholderDismissed || input.value || document.activeElement === input) {
+      stopMessagePlaceholderRotation(true);
+      return;
+    }
+    input.classList.add('placeholder-shifting');
+    messagePlaceholderSwapTimer = setTimeout(() => {
+      if (messagePlaceholderDismissed || input.value || document.activeElement === input) {
+        input.classList.remove('placeholder-shifting');
+        stopMessagePlaceholderRotation(true);
+        return;
+      }
+      messagePlaceholderIndex = (messagePlaceholderIndex + 1) % prompts.length;
+      input.placeholder = prompts[messagePlaceholderIndex];
+      requestAnimationFrame(() => input.classList.remove('placeholder-shifting'));
+    }, 180);
+  }, 3000);
+}
+
+function initMessagePlaceholderRotation() {
+  if (messagePlaceholderListenersAdded) return;
+  const input = document.getElementById('msg-input');
+  if (!input) return;
+  messagePlaceholderListenersAdded = true;
+  input.addEventListener('focus', () => stopMessagePlaceholderRotation(true));
+  input.addEventListener('input', () => stopMessagePlaceholderRotation(true));
+}
+
+function resetMessagePlaceholderRotation() {
+  messagePlaceholderDismissed = false;
+  messagePlaceholderIndex = 0;
+  refreshMessagePlaceholder();
+}
+
 // ═══════════════════════════════════════════════
 //  INIT  — check server FIRST, then show state
 // ═══════════════════════════════════════════════
 (function init() {
+  initMessagePlaceholderRotation();
   const frag = window.location.hash;
   if (!frag || frag === '#') {
     document.getElementById('view-compose').classList.add('active');
+    refreshMessagePlaceholder();
     return;
   }
   document.querySelector('.top-nav').style.display = 'none';
