@@ -554,7 +554,44 @@
   .hero-kicker{
     background:#f8f6ff;border-color:rgba(143,84,227,.14);
   }
+  .hero-art{isolation:isolate}
+  .ghost-buddy{
+    position:absolute;z-index:3;top:163px;left:190px;width:64px;height:74px;
+    animation:ghostFloat 3.8s ease-in-out infinite;pointer-events:none;
+  }
+  .ghost-buddy svg{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 7px 10px rgba(100,72,166,.14))}
+  .ghost-body{fill:url(#buddyGhostGradient);stroke:rgba(255,255,255,.78);stroke-width:1.8;stroke-linejoin:round}
+  .ghost-eye{fill:#35254f}
+  .ghost-cheek{fill:#ffabd3;opacity:.95}
+  .ghost-wink,.ghost-smile{fill:none;stroke:#35254f;stroke-width:2.2;stroke-linecap:round}
+  .ghost-wave{
+    fill:none;stroke:#f4eaff;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round;
+    transform-box:fill-box;transform-origin:0% 90%;animation:ghostWave 2.8s ease-in-out infinite;
+  }
   .hero-caption{letter-spacing:0}
+  @keyframes ghostFloat{
+    0%,100%{transform:translateY(0) rotate(3deg)}
+    50%{transform:translateY(-5px) rotate(-3deg)}
+  }
+  @keyframes ghostWave{
+    0%,100%{transform:rotate(0)}
+    50%{transform:rotate(-13deg)}
+  }
+  @media(min-width:901px){
+    .ghost-buddy{top:163px;left:190px}
+    .hero-caption{
+      display:block;position:absolute;top:203px;left:7px;width:142px;margin:0;
+      padding:7px 10px;border:1px solid rgba(143,84,227,.13);border-radius:12px 12px 12px 4px;
+      background:rgba(255,255,255,.94);box-shadow:0 7px 18px rgba(55,47,113,.07);
+      color:#8066b7;font-size:9px;line-height:1.4;text-align:center;
+    }
+  }
+  @media(max-width:900px){
+    .ghost-buddy{top:52%;left:auto;right:2%;width:56px;height:66px}
+  }
+  @media(max-width:680px){
+    .ghost-buddy{display:none}
+  }
   .theme-toggle{
     width:34px;height:34px;flex:0 0 34px;margin-left:12px;
     display:grid;place-items:center;border:1px solid rgba(43,48,75,.13);
@@ -1359,6 +1396,26 @@
             <p id="message-preview">This message will self-destruct after being viewed.</p>
           </div>
         </div>
+        <div class="ghost-buddy" aria-hidden="true">
+          <svg viewBox="0 0 72 84" fill="none">
+            <defs>
+              <linearGradient id="buddyGhostGradient" x1="12" y1="13" x2="60" y2="70" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#5d5aef"/>
+                <stop offset=".55" stop-color="#8550ed"/>
+                <stop offset="1" stop-color="#c14de5"/>
+              </linearGradient>
+            </defs>
+            <ellipse cx="36" cy="72" rx="18" ry="3.5" fill="#7952f5" opacity=".1"/>
+            <path class="ghost-body" d="M12 58V35a24 24 0 0 1 48 0v23c-4-3.8-8-3.8-12 0s-8 3.8-12 0-8-3.8-12 0-8 3.8-12 0-8-3.8-12 0Z"/>
+            <path class="ghost-wave" d="M59 45c7 0 9-6 5-10m0 0v-5m1 5 4-3"/>
+            <path class="ghost-wink" d="M25.5 35q2.5-3 5 0"/>
+            <circle class="ghost-eye" cx="44" cy="35" r="2.5"/>
+            <circle cx="44.8" cy="34.2" r=".7" fill="#fff"/>
+            <ellipse class="ghost-cheek" cx="23" cy="43" rx="3" ry="1.8"/>
+            <ellipse class="ghost-cheek" cx="50" cy="43" rx="3" ry="1.8"/>
+            <path class="ghost-smile" d="M33 45q3 3.5 6 0"/>
+          </svg>
+        </div>
         <svg class="preview-arrow" viewBox="0 0 70 85" fill="none" aria-hidden="true"><path d="M61 4C61 35 44 48 12 67" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="4 5"/><path d="m13 57-2 11 11-1" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <div class="link-preview">
           <span class="link-preview-icon">
@@ -1370,7 +1427,7 @@
           </span>
           <span class="preview-sparkle">✦</span>
         </div>
-        <div class="hero-caption">One link. One view. Gone for good.</div>
+        <div class="hero-caption">I saw nothing. I was floating.</div>
       </aside>
     </div>
 
@@ -1612,6 +1669,262 @@
     </div>
   </div>
 </section>
+
+<!-- ══════════════════════════════════════════════
+     BEFORE / AFTER COMPARISON SLIDER SECTION
+     Placed directly below the FAQ section
+════════════════════════════════════════════════ -->
+<style>
+  /* ── Slider section ── */
+  .slider-section{
+    width:100%;max-width:560px;margin:0 auto 44px;padding:0;
+  }
+  .slider-kicker{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    margin:0 0 5px;color:#7651df;font-size:8.5px;font-weight:800;
+    letter-spacing:.12em;text-transform:uppercase;
+  }
+  .slider-kicker::before,.slider-kicker::after{
+    content:"";width:22px;height:1px;background:#c5b8f7;
+  }
+  .slider-heading{
+    margin:0 0 4px;text-align:center;color:#171c30;
+    font-size:clamp(18px,2.5vw,21px);font-weight:800;line-height:1.15;
+    letter-spacing:-.04em;
+  }
+  .slider-subtitle{
+    max-width:44ch;margin:0 auto 14px;text-align:center;
+    color:#788196;font-size:11px;line-height:1.5;
+  }
+  /* The wrapper that holds the two panels */
+  .gl-slider-wrap{
+    position:relative;width:100%;border-radius:14px;overflow:hidden;
+    border:1px solid rgba(74,91,145,.13);
+    box-shadow:0 8px 24px rgba(71,77,131,.10);
+    cursor:ew-resize;user-select:none;
+    aspect-ratio:16/6;
+    background:#f0edff;
+  }
+  /* ── BEFORE panel (plain light, left side) ── */
+  .gl-before-panel{
+    position:absolute;inset:0;
+    background:linear-gradient(135deg,#f7f8ff 0%,#edeaff 100%);
+    display:flex;align-items:center;justify-content:center;
+    flex-direction:column;gap:7px;
+  }
+  .gl-before-icon{
+    width:38px;height:38px;background:rgba(255,255,255,.7);
+    border:1px solid rgba(121,82,245,.18);border-radius:10px;
+    display:flex;align-items:center;justify-content:center;color:#8054e9;
+    box-shadow:0 3px 8px rgba(121,82,245,.1);
+  }
+  .gl-before-icon svg{width:19px;height:19px}
+  .gl-before-label{
+    font-size:9.5px;font-weight:700;letter-spacing:.04em;color:#a397c6;
+    background:rgba(255,255,255,.75);border:1px solid rgba(121,82,245,.12);
+    border-radius:99px;padding:2px 9px;
+  }
+  .gl-before-msg{
+    max-width:155px;text-align:center;background:rgba(255,255,255,.88);
+    border:1px solid rgba(74,91,145,.13);border-radius:9px;
+    padding:8px 12px;font-size:10px;color:#283149;line-height:1.5;
+    font-family:ui-monospace,monospace;box-shadow:0 3px 8px rgba(71,77,131,.07);
+    letter-spacing:.01em;
+  }
+  /* ── AFTER panel (encrypted / secure look, right side) ── */
+  .gl-after-panel{
+    position:absolute;inset:0;
+    background:linear-gradient(135deg,#1a1040 0%,#2b1f68 60%,#3a1d7a 100%);
+    clip-path:inset(0 0 0 50%);
+    display:flex;align-items:center;justify-content:center;
+    flex-direction:column;gap:7px;
+    transition:clip-path 0.06s linear;
+  }
+  .gl-after-icon{
+    width:38px;height:38px;background:rgba(110,118,229,.18);
+    border:1px solid rgba(110,118,229,.45);border-radius:10px;
+    display:flex;align-items:center;justify-content:center;color:#a48fff;
+    box-shadow:0 3px 8px rgba(110,118,229,.25);
+  }
+  .gl-after-icon svg{width:19px;height:19px}
+  .gl-after-label{
+    font-size:9.5px;font-weight:700;letter-spacing:.04em;color:#9e8ddc;
+    background:rgba(110,118,229,.15);border:1px solid rgba(110,118,229,.3);
+    border-radius:99px;padding:2px 9px;
+  }
+  .gl-after-msg{
+    max-width:155px;text-align:center;background:rgba(255,255,255,.06);
+    border:1px solid rgba(110,118,229,.3);border-radius:9px;
+    padding:8px 12px;font-size:10px;color:rgba(255,255,255,.65);
+    line-height:1.5;font-family:ui-monospace,monospace;
+    box-shadow:0 3px 10px rgba(0,0,0,.25);
+    filter:blur(3px);letter-spacing:.01em;
+  }
+  /* corner badges */
+  .gl-badge{
+    position:absolute;top:10px;padding:3px 9px;font-size:9px;
+    font-weight:700;letter-spacing:.05em;border-radius:99px;
+    border:1px solid;pointer-events:none;
+  }
+  .gl-badge-before{
+    left:10px;color:#7952f5;background:rgba(255,255,255,.85);
+    border-color:rgba(121,82,245,.22);
+  }
+  .gl-badge-after{
+    right:10px;color:#c4b5fd;background:rgba(110,118,229,.22);
+    border-color:rgba(161,138,255,.3);
+  }
+  /* The draggable divider handle */
+  .gl-handle{
+    position:absolute;top:0;bottom:0;left:50%;
+    width:2px;background:linear-gradient(180deg,#7952f5,#a647df);
+    transform:translateX(-50%);pointer-events:none;
+    box-shadow:0 0 8px rgba(121,82,245,.5);
+  }
+  .gl-handle-knob{
+    position:absolute;top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    width:30px;height:30px;border-radius:50%;
+    background:#fff;border:2px solid #7952f5;
+    box-shadow:0 2px 8px rgba(121,82,245,.35),0 0 0 3px rgba(121,82,245,.12);
+    display:flex;align-items:center;justify-content:center;
+    color:#7952f5;
+  }
+  .gl-handle-knob svg{width:13px;height:13px}
+  /* Hint text below slider */
+  .gl-slider-hint{
+    margin-top:8px;text-align:center;font-size:10.5px;
+    color:#9aa4b5;display:flex;align-items:center;justify-content:center;gap:5px;
+  }
+  .gl-slider-hint svg{width:12px;height:12px;flex-shrink:0}
+  /* Dark mode */
+  html[data-theme="dark"] .slider-kicker{
+    color:#cbbcff;
+  }
+  html[data-theme="dark"] .slider-kicker::before,
+  html[data-theme="dark"] .slider-kicker::after{background:rgba(177,151,255,.3)}
+  html[data-theme="dark"] .slider-heading{color:var(--text)}
+  html[data-theme="dark"] .slider-subtitle{color:var(--text-dim)}
+  html[data-theme="dark"] .gl-slider-wrap{
+    border-color:rgba(197,205,225,.13);
+    box-shadow:0 8px 24px rgba(0,0,0,.28);
+  }
+  html[data-theme="dark"] .gl-before-panel{
+    background:linear-gradient(135deg,#151b26 0%,#1b2332 100%);
+  }
+  html[data-theme="dark"] .gl-before-icon{
+    background:rgba(27,35,50,.88);border-color:rgba(161,138,255,.25);color:#b69cff;
+  }
+  html[data-theme="dark"] .gl-before-label{
+    color:#9e91d0;background:rgba(27,35,50,.7);border-color:rgba(161,138,255,.15);
+  }
+  html[data-theme="dark"] .gl-before-msg{
+    background:rgba(21,27,38,.88);border-color:var(--border);color:var(--text-dim);
+  }
+  html[data-theme="dark"] .gl-badge-before{
+    color:#cbbcff;background:rgba(21,27,38,.88);border-color:rgba(177,151,255,.2);
+  }
+  html[data-theme="dark"] .gl-slider-hint{color:var(--text-muted)}
+  @media(max-width:680px){
+    .gl-before-msg,.gl-after-msg{font-size:9px;padding:6px 10px;max-width:120px}
+    .gl-before-icon,.gl-after-icon{width:30px;height:30px;border-radius:8px}
+    .gl-before-icon svg,.gl-after-icon svg{width:15px;height:15px}
+    .gl-badge{font-size:8.5px;padding:2px 7px;top:8px}
+    .gl-badge-before{left:8px}
+    .gl-badge-after{right:8px}
+    .gl-handle-knob{width:26px;height:26px}
+    .gl-handle-knob svg{width:11px;height:11px}
+    .slider-section{margin-bottom:36px}
+  }
+  @media(prefers-reduced-motion:reduce){
+    .gl-after-panel{transition:none!important}
+  }
+</style>
+
+<section class="slider-section" id="comparison" aria-label="Before and after encryption comparison">
+  <p class="slider-kicker">See the Difference</p>
+  <h2 class="slider-heading">Encryption in Action</h2>
+  <p class="slider-subtitle">Drag the handle to compare your original message with how it looks after GhostLink encrypts it.</p>
+
+  <div class="gl-slider-wrap" id="gl-slider-wrap" role="img" aria-label="Before/after slider showing message before and after encryption">
+    <!-- BEFORE: readable message -->
+    <div class="gl-before-panel" aria-hidden="true">
+      <div class="gl-before-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <div class="gl-before-msg">Hey! Here are the login details:<br>user: admin<br>pass: hunter2</div>
+      <div class="gl-before-label">PLAIN TEXT</div>
+    </div>
+
+    <!-- AFTER: encrypted -->
+    <div class="gl-after-panel" id="gl-after-panel" aria-hidden="true">
+      <div class="gl-after-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <div class="gl-after-msg">AxGl3b/kZ9mQpT2…<br>Yr7nW+sF0vXcJeK1<br>==AES-256-GCM==</div>
+      <div class="gl-after-label">AES-256 ENCRYPTED</div>
+    </div>
+
+    <!-- Corner badges -->
+    <span class="gl-badge gl-badge-before" aria-hidden="true">Before</span>
+    <span class="gl-badge gl-badge-after" aria-hidden="true">After</span>
+
+    <!-- Divider handle -->
+    <div class="gl-handle" id="gl-handle" aria-hidden="true">
+      <div class="gl-handle-knob">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12H3M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <p class="gl-slider-hint">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+    Drag the handle left or right to reveal the difference
+  </p>
+</section>
+
+<script>
+(function() {
+  var wrap = document.getElementById('gl-slider-wrap');
+  var afterPanel = document.getElementById('gl-after-panel');
+  var handle = document.getElementById('gl-handle');
+  if (!wrap || !afterPanel || !handle) return;
+
+  function moveSlider(clientX) {
+    var rect = wrap.getBoundingClientRect();
+    var pct = Math.max(0, Math.min(100, (clientX - rect.left) / rect.width * 100));
+    afterPanel.style.clipPath = 'inset(0 0 0 ' + pct + '%)';
+    handle.style.left = pct + '%';
+  }
+
+  // Mouse drag
+  var dragging = false;
+  wrap.addEventListener('mousedown', function(e) {
+    dragging = true;
+    moveSlider(e.clientX);
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', function(e) {
+    if (dragging) moveSlider(e.clientX);
+  });
+  document.addEventListener('mouseup', function() { dragging = false; });
+
+  // Touch
+  wrap.addEventListener('touchstart', function(e) {
+    if (e.touches[0]) moveSlider(e.touches[0].clientX);
+    e.preventDefault();
+  }, {passive: false});
+  wrap.addEventListener('touchmove', function(e) {
+    if (e.touches[0]) moveSlider(e.touches[0].clientX);
+    e.preventDefault();
+  }, {passive: false});
+
+  // Hover-only tracking (no press needed)
+  wrap.addEventListener('mousemove', function(e) {
+    if (!dragging) moveSlider(e.clientX);
+  });
+})();
+</script>
 
 <footer class="footer">
   <div class="footer-content">
