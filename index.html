@@ -211,7 +211,6 @@
   }
   html{overflow-x:hidden}
   @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
-
   /* GhostLink landing-page redesign */
   :root{
     --bg:#f7f8ff;--bg-2:#fff;--bg-3:#f7f5ff;--bg-4:#f0edff;
@@ -386,8 +385,102 @@
   .trust-item:nth-child(4) .trust-icon{color:#eb5b89;background:#fdeaf0;border:1px solid rgba(235,91,137,.12);border-radius:9px}
   .trust-icon{transition:transform .18s ease,box-shadow .18s ease}
   .trust-item:hover .trust-icon{transform:translateY(-1px) scale(1.05);box-shadow:0 4px 10px rgba(74,77,125,.12)}
+  /* ── Features showcase ── */
+  .feat-section{width:100%;max-width:1100px;margin:64px auto 0}
+  .feat-section-label{color:#9850e7;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:7px}
+  .feat-section-title{color:#21283b;font-size:24px;font-weight:780;letter-spacing:-.04em;margin-bottom:5px}
+  .feat-section-title span{background:linear-gradient(100deg,#7554f6,#bd4fe4);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .feat-section-sub{color:#788196;font-size:13px;line-height:1.6;max-width:55ch;margin-bottom:22px}
+  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+  .feat-card{
+    background:rgba(255,255,255,.87);border:1px solid rgba(43,48,75,.08);
+    border-radius:16px;box-shadow:0 7px 20px rgba(46,43,92,.035);
+    overflow:hidden;display:flex;flex-direction:column;
+    transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+  }
+  .feat-card:hover{transform:translateY(-2px);border-color:rgba(121,82,245,.22);box-shadow:0 11px 26px rgba(46,43,92,.075)}
+  .feat-card-visual{
+    height:128px;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,#f5f0ff 0%,#faf7ff 100%);
+    border-bottom:1px solid rgba(43,48,75,.07);position:relative;overflow:hidden;
+  }
+  .feat-card-visual::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse at 60% 40%,rgba(167,108,255,.13),transparent 70%);
+  }
+  .feat-card-body{padding:13px 15px 15px;flex:1;display:flex;flex-direction:column;gap:4px}
+  .feat-card-num{font-size:10px;color:#9850e7;font-weight:700;letter-spacing:.08em}
+  .feat-card-title{font-size:14.5px;font-weight:700;color:#252b3d;letter-spacing:-.022em;line-height:1.3}
+  .feat-card-desc{font-size:12.5px;color:#788196;line-height:1.6;margin-top:2px}
+  .feat-card-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+  .feat-tag{
+    display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;
+    font-size:10.5px;font-weight:600;
+    background:rgba(121,82,245,.08);color:#7952f5;border:1px solid rgba(121,82,245,.14);
+  }
+  .feat-tag svg{flex-shrink:0}
+  /* Mini UI inside card visuals */
+  .fv-msg{
+    background:rgba(255,255,255,.96);border:1px solid rgba(43,48,75,.1);border-radius:10px;
+    box-shadow:0 6px 18px rgba(46,43,92,.1);padding:11px 13px;width:200px;
+  }
+  .fv-msg-top{display:flex;align-items:center;gap:6px;margin-bottom:7px}
+  .fv-dot{width:6px;height:6px;border-radius:50%}
+  .fv-msg-label{font-size:9px;color:#9ba4b7;letter-spacing:.04em}
+  .fv-msg-text{font-size:11px;color:#30374c;line-height:1.5;margin-bottom:8px}
+  .fv-msg-footer{display:flex;align-items:center;justify-content:space-between}
+  .fv-chip{
+    display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:20px;
+    font-size:9.5px;font-weight:600;
+  }
+  .fv-chip--purple{background:#f0eaff;color:#7952f5}
+  .fv-chip--green{background:#e8f8f1;color:#169b67}
+  .fv-send{
+    display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:7px;
+    background:linear-gradient(115deg,#7554f6,#bd4fe4);color:#fff;font-size:9.5px;font-weight:700;
+  }
+  .fv-lock{
+    width:52px;height:52px;border-radius:14px;
+    background:linear-gradient(135deg,#7554f6,#bd4fe4);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 8px 22px rgba(121,82,245,.35);
+  }
+  .fv-lock-ring{
+    width:80px;height:80px;border-radius:50%;
+    border:2px dashed rgba(121,82,245,.25);
+    display:flex;align-items:center;justify-content:center;
+    animation:fv-spin 12s linear infinite;
+  }
+  @keyframes fv-spin{to{transform:rotate(360deg)}}
+  .fv-burn-wrap{display:flex;flex-direction:column;align-items:center;gap:7px}
+  .fv-burn-icon{
+    width:40px;height:40px;border-radius:50%;
+    background:rgba(220,74,99,.1);border:1px solid rgba(220,74,99,.2);
+    display:flex;align-items:center;justify-content:center;color:#dc4a63;
+  }
+  .fv-burn-line{height:5px;border-radius:3px;background:rgba(43,48,75,.07)}
+  .fv-burn-line:nth-child(2){width:120px}
+  .fv-burn-line:nth-child(3){width:80px}
+  .fv-burn-badge{
+    display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;
+    background:rgba(220,74,99,.08);border:1px solid rgba(220,74,99,.18);
+    font-size:9.5px;font-weight:600;color:#dc4a63;
+  }
+  @media(max-width:680px){.feat-grid{grid-template-columns:1fr}}
+  @media(max-width:900px) and (min-width:681px){.feat-grid{grid-template-columns:repeat(2,1fr)}}
+  html[data-theme="dark"] .feat-card{background:var(--bg-2);border-color:var(--border)}
+  html[data-theme="dark"] .feat-card-visual{background:linear-gradient(135deg,#1b2332 0%,#151b26 100%);border-color:var(--border)}
+  html[data-theme="dark"] .feat-card-title{color:var(--text)}
+  html[data-theme="dark"] .feat-card-desc{color:var(--text-muted)}
+  html[data-theme="dark"] .feat-section-title{color:var(--text)}
+  html[data-theme="dark"] .feat-section-sub{color:var(--text-muted)}
+  html[data-theme="dark"] .fv-msg{background:var(--bg-3);border-color:var(--border)}
+  html[data-theme="dark"] .fv-msg-text{color:var(--text-dim)}
+  html[data-theme="dark"] .fv-burn-line{background:var(--border)}
+  html[data-theme="dark"] .fv-chip--purple{background:rgba(161,138,255,.12);color:var(--accent)}
+  html[data-theme="dark"] .feat-tag{background:rgba(161,138,255,.1);color:var(--accent);border-color:rgba(161,138,255,.2)}
   .how-section{width:100%;max-width:1200px;margin:72px auto 0;padding-bottom:0}
-  .how-section-title{font-family:inherit;color:#21283b;font-size:25px;font-weight:750;letter-spacing:-.035em;text-transform:none;margin-bottom:18px}
+  .how-section-title{font-family:inherit;color:#21283b;font-size:24px;font-weight:780;letter-spacing:-.04em;text-transform:none;margin-bottom:8px}
   .steps-grid{gap:13px;background:transparent;border:0;border-radius:0;overflow:visible}
   .step-cell{gap:9px;padding:19px 18px;background:rgba(255,255,255,.87);border:1px solid rgba(43,48,75,.08);border-radius:16px;box-shadow:0 7px 20px rgba(46,43,92,.035)}
   .step-num{font-family:inherit;color:#9850e7;font-size:11px}
@@ -469,63 +562,66 @@
         radial-gradient(ellipse at 31% 39%,rgba(246,234,255,.3),transparent 44%),
         linear-gradient(180deg,#fdfcff,#faf9ff);
     }
-    .header,.main,.how-section,.faq-section,.footer{max-width:800px}
-    .header{height:49px;min-height:49px;padding:0;border:0;gap:0}
-    .logo{gap:8px}
-    .logo-icon{width:38px;height:42px;border-radius:0}
-    .logo-name{font-size:15.5px}
-    .top-nav{width:497px;flex:none;gap:0;justify-content:space-between;margin-left:auto;margin-right:0}
-    .top-nav a{font-size:10.5px}
-    .top-nav a:not(.nav-cta)::after{bottom:-7px}
-    .top-nav .nav-cta{gap:6px;padding:7px 8.5px;font-size:10.5px}
-    .main{padding:40px 0 0}
-    .hero-layout{grid-template-columns:390px 240px;column-gap:155px;row-gap:0;align-items:start}
-    .hero-column{width:390px;max-width:390px}
-    .hero-intro{margin-bottom:17px}
-    .hero-kicker{gap:7px;padding:3px 11px;margin-bottom:21px;font-size:8.2px;letter-spacing:-.01em}
-    .hero-kicker span{width:6px;height:6px}
-    .compose-heading{width:410px;max-width:410px;font-size:42px;line-height:1;letter-spacing:-.022em;margin:0 0 14px}
-    .compose-sub{max-width:390px;font-size:13px;line-height:1.45}
-    .compose-card{width:390px;padding:8px 12px 7px;border-radius:16px}
-    .message-area-wrapper{min-height:48px}
-    textarea{min-height:48px;max-height:160px;padding:4px 43px 18px 27px;font-size:13px}
-    .message-icon{left:3px;top:10px}
-    .char-count{right:3px;top:10px;font-size:9.5px}
-    .compose-toolbar{left:27px;top:auto;bottom:2px;opacity:0;pointer-events:none;transition:opacity .15s ease}
+    .header,.main,.feat-section,.how-section,.faq-section,.footer{max-width:1100px}
+    /* ── Header ── */
+    .header{height:58px;min-height:58px;padding:0;border:0;gap:0}
+    .logo{gap:9px}
+    .logo-icon{width:34px;height:38px;border-radius:0}
+    .logo-name{font-size:16.5px;font-weight:750;letter-spacing:-.04em}
+    .top-nav{flex:none;gap:36px;justify-content:flex-end;margin-left:auto;margin-right:0}
+    .top-nav a:not(.nav-cta){font-size:13px;font-weight:500;color:#606877}
+    .top-nav a:not(.nav-cta)::after{bottom:-6px}
+    .top-nav .nav-cta{gap:6px;padding:9px 22px;font-size:13px;font-weight:650;border-radius:999px;margin-left:28px}
+    /* ── Hero ── */
+    .main{padding:52px 0 0}
+    .hero-layout{grid-template-columns:minmax(0,1fr) 380px;column-gap:64px;row-gap:0;align-items:center}
+    .hero-column{width:100%;max-width:500px}
+    .hero-intro{margin-bottom:22px}
+    .hero-kicker{gap:7px;padding:5px 13px;margin-bottom:20px;font-size:11px;letter-spacing:.01em}
+    .hero-kicker span{width:7px;height:7px}
+    .compose-heading{width:auto;max-width:100%;font-size:48px;line-height:1.04;letter-spacing:-.03em;margin:0 0 14px}
+    .compose-sub{max-width:44ch;font-size:14.5px;line-height:1.6;color:#697187}
+    .compose-card{width:100%;max-width:460px;padding:11px 14px 10px;border-radius:16px}
+    .message-area-wrapper{min-height:54px}
+    textarea{min-height:54px;max-height:160px;padding:4px 42px 20px 26px;font-size:13.5px}
+    .message-icon{left:3px;top:9px}
+    .char-count{right:3px;top:9px;font-size:10px}
+    .compose-toolbar{left:26px;top:auto;bottom:2px;opacity:0;pointer-events:none;transition:opacity .15s ease}
     .compose-card:hover .compose-toolbar,.message-area-wrapper:focus-within .compose-toolbar{opacity:1;pointer-events:auto}
-    .toolbar-btn{padding:2px 4px;font-size:10px}
+    .toolbar-btn{padding:2px 4px;font-size:10.5px}
     .img-preview-strip:empty{display:none;margin:0}
     .composer-actions{height:29px;gap:5px;margin-top:0;padding-top:0;border:0}
-    .composer-actions .expiry-control{order:2;flex:0 0 80px;width:80px;min-width:80px;height:27px;gap:4px;padding:4px 20px 4px 7px;border-radius:9px}
+    .composer-actions .expiry-control{order:2;flex:0 0 82px;width:82px;min-width:82px;height:27px;gap:4px;padding:3px 20px 3px 7px;border-radius:8px}
     .expiry-control>svg:first-child{width:12px;height:12px}
-    .expiry-control select{font-size:10px}
-    .composer-actions .btn-primary{order:3;flex:0 0 84px;width:84px;min-width:84px;height:29px;margin-left:auto;padding:7px 8px;font-size:10px}
-    .hero-art{display:block;width:240px;height:308px;min-height:308px;align-self:start;overflow:visible}
-    .orb-one{width:340px;height:340px;top:28px;right:-40px}
-    .orb-two{width:230px;height:230px;bottom:18px;left:-15px}
-    .preview-card{position:absolute;top:90px;left:12px;width:216px;min-height:73px;padding:12px 15px;gap:9px;border-radius:14px;transform:none;animation:none}
-    .preview-icon{width:26px;height:26px;flex-basis:26px;border-radius:9px}
-    .preview-heading{font-size:10.5px}
-    .preview-heading span{font-size:8px}
-    .preview-copy p{margin-top:5px;font-size:9.5px;line-height:1.42}
-    .preview-arrow{position:absolute;top:184px;left:153px;width:40px;height:51px;margin:0;transform:none}
-    .link-preview{position:absolute;top:252px;left:21px;width:207px;min-height:37px;height:37px;padding:0 12px;gap:8px;transform:none;animation:none;font-size:9.5px}
+    .expiry-control select{font-size:10.5px}
+    .composer-actions .btn-primary{order:3;flex:0 0 94px;width:94px;min-width:94px;height:29px;margin-left:auto;padding:7px 9px;font-size:12px}
+    /* ── Hero art ── */
+    .hero-art{display:block;width:380px;height:340px;min-height:340px;align-self:center;overflow:visible}
+    .orb-one{width:340px;height:340px;top:24px;right:-26px}
+    .orb-two{width:230px;height:230px;bottom:18px;left:-10px}
+    .preview-card{position:absolute;top:70px;left:12px;width:238px;min-height:80px;padding:12px 16px;gap:9px;border-radius:14px;transform:none;animation:none}
+    .preview-icon{width:27px;height:27px;flex-basis:27px;border-radius:8px}
+    .preview-heading{font-size:11px}
+    .preview-heading span{font-size:8.5px}
+    .preview-copy p{margin-top:4px;font-size:10.5px;line-height:1.42}
+    .preview-arrow{position:absolute;top:174px;left:164px;width:40px;height:50px;margin:0;transform:none}
+    .link-preview{position:absolute;top:246px;left:18px;width:234px;min-height:38px;height:38px;padding:0 12px;gap:8px;transform:none;animation:none;font-size:10.5px}
     .link-preview-icon{width:22px;height:22px;background:linear-gradient(135deg,#8954f4,#bf4be6);color:#fff}
-    .link-preview strong{font-size:9.5px;color:#51447c}
+    .link-preview strong{font-size:10.5px;color:#51447c}
     .link-preview-copy{color:#7663ca}
-    .preview-sparkle{right:-7px;top:-10px;font-size:20px}
+    .preview-sparkle{right:-6px;top:-10px;font-size:20px}
     .hero-caption{display:none}
-    .hero-trustbar{width:390px;flex-wrap:nowrap;gap:12px;margin:32px 0 0}
-    .trust-item{flex:1 1 0;min-width:0;min-height:41px;padding:5px 7px;gap:6px;border-radius:8px;font-size:10px;line-height:1.18}
+    /* ── Trust bar ── */
+    .hero-trustbar{width:100%;max-width:460px;flex-wrap:nowrap;gap:10px;margin:28px 0 0}
+    .trust-item{flex:1 1 0;min-width:0;min-height:46px;padding:6px 8px;gap:6px;border-radius:8px;font-size:10.5px;line-height:1.22}
     .trust-item:nth-child(4) strong{white-space:nowrap}
-    .trust-item strong{font-size:10px}
-    .trust-icon{width:22px;height:22px;flex-basis:22px;border-radius:8px}
-    .trust-icon svg{width:14px;height:14px}
-    .how-section{margin:68px auto 0}
-    .faq-section{margin:66px auto 54px}
+    .trust-item strong{font-size:10.5px}
+    .trust-icon{width:22px;height:22px;flex-basis:22px;border-radius:7px}
+    .trust-icon svg{width:12px;height:12px}
+    .how-section{margin:72px auto 0}
+    .faq-section{margin:68px auto 52px}
     .footer{display:flex;align-items:center;gap:12px;margin:0 auto}
   }
-
   /* Clean GhostLink mascot: no aura, no sparkles, just clear expressive motion. */
   .logo-icon{position:relative;isolation:isolate;overflow:visible}
   .logo-icon:before,.logo-icon:after{content:none!important;display:none!important}
@@ -617,7 +713,6 @@
     .theme-toggle,.trust-item,.step-cell,.faq-item{transition:none!important}
     .trust-item:hover,.step-cell:hover,.faq-item:hover{transform:none}
   }
-
   html[data-theme="dark"]{
     color-scheme:dark;
     --bg:#0d1117;--bg-2:#151b26;--bg-3:#1b2332;--bg-4:#242d3e;
@@ -758,7 +853,6 @@
     .logo-ghost,.logo-icon:hover .logo-ghost,.logo-ghost.is-happy,.logo-icon:before,.logo-icon:after,.logo-ghost .ghost-eye,.logo-icon:hover .ghost-face,.logo-icon:hover .ghost-wave{animation:none!important;transform:none!important}
     .logo-icon:before{opacity:.4}
   }
-
   /* Composer layout: attachment and password stay on one row; expiry is compact. */
   .message-area-wrapper{margin-bottom:0!important}
   .compose-toolbar{position:relative!important;left:auto!important;top:auto!important;bottom:auto!important;opacity:1!important;pointer-events:auto!important;display:flex!important;flex-direction:row!important;align-items:center!important;flex-wrap:nowrap!important;gap:14px!important;margin:8px 0 0 27px!important;padding-top:10px!important;border-top:1px solid rgba(45,55,86,.10)!important;z-index:2}
@@ -769,7 +863,6 @@
   .composer-actions .expiry-control select{width:auto!important;max-width:115px!important;font-size:10.5px!important}
   .composer-actions .btn-primary{order:1!important;flex:0 0 auto!important;width:100%!important;min-width:0!important;height:auto!important;margin:0!important;padding:12px 18px!important;font-size:14px!important}
   @media(max-width:480px){.compose-toolbar{margin-left:27px!important;gap:12px!important}.composer-actions{flex-wrap:nowrap!important}.composer-actions .expiry-control{max-width:150px!important}.composer-actions .expiry-control select{max-width:105px!important}}
-
   /* Plain inline expiry selector placed before Attach Image. */
   .compose-toolbar .expiry-control{display:inline-flex!important;align-items:center!important;gap:4px!important;flex:0 0 auto!important;width:auto!important;min-width:0!important;max-width:none!important;height:auto!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;color:var(--text-muted)!important;box-shadow:none!important;margin:0 2px 0 0!important}
   .compose-toolbar .expiry-control>svg:first-child{width:13px!important;height:13px!important;flex-shrink:0!important}
@@ -777,7 +870,6 @@
   .compose-toolbar .expiry-control select{width:auto!important;min-width:0!important;max-width:none!important;padding:0!important;border:0!important;background:transparent!important;color:inherit!important;font-size:11px!important;font-weight:600!important}
   .composer-actions .expiry-control{display:none!important}
   @media(max-width:480px){.compose-toolbar{margin-left:0!important;gap:10px!important}.compose-toolbar .expiry-control select{font-size:10px!important}.compose-toolbar .toolbar-btn{font-size:10px!important}}
-
 /* Matched Box Background & Border (Like Screenshot) */
 .clean-verify-card {
   position: relative;
@@ -792,7 +884,6 @@
   margin: 0 auto 1.25rem;
   box-shadow: 0 4px 12px rgba(110, 118, 229, 0.08);
 }
-
 /* Background Soft Glow Aura */
 .clean-verify-aura {
   position: absolute;
@@ -803,7 +894,6 @@
   animation: cleanAuraPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   z-index: 0;
 }
-
 /* Compact Inner Rotating Gradient Ring */
 .clean-verify-spinner {
   position: absolute;
@@ -815,7 +905,6 @@
   animation: cleanSpin 0.8s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite;
   z-index: 1;
 }
-
 /* Center Icon */
 .clean-verify-icon {
   position: relative;
@@ -825,18 +914,15 @@
   align-items: center;
   justify-content: center;
 }
-
 /* Keyframes */
 @keyframes cleanSpin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
-
 @keyframes cleanAuraPulse {
   0%, 100% { opacity: 0.2; transform: scale(0.97); }
   50% { opacity: 0.6; transform: scale(1.04); }
 }
-
   /* How it works — four-step card layout */
   .how-section{
     width:100%;max-width:800px;margin:68px auto 0;padding:0 0 6px;
@@ -856,18 +942,18 @@
     color:#8054e9;
   }
   .how-section-subtitle{
-    max-width:55ch;margin:0 auto 17px;text-align:center;
-    color:#788196;font-size:11.5px;line-height:1.5;
+    max-width:60ch;margin:0 auto 24px;text-align:center;
+    color:#788196;font-size:15px;line-height:1.6;
   }
   .how-section .steps-grid{
-    display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:25px;
+    display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;
     overflow:visible;border:0;border-radius:0;background:transparent;
   }
   .how-section .step-cell{
-    position:relative;display:flex;min-width:0;min-height:151px;
-    flex-direction:column;align-items:flex-start;gap:7px;
-    padding:9px 12px 12px;border:1px solid rgba(70,86,130,.1);
-    border-radius:12px;box-shadow:0 3px 10px rgba(46,43,92,.025);
+    position:relative;display:flex;min-width:0;min-height:200px;
+    flex-direction:column;align-items:flex-start;gap:9px;
+    padding:14px 18px 18px;border:1px solid rgba(70,86,130,.1);
+    border-radius:16px;box-shadow:0 4px 14px rgba(46,43,92,.035);
     transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
   }
   .how-section .step-cell:nth-child(1){background:#f7faff;border-color:#e4ebf7}
@@ -878,19 +964,19 @@
     transform:translateY(-2px);box-shadow:0 8px 18px rgba(46,43,92,.07);
   }
   .how-section .step-num{
-    position:absolute;top:9px;left:10px;z-index:1;
-    display:grid;width:20px;height:20px;place-items:center;border-radius:50%;
-    color:#fff;font-family:inherit;font-size:10px;font-weight:750;letter-spacing:0;
+    position:absolute;top:12px;left:14px;z-index:1;
+    display:grid;width:24px;height:24px;place-items:center;border-radius:50%;
+    color:#fff;font-family:inherit;font-size:12px;font-weight:750;letter-spacing:0;
   }
   .how-section .step-cell:nth-child(1) .step-num{background:#4384ed}
   .how-section .step-cell:nth-child(2) .step-num{background:#a148df}
   .how-section .step-cell:nth-child(3) .step-num{background:#18b894}
   .how-section .step-cell:nth-child(4) .step-num{background:#ed5b89}
   .how-section .step-icon{
-    position:relative;display:grid;width:47px;height:47px;place-items:center;
-    align-self:center;margin:8px auto 2px;border-radius:15px;
+    position:relative;display:grid;width:60px;height:60px;place-items:center;
+    align-self:center;margin:10px auto 4px;border-radius:18px;
   }
-  .how-section .step-icon svg{width:24px;height:24px}
+  .how-section .step-icon svg{width:22px;height:22px}
   .how-section .step-cell:nth-child(1) .step-icon{background:#e8f1ff;color:#4384ed}
   .how-section .step-cell:nth-child(2) .step-icon{background:#f3e8ff;color:#a148df}
   .how-section .step-cell:nth-child(3) .step-icon{background:#e3f8f1;color:#17b68e}
@@ -901,10 +987,10 @@
     background:#4384ed;color:#fff;font-size:12px;font-weight:700;line-height:1;
   }
   .how-section .step-label{
-    color:#252b3d;font-size:11.5px;font-weight:750;line-height:1.3;
+    color:#252b3d;font-size:14px;font-weight:750;line-height:1.3;
   }
   .how-section .step-detail{
-    color:#778196;font-size:9.5px;line-height:1.48;
+    color:#778196;font-size:12px;line-height:1.55;
   }
   .how-section .step-cell:not(:last-child)::after{
     content:"→";position:absolute;top:50%;right:-25px;z-index:2;
@@ -951,14 +1037,14 @@
     content:"";width:28px;height:1px;background:#c5b8f7;
   }
   .faq-title{
-    margin:0 0 6px;text-align:center;color:#171c30;
-    font-size:clamp(27px,4vw,34px);font-weight:820;line-height:1.1;
-    letter-spacing:-.05em;
+    margin:0 0 8px;text-align:center;color:#171c30;
+    font-size:clamp(24px,3.2vw,32px);font-weight:820;line-height:1.1;
+    letter-spacing:-.055em;
   }
   .faq-title span{color:#8054e9}
   .faq-subtitle{
-    margin:0 auto 17px;text-align:center;color:#778196;
-    font-size:12px;line-height:1.5;
+    margin:0 auto 22px;text-align:center;color:#778196;
+    font-size:15px;line-height:1.6;
   }
   .faq-layout{
     display:grid;grid-template-columns:minmax(0,1fr);
@@ -969,15 +1055,15 @@
     justify-self:center;pointer-events:none;user-select:none;
   }
   .faq-list{
-    display:flex;width:100%;max-width:500px;flex-direction:column;gap:5px;
-    margin:0 auto;padding:9px;border:1px solid rgba(74,91,145,.07);
-    border-radius:21px;background:rgba(255,255,255,.68);
+    display:flex;width:100%;max-width:680px;flex-direction:column;gap:7px;
+    margin:0 auto;padding:12px;border:1px solid rgba(74,91,145,.07);
+    border-radius:24px;background:rgba(255,255,255,.68);
     box-shadow:0 12px 34px rgba(71,77,131,.08);
     backdrop-filter:blur(10px);
   }
   details.faq-item{
     display:block;margin:0;padding:0;overflow:hidden;
-    border:1px solid #e7eaf2;border-radius:12px;
+    border:1px solid #e7eaf2;border-radius:14px;
     background:rgba(255,255,255,.92);
     box-shadow:0 2px 7px rgba(41,54,91,.035);
     transition:border-color .16s ease,box-shadow .16s ease;
@@ -986,9 +1072,9 @@
     border-color:#d9d4f4;box-shadow:0 4px 12px rgba(75,70,135,.07);
   }
   .faq-item summary{
-    display:flex;min-height:39px;align-items:center;gap:11px;
-    padding:6px 11px;list-style:none;cursor:pointer;
-    color:#283149;font-size:11px;font-weight:650;line-height:1.35;
+    display:flex;min-height:50px;align-items:center;gap:13px;
+    padding:8px 14px;list-style:none;cursor:pointer;
+    color:#283149;font-size:14px;font-weight:650;line-height:1.35;
     outline:none;
   }
   .faq-item summary::-webkit-details-marker{display:none}
@@ -997,8 +1083,8 @@
     outline:3px solid rgba(121,82,245,.2);outline-offset:-3px;border-radius:11px;
   }
   .faq-number{
-    display:grid;width:24px;height:24px;flex:0 0 24px;place-items:center;
-    border-radius:50%;font-size:12px;font-weight:800;
+    display:grid;width:30px;height:30px;flex:0 0 30px;place-items:center;
+    border-radius:50%;font-size:13px;font-weight:800;
   }
   .faq-item:nth-child(1) .faq-number{background:#e7f0ff;color:#3e7ce5}
   .faq-item:nth-child(2) .faq-number{background:#f0eaff;color:#8653dc}
@@ -1012,8 +1098,8 @@
   }
   .faq-item[open] .faq-chevron{transform:rotate(180deg)}
   .faq-item > p{
-    margin:0;padding:0 42px 12px 46px;color:#758096;
-    font-size:11px;line-height:1.55;
+    margin:0;padding:0 52px 16px 57px;color:#758096;
+    font-size:14px;line-height:1.65;
   }
   html[data-theme="dark"] .faq-kicker{color:#cbbcff}
   html[data-theme="dark"] .faq-kicker::before,
@@ -1045,10 +1131,269 @@
   @media(prefers-reduced-motion:reduce){
     .faq-item,.faq-chevron{transition:none!important}
   }
+  /* Interactive encrypted / opened message comparison */
+  .message-comparison{
+    width:100%;max-width:680px;margin:0 auto 48px;
+  }
+  .message-comparison-kicker{
+    margin:0 0 7px;text-align:center;color:#7651df;
+    font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  }
+  .message-comparison-title{
+    margin:0 0 7px;text-align:center;color:#171c30;
+    font-size:clamp(23px,3.4vw,29px);font-weight:820;line-height:1.14;
+    letter-spacing:-.045em;
+  }
+  .message-comparison-title span{color:#8054e9}
+  .message-comparison-subtitle{
+    max-width:48ch;margin:0 auto 18px;text-align:center;color:#778196;
+    font-size:12px;line-height:1.55;
+  }
+  .comparison-frame{
+    --compare-position:50%;
+    position:relative;isolation:isolate;width:100%;height:clamp(200px,24vw,270px);
+    overflow:hidden;border:1px solid rgba(74,91,145,.13);border-radius:24px;
+    background:#f3f2ff;
+    box-shadow:0 16px 38px rgba(71,77,131,.12);
+  }
+  .comparison-panel{
+    position:absolute;inset:0;display:grid;place-items:center;overflow:hidden;
+    padding:16px;
+  }
+  .comparison-panel--locked{
+    background:
+      radial-gradient(ellipse at 18% 20%,rgba(109,151,255,.19),transparent 38%),
+      linear-gradient(135deg,#eef4ff 0%,#f2eeff 52%,#f7f4ff 100%);
+  }
+  .comparison-panel--opened{
+    z-index:1;
+    background:
+      radial-gradient(ellipse at 82% 18%,rgba(235,126,201,.19),transparent 38%),
+      linear-gradient(135deg,#f0ecff 0%,#fff3fb 56%,#fff7f5 100%);
+    clip-path:inset(0 0 0 50%);
+  }
+  .comparison-demo-card{
+    width:min(100%,280px);height:200px;padding:14px 16px 13px;
+    border:1px solid rgba(92,101,151,.13);border-radius:19px;
+    background:rgba(255,255,255,.88);box-shadow:0 12px 28px rgba(58,61,112,.11);
+    backdrop-filter:blur(12px);
+  }
+  .comparison-card-top{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    margin-bottom:12px;
+  }
+  .comparison-state{
+    display:inline-flex;align-items:center;gap:5px;padding:3px 7px;
+    border:1px solid rgba(121,82,245,.13);border-radius:999px;
+    background:#f3efff;color:#6f4bce;font-size:7.5px;font-weight:800;
+    letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;
+  }
+  .comparison-state-dot{width:6px;height:6px;border-radius:50%;background:#8b60ea}
+  .comparison-state--opened{background:#fff0f6;color:#c34f85;border-color:rgba(220,87,145,.15)}
+  .comparison-state--opened .comparison-state-dot{background:#e55e9b}
+  .comparison-lock-icon{
+    display:grid;width:26px;height:26px;flex:0 0 26px;place-items:center;
+    border-radius:9px;background:#edf1ff;color:#6862d9;
+  }
+  .comparison-lock-icon--opened{background:#fff0f6;color:#d95391}
+  .comparison-lock-icon svg{width:14px;height:14px}
+  .comparison-demo-title{
+    margin:0 0 4px;color:#283149;font-size:13px;font-weight:780;
+    letter-spacing:-.025em;
+  }
+  .comparison-demo-copy{margin:0;color:#778196;font-size:10px;line-height:1.5}
+  .comparison-private-message{
+    margin:10px 0 9px;padding:9px 10px;border:1px solid #e9eafa;
+    border-radius:10px;background:#f8f8ff;color:#4f5875;
+    font-family:var(--mono);font-size:9.5px;line-height:1.5;
+  }
+  .comparison-private-message--blurred{
+    color:#8189a1;filter:blur(4px);user-select:none;
+  }
+  .comparison-demo-foot{
+    display:flex;align-items:center;gap:7px;color:#858da1;
+    font-size:9px;line-height:1.4;
+  }
+  .comparison-demo-foot svg{width:13px;height:13px;flex:0 0 13px;color:#8a66e8}
+  .comparison-demo-foot--burned svg{color:#e05b91}
+  .comparison-divider{
+    position:absolute;top:0;bottom:0;left:var(--compare-position);z-index:2;
+    width:2px;transform:translateX(-50%);
+    background:linear-gradient(180deg,#8b5cf6,#e554a6);
+    box-shadow:0 0 15px rgba(133,81,223,.35);pointer-events:none;
+  }
+  .comparison-divider-knob{
+    position:absolute;top:50%;left:50%;display:grid;width:34px;height:34px;
+    place-items:center;transform:translate(-50%,-50%);border:3px solid #fff;
+    border-radius:50%;background:linear-gradient(135deg,#8054e9,#db57a5);
+    color:#fff;box-shadow:0 4px 12px rgba(69,44,126,.28);
+  }
+  .comparison-divider-knob svg{width:14px;height:14px}
+  .comparison-range{
+    position:absolute;inset:0;z-index:3;width:100%;height:100%;margin:0;
+    opacity:0;cursor:ew-resize;appearance:none;-webkit-appearance:none;
+    background:transparent;
+  }
+  .comparison-range::-webkit-slider-runnable-track{height:100%;background:transparent}
+  .comparison-range::-webkit-slider-thumb{
+    width:48px;height:100%;border:0;appearance:none;-webkit-appearance:none;
+    background:transparent;
+  }
+  .comparison-range::-moz-range-track{height:100%;background:transparent}
+  .comparison-range::-moz-range-thumb{
+    width:48px;height:100%;border:0;border-radius:0;background:transparent;
+  }
+  .comparison-frame:focus-within{
+    outline:3px solid rgba(121,82,245,.32);outline-offset:4px;
+  }
+  .comparison-instruction{
+    margin:12px 0 0;text-align:center;color:#858da1;font-size:10px;line-height:1.5;
+  }
+  html[data-theme="dark"] .message-comparison-kicker{color:#cbbcff}
+  html[data-theme="dark"] .message-comparison-title{color:var(--text)}
+  html[data-theme="dark"] .message-comparison-subtitle,
+  html[data-theme="dark"] .comparison-instruction{color:var(--text-dim)}
+  html[data-theme="dark"] .comparison-frame{
+    border-color:var(--border-bright);background:var(--bg-2);
+    box-shadow:0 16px 38px rgba(0,0,0,.25);
+  }
+  html[data-theme="dark"] .comparison-panel--locked{
+    background:
+      radial-gradient(ellipse at 18% 20%,rgba(109,151,255,.15),transparent 38%),
+      linear-gradient(135deg,#171f32 0%,#211e36 55%,#1b2032 100%);
+  }
+  html[data-theme="dark"] .comparison-panel--opened{
+    background:
+      radial-gradient(ellipse at 82% 18%,rgba(235,126,201,.15),transparent 38%),
+      linear-gradient(135deg,#211e36 0%,#302033 56%,#28202c 100%);
+  }
+  html[data-theme="dark"] .comparison-demo-card{
+    border-color:var(--border-bright);background:rgba(21,27,38,.9);
+    box-shadow:0 12px 28px rgba(0,0,0,.25);
+  }
+  html[data-theme="dark"] .comparison-state{background:rgba(161,138,255,.14);border-color:rgba(177,151,255,.22);color:#d2c5ff}
+  html[data-theme="dark"] .comparison-state--opened{background:rgba(229,94,155,.13);border-color:rgba(229,94,155,.22);color:#ffafd0}
+  html[data-theme="dark"] .comparison-demo-title{color:var(--text)}
+  html[data-theme="dark"] .comparison-demo-copy,
+  html[data-theme="dark"] .comparison-demo-foot{color:var(--text-dim)}
+  html[data-theme="dark"] .comparison-private-message{background:var(--bg-3);border-color:var(--border);color:var(--text-dim)}
+  html[data-theme="dark"] .comparison-lock-icon{background:rgba(161,138,255,.14);color:#c9baff}
+  html[data-theme="dark"] .comparison-lock-icon--opened{background:rgba(229,94,155,.14);color:#ffafd0}
+  @media(max-width:680px){
+    .message-comparison{margin:0 auto 36px}
+    .comparison-frame{height:210px;border-radius:15px}
+    .comparison-panel{padding:11px}
+    .comparison-demo-card{width:min(100%,240px);height:180px;padding:12px 13px 11px}
+    .comparison-card-top{margin-bottom:7px}
+    .comparison-demo-title{font-size:12px}
+    .comparison-demo-title{margin-bottom:3px}
+    .comparison-demo-copy{font-size:9.5px}
+    .comparison-private-message{margin:7px 0 6px;padding:8px 10px;font-size:9px}
+  }
+  @media(max-width:360px){
+    .comparison-frame{height:195px}
+    .comparison-demo-card{height:172px;padding:10px 11px 10px}
+    .comparison-state{font-size:6.5px}
+    .comparison-demo-title{font-size:11.5px}
+  }
+  @media(prefers-reduced-motion:reduce){
+    .comparison-divider,.comparison-divider-knob{transition:none!important}
+  }
+  /* Get-started banner beneath the interactive comparison */
+  .get-started-cta{
+    position:relative;isolation:isolate;display:grid;
+    grid-template-columns:64px minmax(0,1fr) 76px;align-items:center;gap:22px;
+    width:min(100%,800px);min-height:174px;margin:-10px auto 52px;
+    padding:28px clamp(22px,4vw,42px);overflow:hidden;
+    border:1px solid rgba(255,255,255,.16);border-radius:22px;color:#fff;
+    background:linear-gradient(112deg,#7655f5 0%,#9850ec 54%,#bd4fe4 100%);
+    box-shadow:0 20px 44px rgba(129,78,234,.2);
+  }
+  .get-started-cta::before,.get-started-cta::after{
+    content:"";position:absolute;z-index:-1;border-radius:50%;pointer-events:none;
+  }
+  .get-started-cta::before{
+    width:190px;height:190px;right:-78px;top:-106px;
+    background:rgba(255,255,255,.08);
+  }
+  .get-started-cta::after{
+    width:250px;height:250px;left:38%;bottom:-220px;
+    background:rgba(189,79,228,.14);
+  }
+  .cta-icon{
+    display:grid;width:58px;height:58px;place-items:center;position:relative;
+    border:1px solid rgba(255,255,255,.2);border-radius:17px;
+    background:rgba(255,255,255,.12);color:#fff;
+    box-shadow:0 8px 22px rgba(27,35,126,.16);
+  }
+  .cta-icon svg{width:30px;height:30px}
+  .cta-icon-bolt{
+    position:absolute;right:-5px;bottom:-5px;display:grid;width:22px;height:22px;
+    place-items:center;border:2px solid #9850ec;border-radius:50%;
+    background:#fff;color:#914fe3;
+  }
+  .cta-icon-bolt svg{width:11px;height:11px}
+  .cta-copy{min-width:0}
+  .cta-title{
+    margin:0 0 6px;color:#fff;font-size:clamp(20px,2.7vw,25px);
+    font-weight:780;line-height:1.2;letter-spacing:-.035em;
+  }
+  .cta-description{
+    max-width:48ch;margin:0 0 16px;color:rgba(255,255,255,.82);
+    font-size:12px;line-height:1.55;
+  }
+  .cta-actions{display:flex;flex-wrap:wrap;align-items:center;gap:9px}
+  .cta-action{
+    display:inline-flex;min-height:36px;align-items:center;justify-content:center;
+    gap:8px;padding:8px 13px;border:1px solid transparent;border-radius:8px;
+    font:700 11px/1.2 var(--sans);text-decoration:none;white-space:nowrap;
+    transition:transform .16s ease,box-shadow .16s ease,background .16s ease;
+  }
+  .cta-action:hover{transform:translateY(-1px)}
+  .cta-action:focus-visible{outline:3px solid rgba(255,255,255,.72);outline-offset:3px}
+  .cta-action svg{width:13px;height:13px;flex:0 0 13px}
+  .cta-action--primary{background:#fff;color:#7952f5;box-shadow:0 5px 14px rgba(83,55,164,.17)}
+  .cta-action--primary:hover{background:#f8f4ff;box-shadow:0 8px 18px rgba(83,55,164,.24)}
+  .cta-action--secondary{
+    border-color:rgba(255,255,255,.24);background:rgba(255,255,255,.12);
+    color:#fff;
+  }
+  .cta-action--secondary:hover{background:rgba(255,255,255,.2)}
+  .cta-shield{
+    display:grid;place-items:center;width:66px;height:76px;justify-self:end;
+    color:rgba(255,255,255,.34);
+  }
+  .cta-shield svg{width:62px;height:68px}
+  @media(max-width:680px){
+    .get-started-cta{
+      grid-template-columns:46px minmax(0,1fr);gap:14px;
+      min-height:0;margin:-4px auto 38px;padding:22px 18px;border-radius:18px;
+    }
+    .cta-icon{width:44px;height:44px;border-radius:13px}
+    .cta-icon svg{width:24px;height:24px}
+    .cta-icon-bolt{width:19px;height:19px}
+    .cta-shield{position:absolute;right:13px;top:10px;width:42px;height:48px;opacity:.55}
+    .cta-shield svg{width:40px;height:44px}
+    .cta-title{max-width:24ch;padding-right:28px;font-size:21px}
+    .cta-description{font-size:11px;margin-bottom:13px}
+    .cta-actions{gap:7px}
+    .cta-action{min-height:34px;padding:7px 10px;font-size:10px}
+  }
+  @media(max-width:390px){
+    .get-started-cta{grid-template-columns:38px minmax(0,1fr);gap:11px;padding:19px 13px}
+    .cta-icon{width:38px;height:38px}
+    .cta-icon svg{width:21px;height:21px}
+    .cta-actions{align-items:stretch;flex-direction:column}
+    .cta-action{width:100%}
+  }
+  @media(prefers-reduced-motion:reduce){
+    .cta-action{transition:none!important}
+    .cta-action:hover{transform:none}
+  }
   /* Screenshot-matched footer */
   .footer{
-    display:block;align-self:center;width:min(100%,800px);max-width:800px;
-    margin-inline:auto;padding:22px 0 28px;
+    display:block;align-self:center;width:min(100%,1160px);max-width:1160px;
+    margin-inline:auto;padding:36px 0 40px;
     border-top:1px solid rgba(43,48,75,.08);font-family:inherit;
   }
   .footer-content{
@@ -1063,11 +1408,11 @@
     filter:drop-shadow(0 3px 4px rgba(104,78,202,.16));
   }
   .footer-brand-name{
-    color:#171c30;font-size:22px;font-weight:800;letter-spacing:-.055em;line-height:1.1;
+    color:#171c30;font-size:28px;font-weight:800;letter-spacing:-.055em;line-height:1.1;
   }
   .footer-brand-name span{color:#8550e8}
   .footer-tagline{
-    margin:6px 0 0;color:#748096;font-size:10px;line-height:1.6;
+    margin:8px 0 0;color:#748096;font-size:13px;line-height:1.6;
   }
   .footer-socials{display:flex;align-items:center;gap:9px;margin:12px 0 0 76px}
   .footer-social{
@@ -1077,10 +1422,10 @@
   .footer-social svg{display:block;width:13px;height:13px}
   .footer-column{display:flex;min-width:0;flex-direction:column;align-items:flex-start;gap:7px}
   .footer-heading{
-    margin:0 0 3px;color:#252c40;font-size:11.5px;font-weight:750;line-height:1.4;
+    margin:0 0 6px;color:#252c40;font-size:14px;font-weight:750;line-height:1.4;
   }
   .footer-link{
-    color:#667187;font-size:10px;line-height:1.45;text-decoration:none;
+    color:#667187;font-size:13px;line-height:1.55;text-decoration:none;
     white-space:nowrap;
   }
   a.footer-link:hover{color:#7952f5}
@@ -1137,7 +1482,6 @@
 </script>
 </head>
 <body>
-
   <header class="header">
   <div class="logo" onclick="goHome()">
     <div class="logo-icon">
@@ -1183,7 +1527,6 @@
   </nav>
   <div class="header-spacer"></div>
   <div class="header-badge" id="badge-encrypted">end-to-end encrypted</div>
-
   <!-- Language + Theme grouped together on the right -->
   <div class="header-right-controls">
     <div class="lang-switcher" id="lang-switcher">
@@ -1254,11 +1597,8 @@
     <svg class="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
   </button>
 </div>
-
 </header>
-
 <main class="main">
-
   <!-- Compose View -->
   <div class="view active" id="view-compose">
     <div class="hero-layout" id="home">
@@ -1268,7 +1608,6 @@
           <h1 class="compose-heading" data-i18n="heading">Send a Message That <span class="gradient-text">Disappears</span></h1>
           <p class="compose-sub" data-i18n="sub">Type your message, get a unique single-use link, and share it securely. Once it’s viewed, it self-destructs instantly — no traces left behind.</p>
         </div>
-
         <div class="compose-card" id="compose-card">
           <div class="message-area-wrapper">
             <div class="message-icon" aria-hidden="true">
@@ -1311,7 +1650,6 @@
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
             <span data-i18n="imgSizeWarn">Images are large — the link may be very long. Keep total images under 1 MB for best results.</span>
           </div>
-
           <div id="compose-error" class="inline-error" aria-live="polite"></div>
           <div id="pw-fields" class="password-fields">
             <div class="pw-type-row">
@@ -1335,17 +1673,14 @@
             <p class="pw-hint" id="pw-hint" data-i18n="pwHintPw">Share this password with the recipient separately — do not include it in the message.</p>
           </div>
           <div class="composer-actions">
-
             <div class="options-row" role="radiogroup" aria-label="Expiry options">
               <label class="option-pill"><input type="radio" name="expiry" value="read-once" checked><span data-i18n="expiryAfterRead">After reading</span></label>
             </div>
-
             <button class="btn-primary" id="create-btn" onclick="createLink()">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
               <span data-i18n="createBtn">Create Link</span>
             </button>
           </div>
-
           <div id="result-card" class="result-card" style="display:none" aria-live="polite">
       <div class="result-header">
         <div class="result-icon">
@@ -1383,7 +1718,6 @@
           </div>
         </div>
       </div>
-
       <aside class="hero-art" aria-label="One-time message link preview">
         <div class="soft-orb orb-one"></div>
         <div class="soft-orb orb-two"></div>
@@ -1430,7 +1764,6 @@
         <div class="hero-caption">I saw nothing. I was floating.</div>
       </aside>
     </div>
-
     <div class="hero-trustbar" id="features">
       <div class="trust-item"><span class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span><span><strong>100%</strong><br>Private</span></div>
       <div class="trust-item"><span class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16M4 10h16M4 15h10M4 20h7"/><path d="m17 16 3 3-3 3"/></svg></span><span><strong>Zero</strong><br>Storage</span></div>
@@ -1438,10 +1771,8 @@
       <div class="trust-item"><span class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2 3 14h8l-1 8 11-12h-8l1-8Z"/></svg></span><span><strong>One-Time</strong><br>View</span></div>
     </div>
   </div>
-
   <!-- Reveal View -->
   <div class="view" id="view-reveal">
-
     <!-- Checking state -->
     <!-- <div id="state-checking" class="reveal-outer" style="display:none">
       <div class="reveal-icon-wrap ready">
@@ -1450,7 +1781,6 @@
       <h1 class="reveal-title">Verifying link…</h1>
       <p class="reveal-body">Please wait while we check this link. This only takes a moment.</p>
     </div> -->
-
     <!-- Checking state -->
 <div id="state-checking" class="reveal-outer" style="display:none">
   <div class="clean-verify-card">
@@ -1463,11 +1793,9 @@
       </svg>
     </div>
   </div>
-
   <h1 class="reveal-title">Verifying Link…</h1>
   <p class="reveal-body">Please wait while we check this link. This only takes a moment.</p>
 </div>
-
     <!-- Password gate state -->
     <div id="state-pwgate" class="reveal-outer pw-gate" style="display:none">
       <div class="pw-gate-icon">
@@ -1498,7 +1826,6 @@
         <span data-i18n="unlockBtn">Unlock message</span>
       </button>
     </div>
-
     <!-- Ready state -->
     <div id="state-ready" class="reveal-outer" style="display:none">
       <div class="reveal-icon-wrap ready">
@@ -1515,11 +1842,9 @@
         <span data-i18n="openWarning">This action cannot be undone. The link will expire immediately.</span>
       </div>
     </div>
-
     <!-- Decrypted state -->
     <div id="state-decrypted" class="reveal-outer" style="display:none">
       <div class="message-display" role="region" aria-label="Decrypted message">
-
         <div class="msg-header">
           <div class="msg-header-left"><span class="msg-live-dot"></span>secure message — opened once</div>
         </div>
@@ -1542,7 +1867,6 @@
         Send your own message
       </button>
     </div>
-
     <!-- Burned state -->
     <div id="state-burned" class="reveal-outer" style="display:none">
       <div class="reveal-icon-wrap burned">
@@ -1555,7 +1879,6 @@
         <span data-i18n="sendNew">Send a new message</span>
       </button>
     </div>
-
     <!-- Invalid state -->
     <div id="state-invalid" class="reveal-outer" style="display:none">
       <div class="reveal-icon-wrap" style="border-color:rgba(88,96,105,0.4)">
@@ -1568,7 +1891,6 @@
         <span data-i18n="goHomeBtn">Go home</span>
       </button>
     </div>
-
     <!-- Expired state -->
     <div id="state-expired" class="reveal-outer" style="display:none">
       <div class="reveal-icon-wrap expired">
@@ -1581,7 +1903,6 @@
         <span data-i18n="goHomeBtn">Go home</span>
       </button>
     </div>
-
     <!-- DB Error state -->
     <div id="state-dberror" class="reveal-outer" style="display:none">
       <div class="reveal-icon-wrap" style="border-color:rgba(210,153,34,0.3);background:var(--amber-bg)">
@@ -1595,9 +1916,97 @@
         <span data-i18n="retryBtn">Retry</span>
       </button>
     </div>
-
   </div>
 </main>
+
+<section class="feat-section" id="features">
+  <p class="feat-section-label">Why GhostLink</p>
+  <h2 class="feat-section-title">Built for privacy, <span>by design.</span></h2>
+  <p class="feat-section-sub">Not an afterthought — every feature exists to make sure your message reaches only who you intended, then disappears.</p>
+  <div class="feat-grid">
+
+    <!-- Card 1: Compose & encrypt -->
+    <div class="feat-card">
+      <div class="feat-card-visual">
+        <div class="fv-msg">
+          <div class="fv-msg-top">
+            <span class="fv-dot" style="background:#ff6b6b"></span>
+            <span class="fv-dot" style="background:#ffd06b"></span>
+            <span class="fv-dot" style="background:#6bffb8"></span>
+            <span class="fv-msg-label" style="margin-left:4px">New message</span>
+          </div>
+          <div class="fv-msg-text">Meet me at 10:30. Don't tell anyone about this.</div>
+          <div class="fv-msg-footer">
+            <span class="fv-chip fv-chip--purple">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg>
+              Encrypted
+            </span>
+            <span class="fv-send">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              Send
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="feat-card-body">
+        <div class="feat-card-num">01</div>
+        <div class="feat-card-title">Encrypted in your browser</div>
+        <div class="feat-card-desc">Your message is locked with AES-GCM before it ever leaves your device. Our servers only receive ciphertext they cannot read.</div>
+        <div class="feat-card-tags">
+          <span class="feat-tag">AES-GCM</span>
+          <span class="feat-tag">Zero-knowledge</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: One-time link -->
+    <div class="feat-card">
+      <div class="feat-card-visual">
+        <div class="fv-lock-ring">
+          <div class="fv-lock">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.9"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/><path d="M12 14v3"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="feat-card-body">
+        <div class="feat-card-num">02</div>
+        <div class="feat-card-title">One link. One read. Gone.</div>
+        <div class="feat-card-desc">The link is permanently disabled the moment it's opened. No re-reads, no history, no second chances — for anyone.</div>
+        <div class="feat-card-tags">
+          <span class="feat-tag">Burn-on-read</span>
+          <span class="feat-tag">Race-proof</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3: Privacy -->
+    <div class="feat-card">
+      <div class="feat-card-visual">
+        <div class="fv-burn-wrap">
+          <div class="fv-burn-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+          </div>
+          <div class="fv-burn-line" style="width:110px"></div>
+          <div class="fv-burn-line" style="width:75px"></div>
+          <div class="fv-burn-badge">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+            Permanently deleted
+          </div>
+        </div>
+      </div>
+      <div class="feat-card-body">
+        <div class="feat-card-num">03</div>
+        <div class="feat-card-title">No accounts. No tracking.</div>
+        <div class="feat-card-desc">No sign-up, no cookies, no logs. After the message is read, nothing remains — not on our servers, not anywhere.</div>
+        <div class="feat-card-tags">
+          <span class="feat-tag">No account</span>
+          <span class="feat-tag">No logs</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
 
 <section class="how-section" id="how-section">
   <p class="how-section-title" data-i18n="howTitle">How it works</p>
@@ -1639,7 +2048,6 @@
     </div>
   </div>
 </section>
-
 <section class="faq-section" id="faq" aria-labelledby="faq-title">
   <p class="faq-kicker">FAQ</p>
   <h2 class="faq-title" id="faq-title">Got <span>Questions?</span></h2>
@@ -1669,263 +2077,85 @@
     </div>
   </div>
 </section>
-
-<!-- ══════════════════════════════════════════════
-     BEFORE / AFTER COMPARISON SLIDER SECTION
-     Placed directly below the FAQ section
-════════════════════════════════════════════════ -->
-<style>
-  /* ── Slider section ── */
-  .slider-section{
-    width:100%;max-width:560px;margin:0 auto 44px;padding:0;
-  }
-  .slider-kicker{
-    display:flex;align-items:center;justify-content:center;gap:10px;
-    margin:0 0 5px;color:#7651df;font-size:8.5px;font-weight:800;
-    letter-spacing:.12em;text-transform:uppercase;
-  }
-  .slider-kicker::before,.slider-kicker::after{
-    content:"";width:22px;height:1px;background:#c5b8f7;
-  }
-  .slider-heading{
-    margin:0 0 4px;text-align:center;color:#171c30;
-    font-size:clamp(18px,2.5vw,21px);font-weight:800;line-height:1.15;
-    letter-spacing:-.04em;
-  }
-  .slider-subtitle{
-    max-width:44ch;margin:0 auto 14px;text-align:center;
-    color:#788196;font-size:11px;line-height:1.5;
-  }
-  /* The wrapper that holds the two panels */
-  .gl-slider-wrap{
-    position:relative;width:100%;border-radius:14px;overflow:hidden;
-    border:1px solid rgba(74,91,145,.13);
-    box-shadow:0 8px 24px rgba(71,77,131,.10);
-    cursor:ew-resize;user-select:none;
-    aspect-ratio:16/6;
-    background:#f0edff;
-  }
-  /* ── BEFORE panel (plain light, left side) ── */
-  .gl-before-panel{
-    position:absolute;inset:0;
-    background:linear-gradient(135deg,#f7f8ff 0%,#edeaff 100%);
-    display:flex;align-items:center;justify-content:center;
-    flex-direction:column;gap:7px;
-  }
-  .gl-before-icon{
-    width:38px;height:38px;background:rgba(255,255,255,.7);
-    border:1px solid rgba(121,82,245,.18);border-radius:10px;
-    display:flex;align-items:center;justify-content:center;color:#8054e9;
-    box-shadow:0 3px 8px rgba(121,82,245,.1);
-  }
-  .gl-before-icon svg{width:19px;height:19px}
-  .gl-before-label{
-    font-size:9.5px;font-weight:700;letter-spacing:.04em;color:#a397c6;
-    background:rgba(255,255,255,.75);border:1px solid rgba(121,82,245,.12);
-    border-radius:99px;padding:2px 9px;
-  }
-  .gl-before-msg{
-    max-width:155px;text-align:center;background:rgba(255,255,255,.88);
-    border:1px solid rgba(74,91,145,.13);border-radius:9px;
-    padding:8px 12px;font-size:10px;color:#283149;line-height:1.5;
-    font-family:ui-monospace,monospace;box-shadow:0 3px 8px rgba(71,77,131,.07);
-    letter-spacing:.01em;
-  }
-  /* ── AFTER panel (encrypted / secure look, right side) ── */
-  .gl-after-panel{
-    position:absolute;inset:0;
-    background:linear-gradient(135deg,#1a1040 0%,#2b1f68 60%,#3a1d7a 100%);
-    clip-path:inset(0 0 0 50%);
-    display:flex;align-items:center;justify-content:center;
-    flex-direction:column;gap:7px;
-    transition:clip-path 0.06s linear;
-  }
-  .gl-after-icon{
-    width:38px;height:38px;background:rgba(110,118,229,.18);
-    border:1px solid rgba(110,118,229,.45);border-radius:10px;
-    display:flex;align-items:center;justify-content:center;color:#a48fff;
-    box-shadow:0 3px 8px rgba(110,118,229,.25);
-  }
-  .gl-after-icon svg{width:19px;height:19px}
-  .gl-after-label{
-    font-size:9.5px;font-weight:700;letter-spacing:.04em;color:#9e8ddc;
-    background:rgba(110,118,229,.15);border:1px solid rgba(110,118,229,.3);
-    border-radius:99px;padding:2px 9px;
-  }
-  .gl-after-msg{
-    max-width:155px;text-align:center;background:rgba(255,255,255,.06);
-    border:1px solid rgba(110,118,229,.3);border-radius:9px;
-    padding:8px 12px;font-size:10px;color:rgba(255,255,255,.65);
-    line-height:1.5;font-family:ui-monospace,monospace;
-    box-shadow:0 3px 10px rgba(0,0,0,.25);
-    filter:blur(3px);letter-spacing:.01em;
-  }
-  /* corner badges */
-  .gl-badge{
-    position:absolute;top:10px;padding:3px 9px;font-size:9px;
-    font-weight:700;letter-spacing:.05em;border-radius:99px;
-    border:1px solid;pointer-events:none;
-  }
-  .gl-badge-before{
-    left:10px;color:#7952f5;background:rgba(255,255,255,.85);
-    border-color:rgba(121,82,245,.22);
-  }
-  .gl-badge-after{
-    right:10px;color:#c4b5fd;background:rgba(110,118,229,.22);
-    border-color:rgba(161,138,255,.3);
-  }
-  /* The draggable divider handle */
-  .gl-handle{
-    position:absolute;top:0;bottom:0;left:50%;
-    width:2px;background:linear-gradient(180deg,#7952f5,#a647df);
-    transform:translateX(-50%);pointer-events:none;
-    box-shadow:0 0 8px rgba(121,82,245,.5);
-  }
-  .gl-handle-knob{
-    position:absolute;top:50%;left:50%;
-    transform:translate(-50%,-50%);
-    width:30px;height:30px;border-radius:50%;
-    background:#fff;border:2px solid #7952f5;
-    box-shadow:0 2px 8px rgba(121,82,245,.35),0 0 0 3px rgba(121,82,245,.12);
-    display:flex;align-items:center;justify-content:center;
-    color:#7952f5;
-  }
-  .gl-handle-knob svg{width:13px;height:13px}
-  /* Hint text below slider */
-  .gl-slider-hint{
-    margin-top:8px;text-align:center;font-size:10.5px;
-    color:#9aa4b5;display:flex;align-items:center;justify-content:center;gap:5px;
-  }
-  .gl-slider-hint svg{width:12px;height:12px;flex-shrink:0}
-  /* Dark mode */
-  html[data-theme="dark"] .slider-kicker{
-    color:#cbbcff;
-  }
-  html[data-theme="dark"] .slider-kicker::before,
-  html[data-theme="dark"] .slider-kicker::after{background:rgba(177,151,255,.3)}
-  html[data-theme="dark"] .slider-heading{color:var(--text)}
-  html[data-theme="dark"] .slider-subtitle{color:var(--text-dim)}
-  html[data-theme="dark"] .gl-slider-wrap{
-    border-color:rgba(197,205,225,.13);
-    box-shadow:0 8px 24px rgba(0,0,0,.28);
-  }
-  html[data-theme="dark"] .gl-before-panel{
-    background:linear-gradient(135deg,#151b26 0%,#1b2332 100%);
-  }
-  html[data-theme="dark"] .gl-before-icon{
-    background:rgba(27,35,50,.88);border-color:rgba(161,138,255,.25);color:#b69cff;
-  }
-  html[data-theme="dark"] .gl-before-label{
-    color:#9e91d0;background:rgba(27,35,50,.7);border-color:rgba(161,138,255,.15);
-  }
-  html[data-theme="dark"] .gl-before-msg{
-    background:rgba(21,27,38,.88);border-color:var(--border);color:var(--text-dim);
-  }
-  html[data-theme="dark"] .gl-badge-before{
-    color:#cbbcff;background:rgba(21,27,38,.88);border-color:rgba(177,151,255,.2);
-  }
-  html[data-theme="dark"] .gl-slider-hint{color:var(--text-muted)}
-  @media(max-width:680px){
-    .gl-before-msg,.gl-after-msg{font-size:9px;padding:6px 10px;max-width:120px}
-    .gl-before-icon,.gl-after-icon{width:30px;height:30px;border-radius:8px}
-    .gl-before-icon svg,.gl-after-icon svg{width:15px;height:15px}
-    .gl-badge{font-size:8.5px;padding:2px 7px;top:8px}
-    .gl-badge-before{left:8px}
-    .gl-badge-after{right:8px}
-    .gl-handle-knob{width:26px;height:26px}
-    .gl-handle-knob svg{width:11px;height:11px}
-    .slider-section{margin-bottom:36px}
-  }
-  @media(prefers-reduced-motion:reduce){
-    .gl-after-panel{transition:none!important}
-  }
-</style>
-
-<section class="slider-section" id="comparison" aria-label="Before and after encryption comparison">
-  <p class="slider-kicker">See the Difference</p>
-  <h2 class="slider-heading">Encryption in Action</h2>
-  <p class="slider-subtitle">Drag the handle to compare your original message with how it looks after GhostLink encrypts it.</p>
-
-  <div class="gl-slider-wrap" id="gl-slider-wrap" role="img" aria-label="Before/after slider showing message before and after encryption">
-    <!-- BEFORE: readable message -->
-    <div class="gl-before-panel" aria-hidden="true">
-      <div class="gl-before-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+<section class="message-comparison" id="message-comparison" aria-labelledby="message-comparison-title">
+  <p class="message-comparison-kicker">One-time privacy</p>
+  <h2 class="message-comparison-title" id="message-comparison-title">From locked to <span>gone.</span></h2>
+  <p class="message-comparison-subtitle">Drag the slider to see what happens before and after someone opens a GhostLink message.</p>
+  <div class="comparison-frame" id="message-comparison-frame">
+    <div class="comparison-panel comparison-panel--locked">
+      <div class="comparison-demo-card">
+        <div class="comparison-card-top">
+          <span class="comparison-state"><span class="comparison-state-dot"></span>Encrypted · unopened</span>
+          <span class="comparison-lock-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/><path d="M12 14v3"/></svg>
+          </span>
+        </div>
+        <h3 class="comparison-demo-title">Your message stays private</h3>
+        <p class="comparison-demo-copy">It is encrypted in your browser before the link is shared.</p>
+        <div class="comparison-private-message comparison-private-message--blurred">Meet me at 10:30. I’ll send the details privately.</div>
+        <div class="comparison-demo-foot">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 22 1.5-.7C18.4 19 21 15.4 21 10V5l-9-3-9 3v5c0 5.4 2.6 9 7.5 11.3L12 22Z"/><path d="m9 12 2 2 4-4"/></svg>
+          Only the recipient can read it
+        </div>
       </div>
-      <div class="gl-before-msg">Hey! Here are the login details:<br>user: admin<br>pass: hunter2</div>
-      <div class="gl-before-label">PLAIN TEXT</div>
     </div>
-
-    <!-- AFTER: encrypted -->
-    <div class="gl-after-panel" id="gl-after-panel" aria-hidden="true">
-      <div class="gl-after-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    <div class="comparison-panel comparison-panel--opened" id="message-comparison-opened">
+      <div class="comparison-demo-card">
+        <div class="comparison-card-top">
+          <span class="comparison-state comparison-state--opened"><span class="comparison-state-dot"></span>Opened · one time</span>
+          <span class="comparison-lock-icon comparison-lock-icon--opened">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9.5 18 20 6"/><path d="M12 22a10 10 0 1 0-10-10"/></svg>
+          </span>
+        </div>
+        <h3 class="comparison-demo-title">Read once, then it’s gone</h3>
+        <p class="comparison-demo-copy">The recipient sees the message, then the link is permanently disabled.</p>
+        <div class="comparison-private-message">Meet me at 10:30. I’ll send the details privately.</div>
+        <div class="comparison-demo-foot comparison-demo-foot--burned">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l16 16M9.9 5.2A10.9 10.9 0 0 1 12 5c5 0 8.3 4.6 9 6-.3.7-1.2 2-2.7 3.2M6.2 6.2C3.9 7.7 2.5 10 2 11c.7 1.4 4 6 10 6 1 0 1.9-.2 2.7-.5"/></svg>
+          This one-time link can’t be opened again
+        </div>
       </div>
-      <div class="gl-after-msg">AxGl3b/kZ9mQpT2…<br>Yr7nW+sF0vXcJeK1<br>==AES-256-GCM==</div>
-      <div class="gl-after-label">AES-256 ENCRYPTED</div>
     </div>
-
-    <!-- Corner badges -->
-    <span class="gl-badge gl-badge-before" aria-hidden="true">Before</span>
-    <span class="gl-badge gl-badge-after" aria-hidden="true">After</span>
-
-    <!-- Divider handle -->
-    <div class="gl-handle" id="gl-handle" aria-hidden="true">
-      <div class="gl-handle-knob">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12H3M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg>
-      </div>
+    <div class="comparison-divider" id="message-comparison-divider" aria-hidden="true">
+      <span class="comparison-divider-knob">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M3 12h18"/></svg>
+      </span>
+    </div>
+    <input class="comparison-range" id="message-comparison-range" type="range" min="0" max="100" value="50" aria-label="Compare the encrypted message with the opened message" aria-valuetext="50 percent">
+  </div>
+  <p class="comparison-instruction">Drag the handle, or focus the slider and use the arrow keys.</p>
+</section>
+<section class="get-started-cta" id="get-started-cta" aria-labelledby="cta-title">
+  <div class="cta-icon" aria-hidden="true">
+    <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="5" y="5" width="22" height="22" rx="5"/>
+      <path d="M8 10h16M9 15h14M9 20h9"/>
+    </svg>
+    <span class="cta-icon-bolt">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M9.2 1.5 3.8 8h3.7l-.7 6.5L12.2 8H8.5l.7-6.5Z"/></svg>
+    </span>
+  </div>
+  <div class="cta-copy">
+    <h2 class="cta-title" id="cta-title">Ready to send something private?</h2>
+    <p class="cta-description">Create a one-time link in seconds. No account needed—once it’s opened, it can’t be used again.</p>
+    <div class="cta-actions">
+      <a class="cta-action cta-action--primary" href="#compose-card" onclick="document.getElementById('compose-card').scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('msg-input').focus({preventScroll:true});return false">
+        Create a secure link
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h9M8 4l4 4-4 4"/></svg>
+      </a>
+      <a class="cta-action cta-action--secondary" href="#how-section" onclick="document.getElementById('how-section').scrollIntoView({behavior:'smooth'});return false">
+        How it works
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h9M8 4l4 4-4 4"/></svg>
+      </a>
     </div>
   </div>
-
-  <p class="gl-slider-hint">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-    Drag the handle left or right to reveal the difference
-  </p>
+  <div class="cta-shield" aria-hidden="true">
+    <svg viewBox="0 0 64 72" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M32 5 54 14v17c0 15-9 26-22 34C19 57 10 46 10 31V14L32 5Z"/>
+      <path d="m22 34 7 7 14-15"/>
+    </svg>
+  </div>
 </section>
-
-<script>
-(function() {
-  var wrap = document.getElementById('gl-slider-wrap');
-  var afterPanel = document.getElementById('gl-after-panel');
-  var handle = document.getElementById('gl-handle');
-  if (!wrap || !afterPanel || !handle) return;
-
-  function moveSlider(clientX) {
-    var rect = wrap.getBoundingClientRect();
-    var pct = Math.max(0, Math.min(100, (clientX - rect.left) / rect.width * 100));
-    afterPanel.style.clipPath = 'inset(0 0 0 ' + pct + '%)';
-    handle.style.left = pct + '%';
-  }
-
-  // Mouse drag
-  var dragging = false;
-  wrap.addEventListener('mousedown', function(e) {
-    dragging = true;
-    moveSlider(e.clientX);
-    e.preventDefault();
-  });
-  document.addEventListener('mousemove', function(e) {
-    if (dragging) moveSlider(e.clientX);
-  });
-  document.addEventListener('mouseup', function() { dragging = false; });
-
-  // Touch
-  wrap.addEventListener('touchstart', function(e) {
-    if (e.touches[0]) moveSlider(e.touches[0].clientX);
-    e.preventDefault();
-  }, {passive: false});
-  wrap.addEventListener('touchmove', function(e) {
-    if (e.touches[0]) moveSlider(e.touches[0].clientX);
-    e.preventDefault();
-  }, {passive: false});
-
-  // Hover-only tracking (no press needed)
-  wrap.addEventListener('mousemove', function(e) {
-    if (!dragging) moveSlider(e.clientX);
-  });
-})();
-</script>
-
 <footer class="footer">
   <div class="footer-content">
     <div class="footer-brand">
@@ -1979,12 +2209,10 @@
     </div>
   </div>
 </footer>
-
 <script>
 // lang-switcher stays in the header alongside the theme toggle
 const themeToggle = document.getElementById('theme-toggle');
 const themeColorMeta = document.getElementById('theme-color-meta');
-
 function setGhostLinkTheme(theme, persist = false) {
   const activeTheme = theme === 'dark' ? 'dark' : 'light';
   const isDark = activeTheme === 'dark';
@@ -2000,7 +2228,6 @@ function setGhostLinkTheme(theme, persist = false) {
     try { localStorage.setItem('ghostlink-theme', activeTheme); } catch {}
   }
 }
-
 if (themeToggle) {
   setGhostLinkTheme(document.documentElement.dataset.theme, false);
   themeToggle.addEventListener('click', () => {
@@ -2008,7 +2235,6 @@ if (themeToggle) {
     setGhostLinkTheme(nextTheme, true);
   });
 }
-
 // Friendly logo ghost: hop and smile whenever the user clicks it.
 const brandGhost = document.querySelector('.logo-ghost');
 const brandLogo = document.querySelector('.logo');
@@ -2032,7 +2258,6 @@ if (brandGhost && brandLogo) {
   // Give the mascot a friendly one-time hello when the page first opens.
   window.setTimeout(greetGhost, 900);
 }
-
 // ═══════════════════════════════════════════════
 //  SUPABASE CONFIG
 //
@@ -2050,21 +2275,17 @@ if (brandGhost && brandLogo) {
 //  or publishing the file.
 // ═══════════════════════════════════════════════
 const SUPABASE_URL = 'https://mcjrockqqwgdzpruyyph.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_GK_LjZa5ocjQ3HviIGiJbw_YveHEJn-';
-
+const SUPABASE_KEY = 'YOUR_SUPABASE_PUBLISHABLE_KEY';
 function _sbHeaders(extra = {}) {
   const h = { 'Content-Type': 'application/json', ...extra };
   h['apikey'] = SUPABASE_KEY;
   h['Authorization'] = `Bearer ${SUPABASE_KEY}`;
   return h;
 }
-
 const TABLE = 'burns';  // table name in your Supabase database
-
 // ═══════════════════════════════════════════════
 //  SUPABASE HELPERS  (direct REST API — no SDK needed)
 // ═══════════════════════════════════════════════
-
 // Upload encrypted image bytes to Supabase Storage bucket "ghostlink-images"
 // Returns the file path (= imgRef) stored in the URL fragment
 async function sbUploadImages(imgRef, encryptedBytes) {
@@ -2079,7 +2300,6 @@ async function sbUploadImages(imgRef, encryptedBytes) {
   if (!res.ok) throw new Error('img_upload_failed');
   return imgRef;
 }
-
 // Download encrypted image bytes from Supabase Storage
 async function sbDownloadImages(imgRef) {
   const res = await fetch(
@@ -2096,7 +2316,6 @@ async function sbDeleteImages(imgRef) {
   );
   if (!res.ok && res.status !== 404) throw new Error('img_delete_failed');
 }
-
 async function sbGet(burnId) {
   const res = await fetch(
     `${SUPABASE_URL}/rest/v1/${TABLE}?burn_id=eq.${encodeURIComponent(burnId)}&select=burn_id`,
@@ -2106,7 +2325,6 @@ async function sbGet(burnId) {
   const rows = await res.json();
   return rows.length > 0; // true = already burned
 }
-
 async function sbSet(burnId) {
   // We use "resolution=ignore-duplicates" so Supabase issues an
   // INSERT … ON CONFLICT DO NOTHING internally.
@@ -2122,7 +2340,6 @@ async function sbSet(burnId) {
       body: JSON.stringify({ burn_id: burnId, burned_at: new Date().toISOString() })
     }
   );
-
   if (res.status === 201) {
     // We won the race — row is freshly inserted.
     return true;
@@ -2134,11 +2351,9 @@ async function sbSet(burnId) {
   }
   throw new Error('db_write_failed');
 }
-
 // ── Password attempt tracking (stored in Supabase table: pw_attempts) ──
 // Schema: burn_id text PK, attempts int default 0
 // RLS: insert/update/select with anon key (same policy as burns table)
-
 async function sbGetAttempts(burnId) {
   const res = await fetch(
     `${SUPABASE_URL}/rest/v1/pw_attempts?burn_id=eq.${encodeURIComponent(burnId)}&select=attempts`,
@@ -2148,7 +2363,6 @@ async function sbGetAttempts(burnId) {
   const rows = await res.json();
   return rows.length > 0 ? rows[0].attempts : 0;
 }
-
 async function sbIncrementAttempt(burnId) {
   // ── Preferred path: call a Postgres function that does an atomic
   //    INSERT … ON CONFLICT DO UPDATE attempts = attempts + 1
@@ -2178,7 +2392,6 @@ async function sbIncrementAttempt(burnId) {
       if (typeof count === 'number') return count;
     }
   } catch(e) { /* fall through */ }
-
   // ── Fallback: INSERT first (handles the no-row case atomically),
   //    then PATCH only if the row already existed (status 409 / 200).
   //    This is still slightly racy under extreme concurrency, but the RPC
@@ -2208,7 +2421,6 @@ async function sbIncrementAttempt(burnId) {
   );
   return next;
 }
-
 async function sbDeleteAttempts(burnId) {
   // Clean up attempt row when link is burned (success or exhausted)
   await fetch(
@@ -2216,7 +2428,6 @@ async function sbDeleteAttempts(burnId) {
     { method: 'DELETE', headers: _sbHeaders() }
   );
 }
-
 // Derive a stable, short burn_id from the fragment
 async function sbRpc(name, args) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`, {
@@ -2248,17 +2459,14 @@ async function sbAtomicIncrementAttempt(msgId) {
 async function sbDeleteMessage(msgId) {
   return sbRpc('gl_delete_message', { p_msg_id: msgId });
 }
-
 function getBurnId(fragmentRaw) {
   // Use first 64 chars — unique per link, safe for DB primary key
   return fragmentRaw.substring(0, 64).replace(/[^a-zA-Z0-9_-]/g, 'X');
 }
-
 // ═══════════════════════════════════════════════
 //  CRYPTO HELPERS  (unchanged from original)
 // ═══════════════════════════════════════════════
 const VERSION = 'gl1';
-
 function bytesToBase64url(bytes) {
   let b = '';
   for (let i = 0; i < bytes.length; i++) b += String.fromCharCode(bytes[i]);
@@ -2325,7 +2533,6 @@ function isExpired(parsed) {
   if (parsed.expiryMode === '24h' && age > 86400) return true;
   return false;
 }
-
 // ═══════════════════════════════════════════════
 //  UI HELPERS
 // ═══════════════════════════════════════════════
@@ -2338,12 +2545,10 @@ const resultLinkDisplay = document.getElementById('result-link-display');
 const composeError = document.getElementById('compose-error');
 let generatedLink = '';
 let currentFragRaw = '';
-
 function restoreCreateButton() {
   createBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> <span data-i18n="createBtn">${t('createBtn')}</span>`;
   createBtn.disabled = false;
 }
-
 // ═══════════════════════════════════════════════
 //  IMAGE ATTACHMENTS
 // ═══════════════════════════════════════════════
@@ -2351,7 +2556,6 @@ let attachedImages = []; // [{name, dataUrl, size}]
 const MAX_IMG_DIMENSION = 1280; // px — resize larger images down
 const IMG_QUALITY = 0.75;       // JPEG quality for compression
 const WARN_TOTAL_BYTES = 5_000_000; // warn above 5 MB total
-
 // Wire up button → file input → handler
 const imgFileInput = document.getElementById('img-file-input');
 document.getElementById('img-attach-btn').addEventListener('click', () => {
@@ -2361,7 +2565,6 @@ document.getElementById('img-attach-btn').addEventListener('click', () => {
 imgFileInput.addEventListener('change', function() {
   if (this.files && this.files.length > 0) handleImageFiles(this.files);
 });
-
 // Compress + resize an image file → returns a data URL (JPEG)
 function compressImage(file) {
   return new Promise((resolve) => {
@@ -2391,35 +2594,28 @@ function compressImage(file) {
     reader.readAsDataURL(file);
   });
 }
-
 async function handleImageFiles(files) {
   const toProcess = Array.from(files).filter(f => f.type.startsWith('image/'));
   if (toProcess.length === 0) return;
-
   // Show loading state on button
   const btn = document.getElementById('img-attach-btn');
   const origHTML = btn.innerHTML;
   btn.disabled = true;
   btn.innerHTML = `<div class="spinner" style="width:12px;height:12px;border-width:2px"></div> Processing…`;
-
   // Compress all selected images in parallel
   const results = await Promise.all(toProcess.map(file =>
     compressImage(file).then(({ dataUrl, size }) => ({ name: file.name, dataUrl, size }))
   ));
-
   attachedImages.push(...results);
   renderImagePreviews();
-
   btn.disabled = false;
   btn.innerHTML = origHTML;
 }
-
 function renderImagePreviews() {
   const strip = document.getElementById('img-preview-strip');
   const countLabel = document.getElementById('img-count-label');
   const warn = document.getElementById('img-size-warn');
   const btn = document.getElementById('img-attach-btn');
-
   strip.innerHTML = '';
   attachedImages.forEach((img, i) => {
     const wrap = document.createElement('div');
@@ -2440,7 +2636,6 @@ function renderImagePreviews() {
     wrap.appendChild(rm);
     strip.appendChild(wrap);
   });
-
   // Counter label — shown below strip as a pill badge
   if (attachedImages.length > 0) {
     countLabel.style.display = 'flex';
@@ -2449,28 +2644,23 @@ function renderImagePreviews() {
   } else {
     countLabel.style.display = 'none';
   }
-
   btn.disabled = false;
   btn.style.opacity = '';
   btn.style.cursor = '';
-
   // Size warning (based on actual compressed sizes)
   const totalBytes = attachedImages.reduce((s, img) => s + img.size, 0);
   warn.style.display = totalBytes > WARN_TOTAL_BYTES ? 'flex' : 'none';
 }
-
 msgInput.addEventListener('input', () => {
   const len = msgInput.value.length;
   charCount.textContent = len.toLocaleString();
   charCount.className = 'char-count';
   if (composeError.textContent) composeError.textContent = '';
 });
-
 expirySelect.addEventListener('change', () => {
   const selected = document.querySelector(`input[name="expiry"][value="${expirySelect.value}"]`);
   if (selected) selected.checked = true;
 });
-
 async function createLink() {
   const text = msgInput.value.trim();
   if (!text) {
@@ -2532,7 +2722,6 @@ async function createLink() {
     composeError.textContent = /image|storage/i.test(String(err)) ? 'Could not upload the encrypted image. Check your Supabase Storage bucket and permissions, then try again.' : 'Could not create the secure link. Check your Supabase connection and SQL setup, then try again.';
   } finally { restoreCreateButton(); }
 }
-
 async function copyLink() {
   if (!generatedLink) return;
   try {
@@ -2546,7 +2735,6 @@ async function copyLink() {
     }, 2500);
   } catch { window.prompt('Copy this link:', generatedLink); }
 }
-
 function resetCompose() {
   msgInput.value = '';
   charCount.textContent = '0'; charCount.className = 'char-count';
@@ -2569,7 +2757,6 @@ function resetCompose() {
   setPwType('password');
   msgInput.focus();
 }
-
 // ═══════════════════════════════════════════════
 //  REVEAL  (server-side burn check + write)
 // ═══════════════════════════════════════════════
@@ -2578,51 +2765,45 @@ async function revealMessage() {
   pendingParsed = null;
   await proceedReveal();
 }
-
 function showState(name) {
   ['checking','ready','pwgate','decrypted','burned','invalid','expired','dberror'].forEach(s => {
     const el = document.getElementById('state-' + s);
     if (el) el.style.display = s === name ? 'flex' : 'none';
   });
 }
-
 function goHome() {
   window.history.replaceState(null, '', window.location.pathname);
   document.getElementById('view-compose').classList.add('active');
   document.getElementById('view-reveal').classList.remove('active');
   document.getElementById('how-section').style.display = 'block';
   document.getElementById('faq').style.display = 'block';
+  document.getElementById('message-comparison').style.display = 'block';
+  document.getElementById('get-started-cta').style.display = 'grid';
   document.querySelector('.top-nav').style.display = '';
   resetCompose();
   resetMessagePlaceholderRotation();
 }
-
 function showAbout() {
   alert(t('aboutText'));
 }
-
 async function retryInit() {
   showState('checking');
   await initReveal();
 }
-
 // ═══════════════════════════════════════════════
 //  ANTI-SCREENSHOT
 // ═══════════════════════════════════════════════
 document.addEventListener('contextmenu',(e)=>{ if(document.getElementById('state-decrypted').style.display!=='none') e.preventDefault(); });
-
 // ═══════════════════════════════════════════════
 //  PASSWORD / PIN — COMPOSE SIDE
 // ═══════════════════════════════════════════════
 let pwEnabled = false;
 let pwType = 'password'; // 'password' | 'pin'
-
 function togglePasswordSection(event) {
   const box = document.getElementById('pw-toggle-box');
   const fields = document.getElementById('pw-fields');
   const panelOpen = fields.classList.contains('visible');
   const clickedCheckbox = event && event.target.closest('.password-toggle-box');
-
   // With protection already enabled, clicking the label reopens its editor.
   // Clicking the checked box itself still turns protection off.
   if (pwEnabled && !panelOpen && !clickedCheckbox) {
@@ -2630,7 +2811,6 @@ function togglePasswordSection(event) {
     setTimeout(() => document.getElementById(pwType === 'pin' ? 'pin-0' : 'pw-password-input').focus(), 50);
     return;
   }
-
   pwEnabled = !pwEnabled;
   box.classList.toggle('checked', pwEnabled);
   fields.classList.toggle('visible', pwEnabled);
@@ -2649,7 +2829,6 @@ function togglePasswordSection(event) {
     if (lbl) { lbl.style.color = ''; lbl.style.fontWeight = ''; lbl.removeAttribute('data-pw-set'); }
   }
 }
-
 // Auto-collapse password panel when user finishes entering password/PIN
 function collapsePwPanelIfFilled() {
   if (!pwEnabled) return;
@@ -2668,7 +2847,6 @@ function collapsePwPanelIfFilled() {
     if (box) box.classList.add('checked');
   }
 }
-
 // Collapse password panel only when focus truly leaves the entire panel
 document.addEventListener('DOMContentLoaded', function() {
   const panel = document.getElementById('pw-fields');
@@ -2691,11 +2869,9 @@ document.addEventListener('DOMContentLoaded', function() {
   const pin3 = document.getElementById('pin-3');
   if (pin3) pin3.addEventListener('input', () => { if (pin3.value) setTimeout(collapsePwPanelIfFilled, 300); });
 });
-
 function closePasswordPanel() {
   // No-op for inline layout — panel stays open until checkbox is unchecked
 }
-
 function setPwType(type) {
   pwType = type;
   document.getElementById('btn-type-password').classList.toggle('active', type === 'password');
@@ -2706,7 +2882,6 @@ function setPwType(type) {
   if (type === 'pin') document.getElementById('pin-0').focus();
   else document.getElementById('pw-password-input').focus();
 }
-
 function togglePwEye() {
   const inp = document.getElementById('pw-password-input');
   const icon = document.getElementById('pw-eye-icon');
@@ -2718,13 +2893,11 @@ function togglePwEye() {
   // Keep focus on the input so panel doesn't collapse
   requestAnimationFrame(() => inp.focus());
 }
-
 function pinMove(el, idx) {
   const val = el.value.toString().slice(-1);
   el.value = val;
   if (val && idx < 3) document.getElementById('pin-' + (idx+1)).focus();
 }
-
 function getPwValue() {
   if (!pwEnabled) return null;
   if (pwType === 'pin') {
@@ -2734,13 +2907,11 @@ function getPwValue() {
   const v = document.getElementById('pw-password-input').value.trim();
   return v ? 'PW:' + v : null;
 }
-
 async function hashPassword(raw) {
   const enc = new TextEncoder().encode(raw);
   const buf = await crypto.subtle.digest('SHA-256', enc);
   return bytesToBase64url(new Uint8Array(buf));
 }
-
 // ═══════════════════════════════════════════════
 //  PASSWORD / PIN — RECIPIENT SIDE
 //
@@ -2765,7 +2936,6 @@ let pwAttempts = 0;
 const MAX_ATTEMPTS = 5;
 let pendingParsed = null;  // parsed fragment held until password verified
 let pendingKey = null;
-
 function toggleGateEye() {
   const inp = document.getElementById('pw-gate-input');
   const icon = document.getElementById('pw-gate-eye-icon');
@@ -2775,13 +2945,11 @@ function toggleGateEye() {
     ? '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>'
     : '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>';
 }
-
 function gatePinMove(el, idx) {
   const val = el.value.toString().slice(-1);
   el.value = val;
   if (val && idx < 3) document.getElementById('gpin-' + (idx+1)).focus();
 }
-
 function getGatePwValue() {
   if (gateType === 'pin') {
     const digits = [0,1,2,3].map(i => document.getElementById('gpin-'+i).value).join('');
@@ -2789,7 +2957,6 @@ function getGatePwValue() {
   }
   return 'PW:' + document.getElementById('pw-gate-input').value.trim();
 }
-
 async function submitPassword() {
   if (pwAttempts >= MAX_ATTEMPTS) return;
   const raw = getGatePwValue();
@@ -2876,12 +3043,10 @@ async function submitPassword() {
     }
   }
 }
-
 function showGateError(msg) {
   const el = document.getElementById('pw-gate-error');
   el.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg> ${msg}`;
 }
-
 async function showPasswordGate(parsed, type, hash) {
   pendingParsed = parsed;
   gateType = type;
@@ -2927,19 +3092,15 @@ async function showPasswordGate(parsed, type, hash) {
     else document.getElementById('pw-gate-input').focus();
   }, 100);
 }
-
 // ═══════════════════════════════════════════════
 //  INIT  — check server FIRST, then show state
 // ═══════════════════════════════════════════════
 async function initReveal() {
   const fragRaw = window.location.hash.substring(1);
   const parsed = parseFragment(fragRaw);
-
   if (!parsed) { showState('invalid'); return; }
   if (isExpired(parsed)) { showState('expired'); return; }
-
   showState('checking');
-
   try {
     if (parsed.version === VERSION2) {
       const row = await sbFetchMessage(parsed.msgId);
@@ -2957,7 +3118,6 @@ async function initReveal() {
     showState('dberror');
   }
 }
-
 // Called after password is verified (or skipped if no password)
 async function proceedReveal() {
   const parsed = pendingParsed || (() => {
@@ -2967,13 +3127,11 @@ async function proceedReveal() {
   })();
   const fragRaw = currentFragRaw;
   if (!parsed) { showState('invalid'); return; }
-
   const btn = pendingParsed
     ? document.getElementById('pw-submit-btn')
     : document.getElementById('reveal-btn');
   btn.disabled = true;
   btn.innerHTML = `<div class="spinner"></div> ${t('openingMsg')}`;
-
   try {
     let key, plaintext;
     if (parsed.version === VERSION2) {
@@ -3029,6 +3187,8 @@ async function proceedReveal() {
       new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
     showState('decrypted');
     document.getElementById('how-section').style.display = 'none';
+    document.getElementById('message-comparison').style.display = 'none';
+    document.getElementById('get-started-cta').style.display = 'none';
     window.history.replaceState(null, '', window.location.pathname);
     pendingParsed = null;
   } catch(err) {
@@ -3037,7 +3197,6 @@ async function proceedReveal() {
     showState('invalid');
   }
 }
-
 // ═══════════════════════════════════════════════
 //  LANGUAGE / i18n
 // ═══════════════════════════════════════════════
@@ -3899,13 +4058,10 @@ const LANGS = {
   am: {flag:'🇪🇹',label:'AM',dir:'ltr',badge:'እስከ መጨረሻው የተመሰጠረ',newMsg:'አዲስ መልዕክት',heading:'የግል መልዕክት ይላኩ። አንድ ጊዜ ብቻ።',sub:'መልዕክትዎን ይጻፉ እና እኛ ደህንነቱ የተጠበቀ የአንድ ጊዜ ሊንክ እንፈጥራለን። ተቀባዩ አንድ ጊዜ ይከፍተዋል — ከዚያ በኋላ ሊንኩ ለዘላለም መስራት ያቆማል።',sectionLabel:'አዲስ መልዕክት',expiryLabel:'የሊንክ ማብቂያ ጊዜ',expiryAfterRead:'ከተነበበ በኋላ',expiry24h:'ከተነበበ በኋላ ወይም 24 ሰዓታት',expiry1h:'ከተነበበ በኋላ ወይም 1 ሰዓት',pwSectionLabel:'የይለፍ ቃል ጥበቃ',pwToggle:'ለመክፈት የይለፍ ቃል ያስፈልጋል',pwTypePw:'🔑 የይለፍ ቃል',pwTypePin:'🔢 የ 4 አሃዝ PIN',pwPlaceholder:'የይለፍ ቃል ያስገቡ…',pwHintPw:'ይህንን የይለፍ ቃል ለብቻው ያጋሩ — በመልዕክቱ ውስጥ አያካተቱት።',pwHintPin:'ይህንን PIN ለብቻው ያጋሩ — በመልዕክቱ ውስጥ አያካተቱት።',createBtn:'ደህንነቱ የተጠበቀ ሊንክ ፍጠር',pwGateTitle:'የይለፍ ቃል ያስፈልጋል',pwGateBodyPw:'ይህ መልዕክት የተጠበቀ ነው። ለመቀጠል የላኪውን የይለፍ ቃል ያስገቡ።',pwGateBodyPin:'ይህ መልዕክት የተጠበቀ ነው። ለመቀጠል የላኪውን 4 አሃዝ PIN ያስገቡ።',unlockBtn:'መልዕክቱን ክፈት',readyTitle:'የግል መልዕክት አለዎት',readyBody:'አንድ ሰው ደህንነቱ የተጠበቀ መልዕክት ልኮልዎታል። መክፈት የሚችሉት <strong>አንድ ጊዜ ብቻ</strong> ነው።',openBtn:'መልዕክት ክፈት',openWarning:'ይህ እርምጃ ሊመለስ አይችልም።',burnedTitle:'ይህ ሊንክ ቀደም ብሎ ጥቅም ላይ ውሏል',burnedBody:'ይህ መልዕክት ቀደም ብሎ የተከፈተ ሲሆን አሁን አይገኝም።',invalidTitle:'የማይታወቅ ሊንክ',invalidBody:'ይህ ሊንክ ትክክል አይመስልም።',expiredTitle:'የሊንኩ ጊዜ አልፏል',expiredBody:'በላኪው የተዋቀረው የጊዜ ገደብ አልፏል።',dberrorTitle:'ችግር ተፈጥሯል',dberrorBody:'በአሁኑ ጊዜ ሊንኩን ማረጋገጥ አልተቻለም።',decryptedNotice:'ይህ ሊንክ አሁን ለዘላለም ተሰናክሏል።',decryptedBurned:'የሊንኩ ጊዜ ስለአለፈ አሁን ማግኘት አይቻልም።',decryptedMsgHeader:'ደህንነቱ የተጠበቀ መልዕክት — አንድ ጊዜ የተከፈተ',goHome:'የራስዎን መልዕክት ይላኩ',sendNew:'አዲስ መልዕክት ላክ',goHomeBtn:'መነሻ ገጽ',retryBtn:'ድጋሚ ሞክር',footerLeft:'ghostlink · እስከ መጨረሻው የተመሰጠረ',footerNew:'አዲስ መልዕክት',footerAbout:'ስለ',howTitle:'እንዴት እንደሚሰራ',step1n:'01',step1l:'መልዕክትዎን ይጻፉ',step1d:'ሁሉንም ነገር በአሳሽዎ ውስጥ ይቆያል።',step2n:'02',step2l:'በራስ-ሰር የተጠበቀ',step2d:'ከመሳሪያዎ ከመውጣቱ በፊት ይመሰጠራል።',step3n:'03',step3l:'ሊንኩን ያጋሩ',step3d:'ይዘቱ በአገልጋዮቻችን በኩል አያልፍም።',step4n:'04',step4l:'አንድ ጊዜ ይከፈታል፣ ከዚያ ይጠፋል',step4d:'ከተከፈተ በኋላ ለዘላለም ይሰናከላል።',noLoophole:'<strong style="color:var(--text-dim)">ምንም ቀዳዳ የለም:</strong> ጊዜው ማብቃቱ በአገልጋዩ ላይ ይተገበራል።',aboutText:'GhostLink — የግል የአንድ ጊዜ መልዕክቶች',creatingLink:'ሊንክ እየተፈጠረ ነው…',openingMsg:'መልዕክት እየተከፈተ ነው…',destroyingLink:'ሊንክ እየተጠፋ ነው…',checking:'እየተረጋገጠ ነው…',enterMsg:'በመጀመሪያ መልዕክት ያስገቡ።',enterPw:'እባክዎን የይለፍ ቃል ያስገቡ።',enterPin:'እባክዎን 4 አሃዝ PIN ያስገቡ።',incorrectPw:'ትክክል ያልሆነ የይለፍ ቃል።',incorrectPin:'ትክክል ያልሆነ PIN።',attemptsLeft:n=>'የቀሩ ሙከራዎች '+n,enterAllDigits:'ሁሉንም 4 አሃዞች ያስገቡ።',enterPassword:'የይለፍ ቃል ያስገቡ።',attachImage:'ምስል አያይዝ',imgSizeWarn:'ጠቅላላ የምስሎች መጠን ትልቅ ነው። ከ5 MB በታች ያቆዩ።',},
   th: {flag:'🇹🇭',label:'TH',dir:'ltr',badge:'เข้ารหัสแบบ end-to-end',newMsg:'ข้อความใหม่',heading:'ส่งข้อความส่วนตัว 1 ครั้งเท่านั้น',sub:'เขียนข้อความของคุณแล้วเราจะสร้างลิงก์แบบใช้ครั้งเดียวที่ปลอดภัย ผู้รับเปิดอ่านหนึ่งครั้ง — หลังจากนั้นลิงก์จะหยุดทำงานตลอดไป ไม่ต้องมีบัญชี',sectionLabel:'ข้อความใหม่',expiryLabel:'ลิงก์หมดอายุ',expiryAfterRead:'หลังจากอ่าน',expiry24h:'หลังจากอ่านหรือ 24 ชั่วโมง',expiry1h:'หลังจากอ่านหรือ 1 ชั่วโมง',pwSectionLabel:'การป้องกันด้วยรหัสผ่าน',pwToggle:'ต้องใช้รหัสผ่านเพื่อเปิดข้อความนี้',pwTypePw:'🔑 รหัสผ่าน',pwTypePin:'🔢 PIN 4 หลัก',pwPlaceholder:'ป้อนรหัสผ่าน…',pwHintPw:'แชร์รหัสผ่านนี้กับผู้รับแยกต่างหาก — อย่าใส่ลงในข้อความ',pwHintPin:'แชร์ PIN นี้กับผู้รับแยกต่างหาก — อย่าใส่ลงในข้อความ',createBtn:'สร้างลิงก์ที่ปลอดภัย',pwGateTitle:'ต้องใช้รหัสผ่าน',pwGateBodyPw:'ข้อความนี้ได้รับการป้องกัน กรุณาป้อนรหัสผ่านที่ผู้ส่งให้ไว้เพื่อดำเนินการต่อ',pwGateBodyPin:'ข้อความนี้ได้รับการป้องกัน กรุณาป้อน PIN 4 หลักที่ผู้ส่งให้ไว้เพื่อดำเนินการต่อ',unlockBtn:'ปลดล็อกข้อความ',readyTitle:'คุณมีข้อความส่วนตัว',readyBody:'มีคนส่งข้อความที่ปลอดภัยให้คุณ คุณสามารถเปิดได้<strong>ครั้งเดียวเท่านั้น</strong> — หลังจากนั้นลิงก์นี้จะหยุดทำงานอย่างถาวร',openBtn:'เปิดข้อความ',openWarning:'การดำเนินการนี้ไม่สามารถย้อนกลับได้ ลิงก์จะหมดอายุทันที',burnedTitle:'ลิงก์นี้ถูกใช้งานไปแล้ว',burnedBody:'ข้อความนี้ถูกเปิดไปแล้วและไม่สามารถใช้งานได้อีก เพื่อความปลอดภัย แต่ละลิงก์สามารถใช้ได้เพียงครั้งเดียว',invalidTitle:'ไม่รู้จักลิงก์',invalidBody:'ลิงก์นี้ดูเหมือนจะไม่ถูกต้อง อาจถูกคัดลอกไม่ถูกต้องหรือถูกแก้ไข โปรดขอให้ผู้ส่งแชร์ใหม่อีกครั้ง',expiredTitle:'ลิงก์นี้หมดอายุแล้ว',expiredBody:'พ้นกำหนดเวลาที่ผู้ส่งตั้งไว้แล้ว ข้อความนี้ไม่สามารถใช้งานได้อีกต่อไป',dberrorTitle:'เกิดข้อผิดพลาดบางอย่าง',dberrorBody:'เราไม่สามารถตรวจสอบลิงก์นี้ได้ในขณะนี้ เพื่อความปลอดภัยของคุณ ข้อความจะไม่สามารถเปิดได้จนกว่าจะติดต่อบริการของเราได้ โปรดลองอีกครั้งในภายหลัง',decryptedNotice:'ลิงก์นี้ถูกปิดใช้งานอย่างถาวรแล้ว ใครก็ตามที่พยายามเปิดอีกครั้งจะเห็นว่าหมดอายุแล้ว',decryptedBurned:'ลิงก์นี้หมดอายุแล้วและไม่สามารถเข้าถึงได้อีกต่อไป',decryptedMsgHeader:'ข้อความปลอดภัย — เปิดแล้วหนึ่งครั้ง',goHome:'ส่งข้อความของคุณเอง',sendNew:'ส่งข้อความใหม่',goHomeBtn:'หน้าแรก',retryBtn:'ลองใหม่',footerLeft:'ghostlink · ควบคุมโดยเซิร์ฟเวอร์ · เข้ารหัสแบบ end-to-end',footerNew:'ข้อความใหม่',footerAbout:'เกี่ยวกับ',howTitle:'วิธีการทำงาน',step1n:'01',step1l:'เขียนข้อความของคุณ',step1d:'พิมพ์สิ่งที่คุณต้องการส่ง ทุกอย่างจะอยู่ในเบราว์เซอร์ของคุณจนกว่าคุณจะพร้อม',step2n:'02',step2l:'ปลอดภัยโดยอัตโนมัติ',step2d:'ข้อความของคุณถูกล็อกด้วยการเข้ารหัสที่แข็งแกร่งก่อนออกจากอุปกรณ์ ไม่มีใครสามารถอ่านได้',step3n:'03',step3l:'แชร์ลิงก์',step3d:'คุณจะได้รับลิงก์ส่วนตัวเพื่อส่ง เนื้อหาข้อความของคุณไม่เคยเดินทางผ่านเซิร์ฟเวอร์ของเรา',step4n:'04',step4l:'เปิดครั้งเดียวแล้วหายไป',step4d:'วินาทีที่ผู้รับเปิด ลิงก์จะถูกปิดใช้งานอย่างถาวร — บนทุกอุปกรณ์ ทุกที่',noLoophole:'<strong style="color:var(--text-dim)">ไม่มีช่องโหว่:</strong> การหมดอายุบังคับใช้บนเซิร์ฟเวอร์ของเรา ไม่ใช่แค่ในเบราว์เซอร์',aboutText:'GhostLink — ข้อความส่วนตัวแบบใช้ครั้งเดียว\n\nข้อความได้รับการปกป้องในเบราว์เซอร์ของคุณก่อนส่ง\nแต่ละลิงก์ใช้งานได้หนึ่งครั้ง — หลังจากนั้นจะหมดอายุถาวร\nการหมดอายุบังคับใช้บนเซิร์ฟเวอร์ของเรา\nเนื้อหาข้อความของคุณไม่เคยผ่านเซิร์ฟเวอร์ของเรา',creatingLink:'กำลังสร้างลิงก์…',openingMsg:'กำลังเปิดข้อความ…',destroyingLink:'กำลังทำลายลิงก์…',checking:'กำลังตรวจสอบ…',enterMsg:'กรุณากรอกข้อความก่อน',enterPw:'กรุณาป้อนรหัสผ่าน',enterPin:'กรุณาป้อน PIN 4 หลัก',incorrectPw:'รหัสผ่านไม่ถูกต้อง โปรดลองอีกครั้ง',incorrectPin:'PIN ไม่ถูกต้อง โปรดลองอีกครั้ง',attemptsLeft:n=>'เหลือ '+n+' ครั้ง',enterAllDigits:'กรุณากรอกตัวเลขทั้ง 4 หลัก',enterPassword:'กรุณาป้อนรหัสผ่าน',attachImage:'แนบรูปภาพ',imgSizeWarn:'ขนาดรูปภาพรวมมีขนาดใหญ่ โปรดเก็บไว้ต่ำกว่า 5 MB เพื่อไม่ให้เกินขีดจำกัดที่จัดเก็บฟรี',}
 };
-
 let currentLang = 'en';
-
 function t(key) {
   return (LANGS[currentLang] || LANGS.en)[key] || LANGS.en[key] || key;
 }
-
 function toggleLangMenu() {
   const sw = document.getElementById('lang-switcher');
   const btn = document.getElementById('lang-btn');
@@ -3937,7 +4093,6 @@ function toggleLangMenu() {
     dropdown.style.maxHeight = '';
   }
 }
-
 function setLang(lang) {
   if (!LANGS[lang]) return;
   currentLang = lang;
@@ -3955,7 +4110,6 @@ function setLang(lang) {
   applyTranslations();
   refreshMessagePlaceholder();
 }
-
 function applyTranslations() {
   const L = LANGS[currentLang] || LANGS.en;
   document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -3988,7 +4142,6 @@ function applyTranslations() {
   const noLoophole = document.querySelector('.how-section .notice span');
   if (noLoophole) noLoophole.innerHTML = L.noLoophole;
 }
-
 const MESSAGE_PLACEHOLDER_PROMPTS = {
   en: [
     'Need to send a love letter? 💌',
@@ -4076,7 +4229,6 @@ let messagePlaceholderSwapTimer = null;
 let messagePlaceholderIndex = 0;
 let messagePlaceholderDismissed = false;
 let messagePlaceholderListenersAdded = false;
-
 function stopMessagePlaceholderRotation(dismiss = false) {
   if (messagePlaceholderTimer) clearInterval(messagePlaceholderTimer);
   if (messagePlaceholderSwapTimer) clearTimeout(messagePlaceholderSwapTimer);
@@ -4086,7 +4238,6 @@ function stopMessagePlaceholderRotation(dismiss = false) {
   const input = document.getElementById('msg-input');
   if (input) input.classList.remove('placeholder-shifting');
 }
-
 function refreshMessagePlaceholder() {
   const input = document.getElementById('msg-input');
   if (!input) return;
@@ -4098,7 +4249,6 @@ function refreshMessagePlaceholder() {
   const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (input.value || messagePlaceholderDismissed || document.activeElement === input ||
       !composeView?.classList.contains('active') || reducedMotion) return;
-
   messagePlaceholderTimer = setInterval(() => {
     if (messagePlaceholderDismissed || input.value || document.activeElement === input) {
       stopMessagePlaceholderRotation(true);
@@ -4117,7 +4267,6 @@ function refreshMessagePlaceholder() {
     }, 180);
   }, 3000);
 }
-
 function initMessagePlaceholderRotation() {
   if (messagePlaceholderListenersAdded) return;
   const input = document.getElementById('msg-input');
@@ -4126,16 +4275,40 @@ function initMessagePlaceholderRotation() {
   input.addEventListener('focus', () => stopMessagePlaceholderRotation(true));
   input.addEventListener('input', () => stopMessagePlaceholderRotation(true));
 }
-
 function resetMessagePlaceholderRotation() {
   messagePlaceholderDismissed = false;
   messagePlaceholderIndex = 0;
   refreshMessagePlaceholder();
 }
-
 // ═══════════════════════════════════════════════
 //  INIT  — check server FIRST, then show state
 // ═══════════════════════════════════════════════
+const messageComparisonRange = document.getElementById('message-comparison-range');
+const messageComparisonFrame = document.getElementById('message-comparison-frame');
+const messageComparisonOpened = document.getElementById('message-comparison-opened');
+const messageComparisonDivider = document.getElementById('message-comparison-divider');
+if (messageComparisonRange && messageComparisonFrame && messageComparisonOpened && messageComparisonDivider) {
+  const updateMessageComparison = () => {
+    const position = Math.max(0, Math.min(100, Number(messageComparisonRange.value) || 0));
+    messageComparisonFrame.style.setProperty('--compare-position', `${position}%`);
+    messageComparisonOpened.style.clipPath = `inset(0 0 0 ${position}%)`;
+    messageComparisonRange.setAttribute('aria-valuetext', `${position} percent`);
+  };
+  const moveMessageComparisonToPointer = clientX => {
+    const rect = messageComparisonFrame.getBoundingClientRect();
+    if (!rect.width) return;
+    const position = Math.round(Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100)));
+    messageComparisonRange.value = String(position);
+    updateMessageComparison();
+  };
+  messageComparisonFrame.addEventListener('pointermove', event => {
+    if (event.pointerType === 'mouse' || event.pointerType === 'pen') {
+      moveMessageComparisonToPointer(event.clientX);
+    }
+  });
+  messageComparisonRange.addEventListener('input', updateMessageComparison);
+  updateMessageComparison();
+}
 (function init() {
   initMessagePlaceholderRotation();
   const frag = window.location.hash;
@@ -4148,8 +4321,11 @@ function resetMessagePlaceholderRotation() {
   currentFragRaw = frag.substring(1);
   document.getElementById('view-compose').classList.remove('active');
   document.getElementById('view-reveal').classList.add('active');
+  document.getElementById('features').style.display = 'none';
   document.getElementById('how-section').style.display = 'none';
   document.getElementById('faq').style.display = 'none';
+  document.getElementById('message-comparison').style.display = 'none';
+  document.getElementById('get-started-cta').style.display = 'none';
   initReveal();
 })();
 </script>
