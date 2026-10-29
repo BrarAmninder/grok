@@ -1297,6 +1297,7 @@
     position:absolute;inset:0;z-index:3;width:100%;height:100%;margin:0;
     opacity:0;cursor:ew-resize;appearance:none;-webkit-appearance:none;
     background:transparent;
+    touch-action:none;
   }
   .comparison-range::-webkit-slider-runnable-track{height:100%;background:transparent}
   .comparison-range::-webkit-slider-thumb{
@@ -4441,11 +4442,24 @@ if (messageComparisonRange && messageComparisonFrame && messageComparisonOpened 
     messageComparisonRange.value = String(position);
     updateMessageComparison();
   };
-  messageComparisonFrame.addEventListener('pointermove', event => {
-    if (event.pointerType === 'mouse' || event.pointerType === 'pen') {
+
+  // Use pointer capture on the range input so drag works across all pointer types
+  // (mouse, touch, stylus) without the browser hijacking the gesture to scroll.
+  let isDragging = false;
+  messageComparisonRange.addEventListener('pointerdown', event => {
+    isDragging = true;
+    messageComparisonRange.setPointerCapture(event.pointerId);
+    moveMessageComparisonToPointer(event.clientX);
+  });
+  messageComparisonRange.addEventListener('pointermove', event => {
+    if (isDragging) {
       moveMessageComparisonToPointer(event.clientX);
     }
   });
+  messageComparisonRange.addEventListener('pointerup', () => { isDragging = false; });
+  messageComparisonRange.addEventListener('pointercancel', () => { isDragging = false; });
+
+  // Keep the native `input` event as a fallback (keyboard arrows, assistive tech)
   messageComparisonRange.addEventListener('input', updateMessageComparison);
   updateMessageComparison();
 }
