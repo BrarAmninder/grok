@@ -544,7 +544,6 @@
   html[data-theme="dark"] .fv-chip--purple{background:rgba(161,138,255,.12);color:var(--accent)}
   html[data-theme="dark"] .feat-tag{background:rgba(161,138,255,.1);color:var(--accent);border-color:rgba(161,138,255,.2)}
   .how-section{width:100%;max-width:1200px;margin:72px auto 0;padding-bottom:0}
-  .how-section{width:100%;max-width:1200px;margin:72px auto 0;padding-bottom:0}
   .how-section-title{font-family:inherit;color:#21283b;font-size:25px;font-weight:750;letter-spacing:-.035em;text-transform:none;margin-bottom:18px}
   .steps-grid{gap:13px;background:transparent;border:0;border-radius:0;overflow:visible}
   .step-cell{gap:9px;padding:19px 18px;background:rgba(255,255,255,.87);border:1px solid rgba(43,48,75,.08);border-radius:16px;box-shadow:0 7px 20px rgba(46,43,92,.035)}
@@ -721,11 +720,11 @@
     animation:ghostFloat 3.8s ease-in-out infinite;pointer-events:none;
   }
   .ghost-buddy svg{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 7px 10px rgba(100,72,166,.14))}
-  .ghost-body{fill:url(#buddyGhostGradient);stroke:rgba(255,255,255,.78);stroke-width:1.8;stroke-linejoin:round}
-  .ghost-eye{fill:#35254f}
-  .ghost-cheek{fill:#ffabd3;opacity:.95}
-  .ghost-wink,.ghost-smile{fill:none;stroke:#35254f;stroke-width:2.2;stroke-linecap:round}
-  .ghost-wave{
+  .ghost-buddy .ghost-body{fill:url(#buddyGhostGradient);stroke:rgba(255,255,255,.78);stroke-width:1.8;stroke-linejoin:round}
+  .ghost-buddy .ghost-eye{fill:#35254f}
+  .ghost-buddy .ghost-cheek{fill:#ffabd3;opacity:.95}
+  .ghost-buddy .ghost-wink,.ghost-buddy .ghost-smile{fill:none;stroke:#35254f;stroke-width:2.2;stroke-linecap:round}
+  .ghost-buddy .ghost-wave{
     fill:none;stroke:#f4eaff;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round;
     transform-box:fill-box;transform-origin:0% 90%;animation:ghostWave 2.8s ease-in-out infinite;
   }
@@ -2376,6 +2375,10 @@ if (brandGhost && brandLogo) {
 //  or publishing the file.
 // ═══════════════════════════════════════════════
 const SUPABASE_URL = 'https://mcjrockqqwgdzpruyyph.supabase.co';
+// ⚠️  SECURITY: This is a client-visible publishable (anon) key.
+// It MUST be protected by Supabase Row-Level-Security (RLS) policies
+// so it can only perform the burn/claim operations the app requires.
+// Never place a service-role or secret key here.
 const SUPABASE_KEY = 'sb_publishable_GK_LjZa5ocjQ3HviIGiJbw_YveHEJn-';
 function _sbHeaders(extra = {}) {
   const h = { 'Content-Type': 'application/json', ...extra };
@@ -2448,7 +2451,7 @@ async function sbSet(burnId) {
   if (res.status === 200 || res.status === 204 || res.status === 409) {
     // Row already existed — another opener beat us.
     // Signal this to the caller so it can show "already burned".
-    throw new Object({ alreadyBurned: true });
+    const err = new Error('already_burned'); err.alreadyBurned = true; throw err;
   }
   throw new Error('db_write_failed');
 }
@@ -2598,10 +2601,10 @@ async function derivePasswordKey(rawPassword, saltB64) {
   const material = await crypto.subtle.importKey('raw', new TextEncoder().encode(rawPassword), 'PBKDF2', false, ['deriveKey']);
   return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: base64urlToBytes(saltB64), iterations: 310000, hash: 'SHA-256' }, material, { name: 'AES-GCM', length: 256 }, false, ['encrypt','decrypt']);
 }
+const VERSION2 = 'gl2';
 function buildFragmentV2(msgId, expiryMode, protection, material) {
   return `${VERSION2}.${expiryMode}.${Math.floor(Date.now()/1000)}.${msgId}.${protection}.${material}`;
 }
-const VERSION2 = 'gl2';
 function buildFragment(keyB64, ivB64, ctB64, expiryMode, pwHash) {
   const base = `${VERSION}.${expiryMode}.${Math.floor(Date.now()/1000)}.${keyB64}.${ivB64}.${ctB64}`;
   return pwHash ? base + '~' + pwHash : base;
@@ -2668,10 +2671,12 @@ imgFileInput.addEventListener('change', function() {
 });
 // Compress + resize an image file → returns a data URL (JPEG)
 function compressImage(file) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
+    reader.onerror = () => reject(new Error('file_read_failed'));
     reader.onload = e => {
       const img = new Image();
+      img.onerror = () => reject(new Error('image_load_failed'));
       img.onload = () => {
         // Calculate new dimensions keeping aspect ratio
         let { width, height } = img;
@@ -2820,7 +2825,7 @@ async function createLink() {
     resultCard.scrollIntoView({behavior:'smooth',block:'nearest'});
   } catch(err) {
     console.error('Secure link creation failed:', err);
-    composeError.textContent = /image|storage/i.test(String(err)) ? 'Could not upload the encrypted image. Check your Supabase Storage bucket and permissions, then try again.' : 'Could not create the secure link. Check your Supabase connection and SQL setup, then try again.';
+    composeError.textContent = /image|storage/i.test(String(err)) ? (t('imgUploadError') ?? LANGS.en.imgUploadError) : (t('createLinkError') ?? LANGS.en.createLinkError);
   } finally { restoreCreateButton(); }
 }
 async function copyLink() {
@@ -2844,7 +2849,6 @@ function resetCompose() {
   renderImagePreviews();
   document.querySelector('input[name="expiry"][value="read-once"]').checked = true;
   expirySelect.value = 'read-once';
-  charCount.textContent = '0';
   const preview = document.getElementById('message-preview');
   if (preview) preview.textContent = 'This message will self-destruct after being viewed.';
   // Reset password section
@@ -2862,6 +2866,9 @@ function resetCompose() {
 //  REVEAL  (server-side burn check + write)
 // ═══════════════════════════════════════════════
 async function revealMessage() {
+  // Disable button immediately to prevent double-click double-burn
+  const revealBtn = document.getElementById('reveal-btn');
+  if (revealBtn) revealBtn.disabled = true;
   // No password — go straight to reveal
   pendingParsed = null;
   await proceedReveal();
@@ -2883,7 +2890,21 @@ function goHome() {
   resetMessagePlaceholderRotation();
 }
 function showAbout() {
-  alert(t('aboutText'));
+  let modal = document.getElementById('about-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'about-modal';
+    modal.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45);padding:1rem';
+    modal.innerHTML = '<div style="background:var(--surface,#fff);border-radius:14px;padding:1.5rem 1.75rem;max-width:380px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.18)">' +
+      '<p id="about-modal-body" style="white-space:pre-line;font-size:.9rem;line-height:1.6;margin:0 0 1rem;color:var(--text,#111)"></p>' +
+      '<button onclick="document.getElementById(\'about-modal\').style.display=\'none\'" ' +
+      'style="display:block;margin-left:auto;padding:.4rem 1rem;border:none;border-radius:8px;background:var(--accent,#7c3aed);color:#fff;cursor:pointer;font-size:.85rem">Close</button>' +
+      '</div>';
+    modal.addEventListener('click', function(e){ if(e.target===modal) modal.style.display='none'; });
+    document.body.appendChild(modal);
+  }
+  document.getElementById('about-modal-body').textContent = t('aboutText');
+  modal.style.display = 'flex';
 }
 async function retryInit() {
   showState('checking');
@@ -3078,8 +3099,7 @@ async function submitPassword() {
   }
   if (pendingParsed && pendingParsed.version === VERSION2) {
     try {
-      const rawPassword = getGatePwValue();
-      const derived = await derivePasswordKey(rawPassword, pendingParsed.material);
+      const derived = await derivePasswordKey(raw, pendingParsed.material);
       const row = await sbFetchMessage(pendingParsed.msgId);
       await decryptMessage(row.iv, row.ciphertext, derived);
       pendingKey = derived;
@@ -3105,7 +3125,7 @@ async function submitPassword() {
       } else {
         btn.disabled = false; btn.innerHTML = `<span data-i18n="unlockBtn">${t('unlockBtn')}</span>`;
         showGateError(gateType === 'pin' ? t('incorrectPin') : t('incorrectPw'));
-        document.getElementById('pw-attempts').textContent = t('attemptsLeft')(left);
+        document.getElementById('pw-attempts').textContent = (function(){var fn=t('attemptsLeft');return typeof fn==='function'?fn(left):left+' attempts left';})() ;
         if (gateType === 'pin') { [0,1,2,3].forEach(i => document.getElementById('gpin-'+i).value=''); document.getElementById('gpin-0').focus(); }
         else { document.getElementById('pw-gate-input').value=''; document.getElementById('pw-gate-input').focus(); }
       }
@@ -3136,7 +3156,7 @@ async function submitPassword() {
       showState('burned');
     } else {
       showGateError(gateType === 'pin' ? t('incorrectPin') : t('incorrectPw'));
-      document.getElementById('pw-attempts').textContent = t('attemptsLeft')(left);
+      document.getElementById('pw-attempts').textContent = (function(){var fn=t('attemptsLeft');return typeof fn==='function'?fn(left):left+' attempts left';})() ;
       if (gateType === 'pin') { [0,1,2,3].forEach(i => { document.getElementById('gpin-'+i).value=''; }); document.getElementById('gpin-0').focus(); }
       else { document.getElementById('pw-gate-input').value=''; document.getElementById('pw-gate-input').focus(); }
     }
@@ -3181,7 +3201,7 @@ async function showPasswordGate(parsed, type, hash) {
     }
     if (pwAttempts > 0) {
       const left = MAX_ATTEMPTS - pwAttempts;
-      document.getElementById('pw-attempts').textContent = t('attemptsLeft')(left);
+      document.getElementById('pw-attempts').textContent = (function(){var fn=t('attemptsLeft');return typeof fn==='function'?fn(left):left+' attempts left';})() ;
     }
   } catch(e) {
     pwAttempts = 0; // fallback to in-memory if DB unavailable
@@ -3192,7 +3212,7 @@ async function showPasswordGate(parsed, type, hash) {
   }, 100);
 }
 // ═══════════════════════════════════════════════
-//  INIT  — check server FIRST, then show state
+//  REVEAL INIT  — parse fragment, check server
 // ═══════════════════════════════════════════════
 async function initReveal() {
   const fragRaw = window.location.hash.substring(1);
@@ -3289,9 +3309,13 @@ async function proceedReveal() {
     window.history.replaceState(null, '', window.location.pathname);
     pendingParsed = null;
   } catch(err) {
-    document.getElementById('invalid-reason').textContent =
-      'We were unable to open this message. The link may be incomplete or corrupted. It has been disabled for your security.';
-    showState('invalid');
+    if (err && err.alreadyBurned) {
+      showState('burned');
+    } else {
+      document.getElementById('invalid-reason').textContent =
+        'We were unable to open this message. The link may be incomplete or corrupted. It has been disabled for your security.';
+      showState('invalid');
+    }
   }
 }
 // ═══════════════════════════════════════════════
@@ -3372,6 +3396,8 @@ const LANGS = {
     attemptsLeft:n => n + ' attempt' + (n===1?'':'s') + ' remaining',
     enterAllDigits:'Please enter all 4 digits.',
     enterPassword:'Please enter the password.',
+    imgUploadError:'Could not upload the encrypted image. Check your Supabase Storage bucket and permissions, then try again.',
+    createLinkError:'Could not create the secure link. Check your Supabase connection and SQL setup, then try again.',
   },
   fr: {
     flag:'🇫🇷', label:'FR', dir:'ltr',
@@ -3573,8 +3599,6 @@ const LANGS = {
     attemptsLeft:n => n + (n===1?' محاولة متبقية':' محاولات متبقية'),
     enterAllDigits:'يرجى إدخال الأرقام الأربعة كاملة.',
     enterPassword:'يرجى إدخال كلمة المرور.',
-    attachImage:'إرفاق صورة',
-    imgSizeWarn:'الحجم الإجمالي للصور كبير. احرص على أن يكون أقل من 5 ميغابايت للبقاء ضمن حد التخزين المجاني.',
   },
   de: {
     flag:'🇩🇪', label:'DE', dir:'ltr',
@@ -4237,7 +4261,7 @@ function applyTranslations() {
   const howTitle = document.querySelector('.how-section-title');
   if (howTitle) howTitle.textContent = L.howTitle ?? LANGS.en.howTitle;
   const noLoophole = document.querySelector('.how-section .notice span');
-  if (noLoophole) noLoophole.innerHTML = L.noLoophole;
+  if (noLoophole) noLoophole.innerHTML = L.noLoophole ?? LANGS.en.noLoophole;
 }
 const MESSAGE_PLACEHOLDER_PROMPTS = {
   en: [
@@ -4397,7 +4421,7 @@ function resetMessagePlaceholderRotation() {
   initReveal();
 })();
 // ═══════════════════════════════════════════════
-//  INIT  — check server FIRST, then show state
+//  MESSAGE COMPARISON SLIDER
 // ═══════════════════════════════════════════════
 const messageComparisonRange = document.getElementById('message-comparison-range');
 const messageComparisonFrame = document.getElementById('message-comparison-frame');
