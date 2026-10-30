@@ -91,68 +91,79 @@
   .burned-badge{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:11px;color:var(--red);background:var(--red-bg);border:1px solid rgba(248,81,73,0.2);border-radius:20px;padding:3px 10px}
   @media print{body{display:none!important}}
   /* ── Marquee ticker ── */
-  .marquee-outer{
-    margin:2.75rem auto;
-    max-width:1100px;
-    border-radius:20px;
-    border:1px solid rgba(121,82,245,.13);
-    background:#fff;
-    overflow:hidden;
-    box-shadow:0 2px 8px rgba(0,0,0,.04),0 12px 40px rgba(121,82,245,.09);
-    position:relative;
+  .marquee-section{
+    width:100%;
+    max-width:100vw;
+    overflow:hidden;   /* ← kills horizontal bleed on mobile */
+    margin:2.5rem 0;
   }
-  /* animated purple top border */
+  .marquee-outer{
+    width:min(1100px,100%);
+    margin:0 auto;
+    border-radius:14px;
+    overflow:hidden;
+    position:relative;
+    background:var(--bg-2);
+    border:1px solid var(--border);
+    box-shadow:0 1px 3px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.25);
+  }
   .marquee-outer::before{
     content:'';position:absolute;
-    top:0;left:0;right:0;height:2.5px;
-    background:linear-gradient(90deg,#7952f5 0%,#c084fc 50%,#7952f5 100%);
-    background-size:200% 100%;
-    animation:border-flow 3s linear infinite;
+    top:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent,var(--accent),rgba(110,118,229,.4),transparent);
   }
-  @keyframes border-flow{
-    0%{background-position:0% 0%}
-    100%{background-position:200% 0%}
-  }
-  /* left/right fade masks */
   .marquee-fade-l,.marquee-fade-r{
-    position:absolute;top:0;bottom:0;width:60px;z-index:2;pointer-events:none;
+    position:absolute;top:0;bottom:0;width:48px;z-index:2;pointer-events:none;
   }
-  .marquee-fade-l{left:0;background:linear-gradient(90deg,#fff,transparent)}
-  .marquee-fade-r{right:0;background:linear-gradient(270deg,#fff,transparent)}
+  .marquee-fade-l{left:0;background:linear-gradient(90deg,var(--bg-2),transparent)}
+  .marquee-fade-r{right:0;background:linear-gradient(270deg,var(--bg-2),transparent)}
   .marquee-track{
     display:flex;align-items:center;
     white-space:nowrap;
     animation:marquee-scroll 36s linear infinite;
-    padding:17px 0;
+    padding:13px 0;
+    will-change:transform;
   }
   .marquee-track:hover{animation-play-state:paused}
   @keyframes marquee-scroll{
     0%{transform:translateX(0)}
     100%{transform:translateX(-50%)}
   }
-  .marquee-item{
-    display:inline-flex;align-items:center;gap:9px;
-    padding:0 28px;
-    font-size:13px;font-weight:500;
-    color:#4a4a6a;
+  .marquee-chip{
+    display:inline-flex;align-items:center;gap:7px;
+    margin:0 6px;
+    padding:5px 12px 5px 7px;
+    border-radius:8px;
+    background:var(--bg-3);
+    border:1px solid var(--border);
+    font-size:12px;font-weight:500;
+    color:var(--text-dim);
     font-family:var(--sans);
-    letter-spacing:.015em;
+    letter-spacing:.01em;
     cursor:default;
-    transition:color .18s;
-  }
-  .marquee-item:hover{color:#7952f5}
-  .marquee-item-icon{
-    display:inline-flex;align-items:center;justify-content:center;
-    width:28px;height:28px;border-radius:9px;
-    background:linear-gradient(145deg,#f3eeff,#ede5ff);
-    border:1px solid rgba(121,82,245,.14);
-    color:#7952f5;flex-shrink:0;
-    box-shadow:0 1px 3px rgba(121,82,245,.1);
-  }
-  .marquee-dot-sep{
-    width:4px;height:4px;border-radius:50%;
-    background:rgba(121,82,245,.25);
+    white-space:nowrap;
     flex-shrink:0;
+    transition:border-color .18s,color .18s;
+  }
+  .marquee-chip:hover{border-color:var(--accent);color:var(--text)}
+  .marquee-chip-icon{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:20px;height:20px;border-radius:5px;
+    background:var(--accent-glow);
+    border:1px solid rgba(110,118,229,.3);
+    color:var(--accent);
+    flex-shrink:0;
+  }
+  .marquee-star{
+    width:3px;height:3px;border-radius:50%;
+    background:var(--text-muted);
+    flex-shrink:0;
+    margin:0 2px;
+  }
+  @media(max-width:600px){
+    .marquee-outer{border-radius:10px}
+    .marquee-chip{font-size:11.5px;padding:5px 10px 5px 6px;margin:0 5px}
+    .marquee-track{padding:11px 0}
   }
   .how-section{width:100%;max-width:660px;margin-top:3.5rem;padding-bottom:3rem}
   .how-section-title{font-size:12px;font-family:var(--mono);letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1.5rem}
@@ -544,6 +555,7 @@
   html[data-theme="dark"] .fv-chip--purple{background:rgba(161,138,255,.12);color:var(--accent)}
   html[data-theme="dark"] .feat-tag{background:rgba(161,138,255,.1);color:var(--accent);border-color:rgba(161,138,255,.2)}
   .how-section{width:100%;max-width:1200px;margin:72px auto 0;padding-bottom:0}
+  .how-section{width:100%;max-width:1200px;margin:72px auto 0;padding-bottom:0}
   .how-section-title{font-family:inherit;color:#21283b;font-size:25px;font-weight:750;letter-spacing:-.035em;text-transform:none;margin-bottom:18px}
   .steps-grid{gap:13px;background:transparent;border:0;border-radius:0;overflow:visible}
   .step-cell{gap:9px;padding:19px 18px;background:rgba(255,255,255,.87);border:1px solid rgba(43,48,75,.08);border-radius:16px;box-shadow:0 7px 20px rgba(46,43,92,.035)}
@@ -720,11 +732,11 @@
     animation:ghostFloat 3.8s ease-in-out infinite;pointer-events:none;
   }
   .ghost-buddy svg{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 7px 10px rgba(100,72,166,.14))}
-  .ghost-buddy .ghost-body{fill:url(#buddyGhostGradient);stroke:rgba(255,255,255,.78);stroke-width:1.8;stroke-linejoin:round}
-  .ghost-buddy .ghost-eye{fill:#35254f}
-  .ghost-buddy .ghost-cheek{fill:#ffabd3;opacity:.95}
-  .ghost-buddy .ghost-wink,.ghost-buddy .ghost-smile{fill:none;stroke:#35254f;stroke-width:2.2;stroke-linecap:round}
-  .ghost-buddy .ghost-wave{
+  .ghost-body{fill:url(#buddyGhostGradient);stroke:rgba(255,255,255,.78);stroke-width:1.8;stroke-linejoin:round}
+  .ghost-eye{fill:#35254f}
+  .ghost-cheek{fill:#ffabd3;opacity:.95}
+  .ghost-wink,.ghost-smile{fill:none;stroke:#35254f;stroke-width:2.2;stroke-linecap:round}
+  .ghost-wave{
     fill:none;stroke:#f4eaff;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round;
     transform-box:fill-box;transform-origin:0% 90%;animation:ghostWave 2.8s ease-in-out infinite;
   }
@@ -1297,7 +1309,6 @@
     position:absolute;inset:0;z-index:3;width:100%;height:100%;margin:0;
     opacity:0;cursor:ew-resize;appearance:none;-webkit-appearance:none;
     background:transparent;
-    touch-action:none;
   }
   .comparison-range::-webkit-slider-runnable-track{height:100%;background:transparent}
   .comparison-range::-webkit-slider-thumb{
@@ -1984,45 +1995,47 @@
   </div>
 </main>
 <!-- ── Marquee ticker above "Why GhostLink" ── -->
+<div class="marquee-section">
 <div class="marquee-outer" aria-hidden="true">
   <div class="marquee-fade-l"></div>
   <div class="marquee-fade-r"></div>
   <div class="marquee-track">
-    <!-- First copy -->
-    <span class="marquee-item"><span class="marquee-item-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg></span>End-to-end encrypted</span>
-    <span class="marquee-dot-sep"></span>
-    <span class="marquee-item"><span class="marquee-item-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>Zero-knowledge</span>
-    <span class="marquee-dot-sep"></span>
-    <span class="marquee-item"><span class="marquee-item-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.08-4.46"/></svg></span>Burn-on-read</span>
-    <span class="marquee-dot-sep"></span>
-    <span class="marquee-item"><span class="marquee-item-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span>No account required</span>
-    <span class="marquee-dot-sep"></span>
-    <span class="marquee-item"><span class="marquee-item-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/><path d="M12 14v3"/></svg></span>AES-GCM 256-bit</span>
-    <span class="marquee-dot-sep"></span>
-    <span class="marquee-item"><span class="marquee-item-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></span>No logs · No tracking</span>
-    <span class="marquee-dot-sep"></span>
-    <span class="marquee-item"><span class="marquee-item-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></span>Self-destructing messages</span>
-    <span class="marquee-dot-sep"></span>
-    <span class="marquee-item"><span class="marquee-item-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></span>Privacy by design</span>
-    <span class="marquee-dot-sep"></span>
-    <!-- Second copy -->
-    <span class="marquee-item"><span class="marquee-item-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg></span>End-to-end encrypted</span>
-    <span class="marquee-dot-sep"></span>
-    <span class="marquee-item"><span class="marquee-item-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>Zero-knowledge</span>
-    <span class="marquee-dot-sep"></span>
-    <span class="marquee-item"><span class="marquee-item-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.08-4.46"/></svg></span>Burn-on-read</span>
-    <span class="marquee-dot-sep"></span>
-    <span class="marquee-item"><span class="marquee-item-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span>No account required</span>
-    <span class="marquee-dot-sep"></span>
-    <span class="marquee-item"><span class="marquee-item-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/><path d="M12 14v3"/></svg></span>AES-GCM 256-bit</span>
-    <span class="marquee-dot-sep"></span>
-    <span class="marquee-item"><span class="marquee-item-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></span>No logs · No tracking</span>
-    <span class="marquee-dot-sep"></span>
-    <span class="marquee-item"><span class="marquee-item-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></span>Self-destructing messages</span>
-    <span class="marquee-dot-sep"></span>
-    <span class="marquee-item"><span class="marquee-item-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></span>Privacy by design</span>
-    <span class="marquee-dot-sep"></span>
+    <!-- copy 1 -->
+    <span class="marquee-chip"><span class="marquee-chip-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg></span>End-to-end encrypted</span>
+    <span class="marquee-star"></span>
+    <span class="marquee-chip"><span class="marquee-chip-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>Zero-knowledge</span>
+    <span class="marquee-star"></span>
+    <span class="marquee-chip"><span class="marquee-chip-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.08-4.46"/></svg></span>Burn-on-read</span>
+    <span class="marquee-star"></span>
+    <span class="marquee-chip"><span class="marquee-chip-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span>No account required</span>
+    <span class="marquee-star"></span>
+    <span class="marquee-chip"><span class="marquee-chip-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/><path d="M12 14v3"/></svg></span>AES-GCM 256-bit</span>
+    <span class="marquee-star"></span>
+    <span class="marquee-chip"><span class="marquee-chip-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></span>No logs · No tracking</span>
+    <span class="marquee-star"></span>
+    <span class="marquee-chip"><span class="marquee-chip-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></span>Self-destructing messages</span>
+    <span class="marquee-star"></span>
+    <span class="marquee-chip"><span class="marquee-chip-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></span>Privacy by design</span>
+    <span class="marquee-star"></span>
+    <!-- copy 2 -->
+    <span class="marquee-chip"><span class="marquee-chip-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg></span>End-to-end encrypted</span>
+    <span class="marquee-star"></span>
+    <span class="marquee-chip"><span class="marquee-chip-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>Zero-knowledge</span>
+    <span class="marquee-star"></span>
+    <span class="marquee-chip"><span class="marquee-chip-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.08-4.46"/></svg></span>Burn-on-read</span>
+    <span class="marquee-star"></span>
+    <span class="marquee-chip"><span class="marquee-chip-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span>No account required</span>
+    <span class="marquee-star"></span>
+    <span class="marquee-chip"><span class="marquee-chip-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/><path d="M12 14v3"/></svg></span>AES-GCM 256-bit</span>
+    <span class="marquee-star"></span>
+    <span class="marquee-chip"><span class="marquee-chip-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></span>No logs · No tracking</span>
+    <span class="marquee-star"></span>
+    <span class="marquee-chip"><span class="marquee-chip-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></span>Self-destructing messages</span>
+    <span class="marquee-star"></span>
+    <span class="marquee-chip"><span class="marquee-chip-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></span>Privacy by design</span>
+    <span class="marquee-star"></span>
   </div>
+</div>
 </div>
 
 <section class="feat-section" id="feature-showcase">
@@ -2376,10 +2389,6 @@ if (brandGhost && brandLogo) {
 //  or publishing the file.
 // ═══════════════════════════════════════════════
 const SUPABASE_URL = 'https://mcjrockqqwgdzpruyyph.supabase.co';
-// ⚠️  SECURITY: This is a client-visible publishable (anon) key.
-// It MUST be protected by Supabase Row-Level-Security (RLS) policies
-// so it can only perform the burn/claim operations the app requires.
-// Never place a service-role or secret key here.
 const SUPABASE_KEY = 'sb_publishable_GK_LjZa5ocjQ3HviIGiJbw_YveHEJn-';
 function _sbHeaders(extra = {}) {
   const h = { 'Content-Type': 'application/json', ...extra };
@@ -2452,7 +2461,7 @@ async function sbSet(burnId) {
   if (res.status === 200 || res.status === 204 || res.status === 409) {
     // Row already existed — another opener beat us.
     // Signal this to the caller so it can show "already burned".
-    const err = new Error('already_burned'); err.alreadyBurned = true; throw err;
+    throw new Object({ alreadyBurned: true });
   }
   throw new Error('db_write_failed');
 }
@@ -2602,10 +2611,10 @@ async function derivePasswordKey(rawPassword, saltB64) {
   const material = await crypto.subtle.importKey('raw', new TextEncoder().encode(rawPassword), 'PBKDF2', false, ['deriveKey']);
   return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: base64urlToBytes(saltB64), iterations: 310000, hash: 'SHA-256' }, material, { name: 'AES-GCM', length: 256 }, false, ['encrypt','decrypt']);
 }
-const VERSION2 = 'gl2';
 function buildFragmentV2(msgId, expiryMode, protection, material) {
   return `${VERSION2}.${expiryMode}.${Math.floor(Date.now()/1000)}.${msgId}.${protection}.${material}`;
 }
+const VERSION2 = 'gl2';
 function buildFragment(keyB64, ivB64, ctB64, expiryMode, pwHash) {
   const base = `${VERSION}.${expiryMode}.${Math.floor(Date.now()/1000)}.${keyB64}.${ivB64}.${ctB64}`;
   return pwHash ? base + '~' + pwHash : base;
@@ -2672,12 +2681,10 @@ imgFileInput.addEventListener('change', function() {
 });
 // Compress + resize an image file → returns a data URL (JPEG)
 function compressImage(file) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const reader = new FileReader();
-    reader.onerror = () => reject(new Error('file_read_failed'));
     reader.onload = e => {
       const img = new Image();
-      img.onerror = () => reject(new Error('image_load_failed'));
       img.onload = () => {
         // Calculate new dimensions keeping aspect ratio
         let { width, height } = img;
@@ -2826,7 +2833,7 @@ async function createLink() {
     resultCard.scrollIntoView({behavior:'smooth',block:'nearest'});
   } catch(err) {
     console.error('Secure link creation failed:', err);
-    composeError.textContent = /image|storage/i.test(String(err)) ? (t('imgUploadError') ?? LANGS.en.imgUploadError) : (t('createLinkError') ?? LANGS.en.createLinkError);
+    composeError.textContent = /image|storage/i.test(String(err)) ? 'Could not upload the encrypted image. Check your Supabase Storage bucket and permissions, then try again.' : 'Could not create the secure link. Check your Supabase connection and SQL setup, then try again.';
   } finally { restoreCreateButton(); }
 }
 async function copyLink() {
@@ -2850,6 +2857,7 @@ function resetCompose() {
   renderImagePreviews();
   document.querySelector('input[name="expiry"][value="read-once"]').checked = true;
   expirySelect.value = 'read-once';
+  charCount.textContent = '0';
   const preview = document.getElementById('message-preview');
   if (preview) preview.textContent = 'This message will self-destruct after being viewed.';
   // Reset password section
@@ -2867,9 +2875,6 @@ function resetCompose() {
 //  REVEAL  (server-side burn check + write)
 // ═══════════════════════════════════════════════
 async function revealMessage() {
-  // Disable button immediately to prevent double-click double-burn
-  const revealBtn = document.getElementById('reveal-btn');
-  if (revealBtn) revealBtn.disabled = true;
   // No password — go straight to reveal
   pendingParsed = null;
   await proceedReveal();
@@ -2891,21 +2896,7 @@ function goHome() {
   resetMessagePlaceholderRotation();
 }
 function showAbout() {
-  let modal = document.getElementById('about-modal');
-  if (!modal) {
-    modal = document.createElement('div');
-    modal.id = 'about-modal';
-    modal.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45);padding:1rem';
-    modal.innerHTML = '<div style="background:var(--surface,#fff);border-radius:14px;padding:1.5rem 1.75rem;max-width:380px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.18)">' +
-      '<p id="about-modal-body" style="white-space:pre-line;font-size:.9rem;line-height:1.6;margin:0 0 1rem;color:var(--text,#111)"></p>' +
-      '<button onclick="document.getElementById(\'about-modal\').style.display=\'none\'" ' +
-      'style="display:block;margin-left:auto;padding:.4rem 1rem;border:none;border-radius:8px;background:var(--accent,#7c3aed);color:#fff;cursor:pointer;font-size:.85rem">Close</button>' +
-      '</div>';
-    modal.addEventListener('click', function(e){ if(e.target===modal) modal.style.display='none'; });
-    document.body.appendChild(modal);
-  }
-  document.getElementById('about-modal-body').textContent = t('aboutText');
-  modal.style.display = 'flex';
+  alert(t('aboutText'));
 }
 async function retryInit() {
   showState('checking');
@@ -3100,7 +3091,8 @@ async function submitPassword() {
   }
   if (pendingParsed && pendingParsed.version === VERSION2) {
     try {
-      const derived = await derivePasswordKey(raw, pendingParsed.material);
+      const rawPassword = getGatePwValue();
+      const derived = await derivePasswordKey(rawPassword, pendingParsed.material);
       const row = await sbFetchMessage(pendingParsed.msgId);
       await decryptMessage(row.iv, row.ciphertext, derived);
       pendingKey = derived;
@@ -3126,7 +3118,7 @@ async function submitPassword() {
       } else {
         btn.disabled = false; btn.innerHTML = `<span data-i18n="unlockBtn">${t('unlockBtn')}</span>`;
         showGateError(gateType === 'pin' ? t('incorrectPin') : t('incorrectPw'));
-        document.getElementById('pw-attempts').textContent = (function(){var fn=t('attemptsLeft');return typeof fn==='function'?fn(left):left+' attempts left';})() ;
+        document.getElementById('pw-attempts').textContent = t('attemptsLeft')(left);
         if (gateType === 'pin') { [0,1,2,3].forEach(i => document.getElementById('gpin-'+i).value=''); document.getElementById('gpin-0').focus(); }
         else { document.getElementById('pw-gate-input').value=''; document.getElementById('pw-gate-input').focus(); }
       }
@@ -3157,7 +3149,7 @@ async function submitPassword() {
       showState('burned');
     } else {
       showGateError(gateType === 'pin' ? t('incorrectPin') : t('incorrectPw'));
-      document.getElementById('pw-attempts').textContent = (function(){var fn=t('attemptsLeft');return typeof fn==='function'?fn(left):left+' attempts left';})() ;
+      document.getElementById('pw-attempts').textContent = t('attemptsLeft')(left);
       if (gateType === 'pin') { [0,1,2,3].forEach(i => { document.getElementById('gpin-'+i).value=''; }); document.getElementById('gpin-0').focus(); }
       else { document.getElementById('pw-gate-input').value=''; document.getElementById('pw-gate-input').focus(); }
     }
@@ -3202,7 +3194,7 @@ async function showPasswordGate(parsed, type, hash) {
     }
     if (pwAttempts > 0) {
       const left = MAX_ATTEMPTS - pwAttempts;
-      document.getElementById('pw-attempts').textContent = (function(){var fn=t('attemptsLeft');return typeof fn==='function'?fn(left):left+' attempts left';})() ;
+      document.getElementById('pw-attempts').textContent = t('attemptsLeft')(left);
     }
   } catch(e) {
     pwAttempts = 0; // fallback to in-memory if DB unavailable
@@ -3213,7 +3205,7 @@ async function showPasswordGate(parsed, type, hash) {
   }, 100);
 }
 // ═══════════════════════════════════════════════
-//  REVEAL INIT  — parse fragment, check server
+//  INIT  — check server FIRST, then show state
 // ═══════════════════════════════════════════════
 async function initReveal() {
   const fragRaw = window.location.hash.substring(1);
@@ -3310,13 +3302,9 @@ async function proceedReveal() {
     window.history.replaceState(null, '', window.location.pathname);
     pendingParsed = null;
   } catch(err) {
-    if (err && err.alreadyBurned) {
-      showState('burned');
-    } else {
-      document.getElementById('invalid-reason').textContent =
-        'We were unable to open this message. The link may be incomplete or corrupted. It has been disabled for your security.';
-      showState('invalid');
-    }
+    document.getElementById('invalid-reason').textContent =
+      'We were unable to open this message. The link may be incomplete or corrupted. It has been disabled for your security.';
+    showState('invalid');
   }
 }
 // ═══════════════════════════════════════════════
@@ -3397,8 +3385,6 @@ const LANGS = {
     attemptsLeft:n => n + ' attempt' + (n===1?'':'s') + ' remaining',
     enterAllDigits:'Please enter all 4 digits.',
     enterPassword:'Please enter the password.',
-    imgUploadError:'Could not upload the encrypted image. Check your Supabase Storage bucket and permissions, then try again.',
-    createLinkError:'Could not create the secure link. Check your Supabase connection and SQL setup, then try again.',
   },
   fr: {
     flag:'🇫🇷', label:'FR', dir:'ltr',
@@ -3600,6 +3586,8 @@ const LANGS = {
     attemptsLeft:n => n + (n===1?' محاولة متبقية':' محاولات متبقية'),
     enterAllDigits:'يرجى إدخال الأرقام الأربعة كاملة.',
     enterPassword:'يرجى إدخال كلمة المرور.',
+    attachImage:'إرفاق صورة',
+    imgSizeWarn:'الحجم الإجمالي للصور كبير. احرص على أن يكون أقل من 5 ميغابايت للبقاء ضمن حد التخزين المجاني.',
   },
   de: {
     flag:'🇩🇪', label:'DE', dir:'ltr',
@@ -4262,7 +4250,7 @@ function applyTranslations() {
   const howTitle = document.querySelector('.how-section-title');
   if (howTitle) howTitle.textContent = L.howTitle ?? LANGS.en.howTitle;
   const noLoophole = document.querySelector('.how-section .notice span');
-  if (noLoophole) noLoophole.innerHTML = L.noLoophole ?? LANGS.en.noLoophole;
+  if (noLoophole) noLoophole.innerHTML = L.noLoophole;
 }
 const MESSAGE_PLACEHOLDER_PROMPTS = {
   en: [
@@ -4422,7 +4410,7 @@ function resetMessagePlaceholderRotation() {
   initReveal();
 })();
 // ═══════════════════════════════════════════════
-//  MESSAGE COMPARISON SLIDER
+//  INIT  — check server FIRST, then show state
 // ═══════════════════════════════════════════════
 const messageComparisonRange = document.getElementById('message-comparison-range');
 const messageComparisonFrame = document.getElementById('message-comparison-frame');
@@ -4442,24 +4430,11 @@ if (messageComparisonRange && messageComparisonFrame && messageComparisonOpened 
     messageComparisonRange.value = String(position);
     updateMessageComparison();
   };
-
-  // Use pointer capture on the range input so drag works across all pointer types
-  // (mouse, touch, stylus) without the browser hijacking the gesture to scroll.
-  let isDragging = false;
-  messageComparisonRange.addEventListener('pointerdown', event => {
-    isDragging = true;
-    messageComparisonRange.setPointerCapture(event.pointerId);
-    moveMessageComparisonToPointer(event.clientX);
-  });
-  messageComparisonRange.addEventListener('pointermove', event => {
-    if (isDragging) {
+  messageComparisonFrame.addEventListener('pointermove', event => {
+    if (event.pointerType === 'mouse' || event.pointerType === 'pen') {
       moveMessageComparisonToPointer(event.clientX);
     }
   });
-  messageComparisonRange.addEventListener('pointerup', () => { isDragging = false; });
-  messageComparisonRange.addEventListener('pointercancel', () => { isDragging = false; });
-
-  // Keep the native `input` event as a fallback (keyboard arrows, assistive tech)
   messageComparisonRange.addEventListener('input', updateMessageComparison);
   updateMessageComparison();
 }
